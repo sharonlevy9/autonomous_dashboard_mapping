@@ -1,0 +1,344 @@
+<title>רגלי הכלי בתלת-ממד</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700&family=Heebo:wght@400;500;700&display=swap">
+<style>
+/* Layout: drafting-table app. 3D view fills the main area, a narrow control column on the right (RTL), stacked on phones. */
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --fg:#1d2733; --muted:#5b6876; --line:#d5dbe2;
+  --accent:#c9862b; --accent-soft:#f3dfc2; --ink:#2f4a6b; --chip:#e6ebf1;
+  --scene:#e4e9ef;
+  --f-display:"Rubik","Heebo",system-ui,sans-serif; --f-body:"Heebo",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141a21; --panel:#1c242d; --fg:#e6ebf0; --muted:#9aa7b4; --line:#2e3a46;
+  --accent:#e0a050; --accent-soft:#3b2f1f; --ink:#9cb8da; --chip:#26303b; --scene:#18202a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a21; --panel:#1c242d; --fg:#e6ebf0; --muted:#9aa7b4; --line:#2e3a46;
+  --accent:#e0a050; --accent-soft:#3b2f1f; --ink:#9cb8da; --chip:#26303b; --scene:#18202a; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;direction:rtl}
+.app{display:grid;grid-template-columns:320px 1fr;height:100%;min-height:0}
+aside{background:var(--panel);border-inline-end:1px solid var(--line);overflow:auto;padding-block:18px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:18px;min-width:0}
+h1{font-family:var(--f-display);font-size:20px;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0;line-height:1.5}
+.group{display:flex;flex-direction:column;gap:8px}
+.lab{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted)}
+.seg{display:flex;gap:4px;background:var(--chip);padding:3px;border-radius:9px}
+.seg button{flex:1;border:0;background:transparent;color:var(--fg);font:500 13px var(--f-body);padding:7px 4px;border-radius:7px;cursor:pointer}
+.seg button.on{background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.15);font-weight:700}
+.seg button:focus-visible,.chk input:focus-visible,input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.val{font-variant-numeric:tabular-nums;font-weight:700}
+.chk{display:flex;align-items:center;gap:8px;cursor:pointer}
+.dims{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.dims div{background:var(--panel);padding:9px 10px}
+.dims b{display:block;font-family:var(--f-display);font-size:20px;font-variant-numeric:tabular-nums}
+.dims span{font-size:12px;color:var(--muted)}
+.legend{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.55;border-top:1px solid var(--line);padding-top:12px}
+.note p{margin:0 0 6px}
+main{position:relative;min-width:0;min-height:0;background:var(--scene)}
+#view{position:absolute;inset:0}
+.views{position:absolute;top:12px;left:max(12px,env(safe-area-inset-left,0px));display:flex;gap:4px;z-index:3}
+.views button{border:1px solid var(--line);background:var(--panel);color:var(--fg);font:500 12px var(--f-body);padding:6px 10px;border-radius:8px;cursor:pointer}
+.tag{left:0;top:0;font:500 11.5px var(--f-body);color:var(--fg);background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--line);padding:2px 7px;border-radius:6px;white-space:nowrap;pointer-events:none;direction:rtl}
+.tag.m{border-color:var(--accent)}
+.hint{position:absolute;bottom:10px;right:max(12px,env(safe-area-inset-right,0px));font-size:12px;color:var(--muted);z-index:3}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr;grid-template-rows:58vh auto;height:auto}
+  main{grid-row:1;min-height:58vh}
+  aside{grid-row:2;border:0;overflow:visible}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+<aside>
+  <div>
+    <h1>רגלי הכלי בתלת-ממד</h1>
+    <p class="sub">קנה מידה אמיתי, במילימטרים. המידות מטאב 10 בכרטיסי הרכיבים. אפשר לסובב עם העכבר או האצבע.</p>
+  </div>
+
+  <div class="group">
+    <span class="lab">חוליות בגוף</span>
+    <div class="seg" id="segs">
+      <button data-n="1">בלי</button><button data-n="2" class="on">2</button><button data-n="3">3</button>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="row"><span class="lab">עמידה ↔ קיפול</span><span class="val" id="stanceV"></span></div>
+    <input type="range" id="stance" min="0" max="100" value="100" aria-label="עמידה או קיפול">
+    <div class="row" style="font-size:12px;color:var(--muted)"><span>עומד</span><span>מקופל</span></div>
+  </div>
+
+  <div class="group">
+    <div class="row"><span class="lab">מפרק הצד (הדגמה)</span><span class="val" id="abdV"></span></div>
+    <input type="range" id="abd" min="-48" max="48" value="0" aria-label="זווית מפרק הצד">
+  </div>
+
+  <div class="group">
+    <label class="chk"><input type="checkbox" id="walk"> הליכה איטית, רגל אחת באוויר (הדגמה)</label>
+    <label class="chk"><input type="checkbox" id="body" checked> להראות את הגוף</label>
+    <label class="chk"><input type="checkbox" id="gimbal" checked> להראות את הגימבל למעלה</label>
+    <label class="chk"><input type="checkbox" id="tags" checked> שמות החלקים</label>
+  </div>
+
+  <div class="group">
+    <span class="lab">מידות כרגע</span>
+    <div class="dims">
+      <div><b id="dL"></b><span>אורך, ס"מ</span></div>
+      <div><b id="dW"></b><span>רוחב, ס"מ</span></div>
+      <div><b id="dH"></b><span>גובה, ס"מ</span></div>
+      <div><b id="dC"></b><span>מרווח מתחת לבטן, ס"מ</span></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:#c9862b"></i>מנוע עתידי, Ø69 × 25 מ"מ (בגודל AKE60-8)</span>
+    <span><i style="background:#b9c2cc"></i>ירך ושוק, 75 מ"מ, פרופיל 20 × 20</span>
+    <span><i style="background:#2b2f33"></i>כף רגל (צורה לא נקבעה)</span>
+    <span><i style="background:#7fa3cf"></i>גוף (קופסה זמנית, לא צורה)</span>
+    <span><i style="background:#e9b872"></i>גימבל, מעטפת 92 × 82 × 91</span>
+  </div>
+
+  <div class="note">
+    <p><b>מה מחושב ומה הנחה.</b> אורכי הירך והשוק, גודל המנועים, טווחי התנועה (לפי Go2) והגבהים 12.8 ו-3.45 ס"מ הם מטאב 10. גובה הגוף 7.3 ס"מ, הרוחב והאורכים הם החישוב שלי מ-13.11.</p>
+    <p><b>הסקה שלי, לא החלטה:</b> הברכיים פונות פנימה, כדי שבקיפול הרגליים לא יבלטו מעבר לקצוות ולא יאריכו את הכלי. מנועי הצד יושבים בתוך הגוף, כדי שהרוחב יישאר 18 ס"מ.</p>
+    <p><b>לא נקבע:</b> הצורה של הגוף, של כף הרגל ושל הכיסויים, ואיפה לאורך הגוף יושב הגימבל. הם מופיעים כאן כמעטפות פשוטות.</p>
+  </div>
+</aside>
+
+<main>
+  <div class="views">
+    <button data-v="iso">איזומטרי</button><button data-v="side">מהצד</button><button data-v="front">מלפנים</button><button data-v="top">מלמעלה</button>
+  </div>
+  <div id="view"></div>
+  <div class="hint">רשת: משבצת = 1 ס"מ, קו כהה = 10 ס"מ</div>
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
+<script>
+// ---------- numbers (mm), from card tab 10 ----------
+const MD=69, MR=34.5, MT=25;           // future motor envelope (AKE60-8 size)
+const L1=75, L2=75, PR=20;             // thigh, shank, 20x20 profile
+const BH=73, BW=130;                   // body height (motor + walls), body width without motors
+const GAP=30;                          // each joint between segments adds ~3 cm
+const CLR_STAND=128, CLR_FOLD=34.5;    // belly clearance
+const HIP_IN=45;                       // hip axis distance from body end (my assumption, motor fits inside the end)
+const LENGTHS={1:310,2:340,3:370};
+const ZH=BW/2+MT/2;                    // hip motor plane: just outside the wall -> total width 180
+const ABD_Y=BH/2;                      // side-joint axis: body mid-height, inside the body
+
+const S={n:2,stance:1,abd:0,walk:false,body:true,gimbal:true,tags:true,t:0};
+
+// ---------- scene ----------
+const host=document.getElementById('view');
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+host.appendChild(renderer.domElement);
+const lab=new THREE.CSS2DRenderer(); lab.domElement.style.position='absolute'; lab.domElement.style.inset='0'; lab.domElement.style.pointerEvents='none'; lab.domElement.style.direction='ltr';
+host.appendChild(lab.domElement);
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(32,1,5,8000);
+const ctl=new THREE.OrbitControls(cam,renderer.domElement); ctl.enableDamping=true; ctl.target.set(0,110,0);
+scene.add(new THREE.HemisphereLight(0xffffff,0x8a8f96,.75));
+const sun=new THREE.DirectionalLight(0xffffff,.9); sun.position.set(-300,700,450); sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048); Object.assign(sun.shadow.camera,{left:-400,right:400,top:400,bottom:-400,near:10,far:2000}); scene.add(sun);
+const fill=new THREE.DirectionalLight(0xffffff,.35); fill.position.set(400,200,-300); scene.add(fill);
+
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function themeScene(){
+  scene.background=new THREE.Color(css('--scene'));
+  const dark=matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.dataset.theme!=='light'||document.documentElement.dataset.theme==='dark';
+  grid1.material.color.set(dark?0x2a3540:0xd2d9e0); grid2.material.color.set(dark?0x3d4b59:0xa9b4c0);
+  ground.material.color.set(dark?0x1c2530:0xdde3e9);
+}
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(1400,1400),new THREE.MeshStandardMaterial({color:0xdde3e9,roughness:1}));
+ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+const grid1=new THREE.GridHelper(1000,100,0xd2d9e0,0xd2d9e0); grid1.position.y=.3; scene.add(grid1);
+const grid2=new THREE.GridHelper(1000,10,0xa9b4c0,0xa9b4c0); grid2.position.y=.5; scene.add(grid2);
+themeScene(); matchMedia('(prefers-color-scheme: dark)').addEventListener('change',themeScene);
+
+// ---------- materials ----------
+const M={
+  housing:new THREE.MeshStandardMaterial({color:0xc9862b,metalness:.35,roughness:.45}),
+  face:new THREE.MeshStandardMaterial({color:0x8c5a1c,metalness:.5,roughness:.35}),
+  bolt:new THREE.MeshStandardMaterial({color:0x3a3d40,metalness:.8,roughness:.3}),
+  alu:new THREE.MeshStandardMaterial({color:0xb9c2cc,metalness:.75,roughness:.32}),
+  bracket:new THREE.MeshStandardMaterial({color:0x6d7782,metalness:.6,roughness:.4}),
+  rubber:new THREE.MeshStandardMaterial({color:0x2b2f33,roughness:.9}),
+  body:new THREE.MeshPhysicalMaterial({color:0x7fa3cf,transparent:true,opacity:.22,roughness:.2,depthWrite:false,side:THREE.DoubleSide}),
+  gimb:new THREE.MeshStandardMaterial({color:0xe9b872,transparent:true,opacity:.35,depthWrite:false}),
+};
+const EDGE=new THREE.LineBasicMaterial({color:0x2f4a6b,transparent:true,opacity:.55});
+const EDGE_G=new THREE.LineBasicMaterial({color:0xa86a1c});
+
+// motor: cylinder along local Y, with an output face, bolt circle and cable nub
+function motor(){
+  const g=new THREE.Group();
+  const h=new THREE.Mesh(new THREE.CylinderGeometry(MR,MR,MT-4,48),M.housing); g.add(h);
+  const f=new THREE.Mesh(new THREE.CylinderGeometry(MR*.78,MR*.78,2,48),M.face); f.position.y=MT/2-1; g.add(f);
+  const r=new THREE.Mesh(new THREE.CylinderGeometry(MR-1,MR,2,48),M.face); r.position.y=-MT/2+1; g.add(r);
+  for(let i=0;i<8;i++){const b=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.6,1,10),M.bolt);const a=i/8*Math.PI*2;b.position.set(Math.cos(a)*MR*.6,MT/2-.5,Math.sin(a)*MR*.6);g.add(b)}
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(7,7,1,24),M.bolt); hub.position.y=MT/2-.5; g.add(hub);
+  g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+  return g;
+}
+function bar(len,w,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(len,w,w),mat);m.castShadow=true;return m}
+function placeBar(m,a,b){ // box along X between 2 points (vectors)
+  const d=new THREE.Vector3().subVectors(b,a); m.scale.x=d.length()/m.geometry.parameters.width;
+  m.position.copy(a).addScaledVector(d,.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0),d.clone().normalize());
+}
+function tag(text,cls){const d=document.createElement('div');d.className='tag'+(cls?' '+cls:'');d.textContent=text;const o=new THREE.CSS2DObject(d);return o}
+
+// ---------- tool ----------
+const tool=new THREE.Group(); scene.add(tool);
+let legs=[], segMeshes=[], jointMotors=[], gimbalG, tagObjs=[];
+
+function segLayout(n){
+  const total=LENGTHS[n], sl=(total-GAP*(n-1))/n, segs=[];
+  for(let i=0;i<n;i++){const x0=total/2-i*(sl+GAP); segs.push({x0,x1:x0-sl,len:sl});}
+  return segs;
+}
+
+function build(){
+  tool.clear(); legs=[]; segMeshes=[]; jointMotors=[]; tagObjs=[];
+  const segs=segLayout(S.n);
+  segs.forEach(s=>{
+    const geo=new THREE.BoxGeometry(s.len,BH,BW);
+    const m=new THREE.Mesh(geo,M.body); m.userData.cx=(s.x0+s.x1)/2;
+    const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo),EDGE); m.add(e);
+    tool.add(m); segMeshes.push(m);
+  });
+  for(let i=0;i<S.n-1;i++){
+    const jm=motor(); jm.rotation.x=Math.PI/2; jm.userData.x=segs[i].x1-GAP/2; tool.add(jm); jointMotors.push(jm);
+    if(i===0){const t=tag('מנוע החיבור בין החוליות','m');t.position.set(0,0,0);jm.add(t);tagObjs.push(t)}
+  }
+  // legs: pair at front end of first segment, pair at rear end of last segment
+  const front=segs[0].x0-HIP_IN, rear=segs[segs.length-1].x1+HIP_IN;
+  [[front,-1,'LF'],[front,1,'RF'],[rear,-1,'LH'],[rear,1,'RH']].forEach(([x,side,id])=>{
+    const kdir= x>0?-1:1; // knee points toward the middle of the tool
+    const L={id,x,side,kdir,g:new THREE.Group()};
+    L.abdM=motor(); L.abdM.rotation.z=Math.PI/2; L.abdM.position.set(x+side*14,0,0); // side motor inside body, axis along length
+    L.pivot=new THREE.Group(); // rotates about the side axis
+    L.bracket=bar(1,6,M.bracket);
+    L.hipM=motor(); L.hipM.rotation.x=side*Math.PI/2;
+    L.kneeM=motor(); L.kneeM.rotation.x=side*Math.PI/2;
+    L.thigh=bar(L1,PR,M.alu); L.shank=bar(L2,PR,M.alu);
+    L.foot=new THREE.Mesh(new THREE.SphereGeometry(12,24,12,0,Math.PI*2,0,Math.PI/2),M.rubber); L.foot.castShadow=true;
+    L.pivot.add(L.bracket,L.hipM,L.kneeM,L.thigh,L.shank,L.foot);
+    tool.add(L.abdM,L.pivot);
+    if(id==='LF'){
+      const a=tag('מנוע צד','m'),h=tag('מנוע ירך','m'),k=tag('מנוע ברך','m'),t=tag('ירך 7.5'),s=tag('שוק 7.5'),f=tag('כף רגל, לא נקבעה');
+      a.position.set(0,-MT/2-4,-30); L.abdM.add(a); h.position.set(0,MT/2,0); L.hipM.add(h); k.position.set(0,MT/2,0); L.kneeM.add(k);
+      L.thigh.add(t); L.shank.add(s); f.position.set(0,-14,0); L.foot.add(f); tagObjs.push(a,h,k,t,s,f);
+    }
+    legs.push(L);
+  });
+  gimbalG=new THREE.Group();
+  const gg=new THREE.BoxGeometry(92,91,82); const gm=new THREE.Mesh(gg,M.gimb); gm.position.y=91/2;
+  gm.add(new THREE.LineSegments(new THREE.EdgesGeometry(gg),EDGE_G)); gimbalG.add(gm);
+  const gt=tag('גימבל, מיקום לאורך הגוף לא נקבע'); gt.position.set(0,100,0); gimbalG.add(gt); tagObjs.push(gt);
+  tool.add(gimbalG);
+  pose();
+}
+
+// 2-link IK in the leg plane: hip at (0,hy), foot at (fx,fy); returns knee (x,y)
+function ik(hx,hy,fx,fy,kdir){
+  const dx=fx-hx,dy=fy-hy; let d=Math.hypot(dx,dy); d=Math.min(d,L1+L2-.01);
+  const a=d/2, h=Math.sqrt(Math.max(L1*L1-a*a,0)), mx=hx+dx/2, my=hy+dy/2, ux=dx/d, uy=dy/d;
+  const k1=[mx-uy*h,my+ux*h], k2=[mx+uy*h,my-ux*h];
+  return (k1[0]*kdir>k2[0]*kdir)?k1:k2;
+}
+
+const GAIT=['RH','RF','LH','LF']; // crawl: one leg in the air at a time
+function pose(){
+  const clr=CLR_FOLD+(CLR_STAND-CLR_FOLD)*S.stance;   // belly clearance = hip axis height
+  const by=clr;                                        // body bottom
+  segMeshes.forEach(m=>m.position.set(m.userData.cx,by+BH/2,0));
+  jointMotors.forEach(j=>j.position.set(j.userData.x,by+BH/2,0));
+  gimbalG.position.set(0,by+BH,0);
+  const fOff=8.4+(53-8.4)*S.stance; // foot ahead of hip, toward the knee (fold 8.4 -> stand 53 mm)
+  legs.forEach(L=>{
+    let fx=L.kdir*fOff, fy=0;
+    if(S.walk){ // simple crawl demo: each leg swings 1/4 of the cycle
+      const ph=((S.t-GAIT.indexOf(L.id)/4)%1+1)%1, step=40;
+      if(ph<.25){const u=ph/.25; fx+=-step/2+step*u; fy=Math.sin(u*Math.PI)*25;}
+      else{const u=(ph-.25)/.75; fx+=step/2-step*u;}
+    }
+    const k=ik(0,by,fx,fy,L.kdir);
+    const hip=new THREE.Vector3(L.x,by,L.side*ZH), knee=new THREE.Vector3(L.x+k[0],k[1],L.side*ZH), foot=new THREE.Vector3(L.x+fx,fy,L.side*ZH);
+    L.abdM.position.y=by+ABD_Y;
+    // side joint rotates the whole leg about the axis along the length, at body center
+    L.pivot.position.set(0,by+ABD_Y,0);
+    const off=new THREE.Vector3(0,by+ABD_Y,0);
+    L.pivot.rotation.x=-L.side*S.abd*Math.PI/180;
+    const loc=v=>v.clone().sub(off);
+    L.hipM.position.copy(loc(hip)); L.kneeM.position.copy(loc(knee));
+    placeBar(L.thigh,loc(hip),loc(knee)); placeBar(L.shank,loc(knee),loc(foot));
+    L.foot.position.copy(loc(foot));
+    placeBar(L.bracket,new THREE.Vector3(L.x+L.side*14,0,0),loc(hip).setZ(L.side*(BW/2-3)));
+  });
+  gimbalG.visible=S.gimbal; segMeshes.forEach(m=>m.visible=S.body);
+  tagObjs.forEach(t=>t.visible=S.tags&&(t.parent.visible!==false));
+  if(!S.gimbal) tagObjs.forEach(t=>{if(t.parent.parent===gimbalG||t.parent===gimbalG)t.visible=false});
+  dims(by);
+}
+function dims(by){
+  tool.updateMatrixWorld(true);
+  const box=new THREE.Box3();
+  tool.traverse(o=>{if(o.isMesh&&o.visible&&(o.parent.visible))box.expandByObject(o)});
+  segMeshes.forEach(m=>{if(!S.body){const b=new THREE.Box3().setFromObject(m);box.union(b)}});
+  const s=box.getSize(new THREE.Vector3());
+  const f=v=>(v/10).toFixed(1);
+  document.getElementById('dL').textContent=f(s.x); document.getElementById('dW').textContent=f(s.z);
+  document.getElementById('dH').textContent=f(box.max.y); document.getElementById('dC').textContent=f(by);
+  document.getElementById('stanceV').textContent=S.stance>.99?'עומד':S.stance<.01?'מקופל':Math.round(S.stance*100)+'%';
+  document.getElementById('abdV').textContent=S.abd+'°';
+}
+
+// ---------- views ----------
+const VIEWS={iso:[-520,330,560],side:[0,120,820],front:[820,120,0],top:[0,900,1]};
+function view(v){const p=VIEWS[v];cam.position.set(...p);ctl.target.set(0,90,0);ctl.update()}
+document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>view(b.dataset.v));
+
+// ---------- controls ----------
+document.querySelectorAll('#segs button').forEach(b=>b.onclick=()=>{S.n=+b.dataset.n;document.querySelectorAll('#segs button').forEach(x=>x.classList.toggle('on',x===b));build()});
+const st=document.getElementById('stance'); st.oninput=()=>{S.stance=st.value/100;pose()};
+const ab=document.getElementById('abd'); ab.oninput=()=>{S.abd=+ab.value;pose()};
+['walk','body','gimbal','tags'].forEach(id=>{const el=document.getElementById(id);el.onchange=()=>{S[id]=el.checked;pose()}});
+
+function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h);lab.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(host);
+build(); view('iso'); resize();
+let last=performance.now();
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function loop(now){
+  const dt=(now-last)/1000; last=now;
+  if(S.walk&&!reduce){S.t=(S.t+dt/4)%1;pose()}
+  ctl.update(); renderer.render(scene,cam); lab.render(scene,cam); requestAnimationFrame(loop);
+})(last);
+
+// used offline to export STL files of the current pose (mm)
+window.exportSTL=function(){const vis=[];tool.traverse(o=>{if(o.isMesh&&!o.visible)vis.push(o)});
+  const g=new THREE.Group();tool.updateMatrixWorld(true);
+  tool.traverse(o=>{if(o.isMesh&&o.visible&&o.material!==M.body&&o.material!==M.gimb){const c=new THREE.Mesh(o.geometry,o.material);o.matrixWorld.decompose(c.position,c.quaternion,c.scale);g.add(c)}});
+  // body and gimbal as solid boxes too
+  tool.traverse(o=>{if(o.isMesh&&o.visible&&(o.material===M.body||o.material===M.gimb)){const c=new THREE.Mesh(o.geometry,o.material);o.matrixWorld.decompose(c.position,c.quaternion,c.scale);g.add(c)}});
+  // convert Y-up to Z-up for CAD
+  g.rotation.x=Math.PI/2; g.updateMatrixWorld(true);
+  return new THREE.STLExporter().parse(g,{binary:false});};
+window.setState=function(o){Object.assign(S,o);document.getElementById('stance').value=S.stance*100;build()};
+</script>

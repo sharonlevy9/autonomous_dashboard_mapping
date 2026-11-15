@@ -1,0 +1,1274 @@
+{
+ "_readme": "קובץ הנתונים היחיד. מידות במ\"מ, משקל בגרם, הספק בוואט. null = לא ידוע (יוצג כ'לא ידוע' ולא יומצא). estimate=true = הערכה שלנו ולא מספר יצרן. מקורות: כרטיסי הרכיבים ובדיקת 13.11. שלב 1 (14.11): מידות כפי שמותקן, טווחי ראייה (fov), כיוונים (orient), פתחים (openings), תלויות (dependencies), כבלים (cables), מנועים עדכניים (motors). שדות חדשים עוד לא מוצגים; יוצגו בשלבים 2-5.",
+ "battery_wh": 600,
+ "segment_defaults": {
+  "total": 660,
+  "wid": 120,
+  "hei": 150,
+  "n": 3,
+  "gap": 30,
+  "_note": "מידות ניסיון, לא מחייבות. המידות הקודמות (450×540×720) התבססו על Unitree ובוטלו."
+ },
+ "catalog": [
+  {
+   "id": "computer",
+   "name": "מחשב",
+   "model": "Qualcomm IQ-9075 מורכב: Radxa AIRbox Q900",
+   "group": "computing",
+   "shape": "box",
+   "dims": [
+    104,
+    45,
+    84
+   ],
+   "qty": 1,
+   "weight": 450,
+   "power": null,
+   "note": "מורכב, כולל לוח נשיאה, קירור וחיבורים. 450 ג': חישוב של רותם. הספק: היצרן לא מפרסם; בתקציב החשמל עד 30 W.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 01",
+   "why": null,
+   "heat": "source",
+   "estimate": [
+    "weight"
+   ],
+   "power_budget": 30
+  },
+  {
+   "id": "safety",
+   "name": "בקר בטיחות",
+   "model": "TI AM2612 על לוח משלו (הערכה)",
+   "group": "computing",
+   "shape": "box",
+   "dims": [
+    50,
+    12,
+    40
+   ],
+   "qty": 1,
+   "weight": 20,
+   "power": null,
+   "estimate": [
+    "dims",
+    "weight"
+   ],
+   "note": "לוח 50×40×12 ו-20 ג': הערכות. החשמל עד כ-2.9 W יחד עם הגיבוי (טבלת סיכום).",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 01",
+   "why": null
+  },
+  {
+   "id": "radar",
+   "name": "מכ\"ם",
+   "model": "TI IWRL6844 על לוח עם אנטנות ומחבר (הערכה)",
+   "group": "sensing",
+   "shape": "box",
+   "dims": [
+    35,
+    7,
+    25
+   ],
+   "qty": 4,
+   "weight": 5,
+   "power": 1.15,
+   "estimate": [
+    "dims",
+    "weight",
+    "power"
+   ],
+   "note": "עד כ-4.6 W לארבעה (כרטיס מכ\"ם, הערכה).",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 02",
+   "why": "אחד קדימה, אחד אחורה ושניים בצדדים למעלה (כרטיס מכ\"ם)",
+   "wall": 1,
+   "fov": {
+    "h_deg": 140,
+    "v_deg": 130,
+    "text": "70° לכל צד ו-65° למעלה ולמטה.",
+    "source": "כרטיס 02 (TI)"
+   },
+   "orient": {
+    "units": [
+     {
+      "face": "+x"
+     },
+     {
+      "face": "-x"
+     },
+     {
+      "face": "+z",
+      "tilt_up_deg": 45
+     },
+     {
+      "face": "-z",
+      "tilt_up_deg": 45
+     }
+    ],
+    "text": "קדימה, אחורה, ושניים לצדדים באלכסון 45° למעלה.",
+    "source": "כרטיס 02"
+   }
+  },
+  {
+   "id": "lidar",
+   "name": "לידאר",
+   "model": "Hesai JT128",
+   "group": "sensing",
+   "shape": "cyl",
+   "dims": [
+    62.55,
+    73.05,
+    62.55
+   ],
+   "qty": 1,
+   "weight": 265,
+   "power": 8.4,
+   "note": "שדה ראייה אנכי: 95° לפי המדריך, לא 189°. לא מאושר. אסור שדבר ייכנס לשדה הראייה.",
+   "source": "Hesai J01-en-260710",
+   "why": "בקצה ולמעלה, כדי שהשדה שלו יהיה פנוי (כרטיס לידאר)",
+   "wall": 1,
+   "fov": {
+    "type": "dome",
+    "around_deg": 360,
+    "from_perp_deg": [
+     -4.4,
+     90.5
+    ],
+    "axis": "+x",
+    "text": "360° סביב הציר, ועד 4.4° מאחורי המישור הניצב לציר. כשהוא פונה קדימה, רואה את כל מה שלפניו ולא רואה אחורה.",
+    "source": "כרטיס 03; מדריך Hesai J01-en-260710 סעיף 1.5",
+    "range_m": null
+   },
+   "orient": {
+    "units": [
+     {
+      "face": "+x"
+     }
+    ],
+    "text": "בקצה אחד, פונה החוצה מהקצה.",
+    "source": "כרטיס 03"
+   }
+  },
+  {
+   "id": "navcam",
+   "name": "מצלמת ניווט",
+   "model": "Orbbec Gemini 345Lg",
+   "group": "sensing",
+   "shape": "box",
+   "dims": [
+    124,
+    29,
+    43.95
+   ],
+   "qty": 2,
+   "weight": 223,
+   "power": 3.6,
+   "note": "המחבר בולט מאחור.",
+   "source": "Orbbec",
+   "why": "אחת בכל קצה, מחוץ לשדה של הלידאר (כרטיס מצלמות ניווט)",
+   "wall": 1,
+   "fov": {
+    "h_deg": 137,
+    "v_deg": null,
+    "range_m": [
+     0.25,
+     10
+    ],
+    "text": "137° לרוחב (צבע). לגובה: לא כתוב בכרטיס.",
+    "source": "כרטיס 04"
+   },
+   "orient": {
+    "units": [
+     {
+      "face": "+x"
+     },
+     {
+      "face": "-x"
+     }
+    ],
+    "long_axis": "z",
+    "text": "אחת בכל קצה, פונה החוצה. הצד הארוך (124) לרוחב הכלי, כי שתי העדשות צריכות להיות זו לצד זו.",
+    "source": "כרטיס 04; כרטיס 10 (חישוב הרוחב)"
+   }
+  },
+  {
+   "id": "cliff",
+   "name": "חיישן תהום",
+   "model": "ST VL53L9CX על לוח קטן (הערכה)",
+   "group": "sensing",
+   "shape": "box",
+   "dims": [
+    20,
+    8,
+    14
+   ],
+   "qty": 4,
+   "weight": 2,
+   "power": 0.15,
+   "estimate": [
+    "dims",
+    "weight",
+    "power"
+   ],
+   "note": "החיישן לבדו 12.8×6.1×4.6. עם לוח ומחבר: הערכה 20×14×8. הספק מדף מוצר (150 mW).",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 05",
+   "why": "שניים בכל קצה, בפינות התחתונות (כרטיס חיישני תהום)",
+   "wall": "bottom",
+   "fov": {
+    "h_deg": 55,
+    "v_deg": 42,
+    "range_m": [
+     0.05,
+     8.8
+    ],
+    "text": "55° × 42°, מ-5 ס\"מ עד 8.8 מ'.",
+    "source": "כרטיס 05"
+   },
+   "orient": {
+    "units": [
+     {
+      "face": "+x",
+      "down": true
+     },
+     {
+      "face": "+x",
+      "down": true
+     },
+     {
+      "face": "-x",
+      "down": true
+     },
+     {
+      "face": "-x",
+      "down": true
+     }
+    ],
+    "text": "שניים בכל קצה, בפינות התחתונות, מכוונים למטה ולפנים. זווית ההטיה: לא כתובה.",
+    "source": "כרטיס 05"
+   }
+  },
+  {
+   "id": "imu",
+   "name": "IMU",
+   "model": "SBG Pulse-40 OEM",
+   "group": "sensing",
+   "shape": "box",
+   "dims": [
+    30,
+    13.3,
+    28
+   ],
+   "qty": 1,
+   "weight": 19,
+   "power": 0.3,
+   "note": "מחובר חזק לשלדה. בלי מתכת חשופה מתחתיו.",
+   "source": "SBG",
+   "why": "על אותו חלק קשיח של הלידאר (כרטיס IMU)"
+  },
+  {
+   "id": "doccam",
+   "name": "מצלמת תיעוד",
+   "model": "FRAMOS FSM:GO IMX06A (גוף+עדשה)",
+   "group": "imaging",
+   "shape": "box",
+   "dims": [
+    32,
+    32,
+    39.4
+   ],
+   "qty": 2,
+   "weight": 74,
+   "power": 1.455,
+   "note": "גוף 32×32×10 ועדשה L81A קוטר 28 × 29.4 = 39.4 באורך. משקל: גבול עליון מחישוב (עד 74 ג'). אחת צבע ואחת אינפרה אדום.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 07",
+   "why": "על הגימבל, צמודות זו לזו (כרטיס מצלמות תיעוד)",
+   "mount": "gimbal",
+   "estimate": [
+    "weight"
+   ],
+   "parts": [
+    {
+     "name": "גוף",
+     "shape": "box",
+     "dims": [
+      32,
+      10,
+      32
+     ]
+    },
+    {
+     "name": "עדשה L81A",
+     "shape": "cyl",
+     "dims": [
+      28,
+      29.4,
+      28
+     ]
+    }
+   ],
+   "fov": {
+    "diag_deg": 81,
+    "text": "עדשה L81A: 81° (כרטיס לא מציין אם זה אלכסון או רוחב).",
+    "source": "כרטיס 07"
+   }
+  },
+  {
+   "id": "thermal",
+   "name": "מצלמה תרמית",
+   "model": "FLIR Boson+ 640 עם לוח ממשק",
+   "group": "sensing",
+   "shape": "box",
+   "dims": [
+    21,
+    21,
+    34
+   ],
+   "qty": 2,
+   "weight": 23,
+   "power": 1.55,
+   "note": "ליבה ועדשה 21×21×28 ועוד לוח ממשק (עובי 6: הערכה). 46 ג' לשתיים. מאחורי חלון שמעביר אינפרה אדום רחוק.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 08",
+   "why": "אחת בכל קצה, מאחורי חלון (כרטיס מצלמה תרמית)",
+   "wall": 1,
+   "estimate": [
+    "dims"
+   ],
+   "fov": {
+    "h_deg": 95,
+    "v_deg": 77,
+    "text": "95° לרוחב, 77° לגובה.",
+    "source": "כרטיס 08"
+   },
+   "orient": {
+    "units": [
+     {
+      "face": "+x"
+     },
+     {
+      "face": "-x"
+     }
+    ],
+    "text": "אחת בכל קצה, פונה החוצה.",
+    "source": "כרטיס 08"
+   }
+  },
+  {
+   "id": "gimbal",
+   "name": "גימבל",
+   "model": "AllXF C-200T",
+   "group": "imaging",
+   "shape": "box",
+   "dims": [
+    90.9,
+    91.55,
+    81.5
+   ],
+   "qty": 1,
+   "weight": 125,
+   "power": 1.7,
+   "note": "מעטפת מקסימלית לפי היצרן, עם בולם. מוסיף כ-9.2 ס\"מ לגובה הכלי.",
+   "source": "AllXF אפריל 2026",
+   "why": "יושב למעלה על הגוף (שרון, 14.11). אסור שיסתיר ללידאר את השדה קדימה (כרטיס גימבל)",
+   "external": true,
+   "fov": {
+    "motion": {
+     "tilt_deg": [
+      -135,
+      40
+     ],
+     "roll_deg": [
+      -50,
+      50
+     ],
+     "pan_deg": [
+      -155,
+      155
+     ]
+    },
+    "text": "הטיה 135° למטה עד 40° למעלה, גלגול ±50°, סיבוב ±155°.",
+    "source": "כרטיס 09"
+   },
+   "orient": {
+    "units": [
+     {
+      "face": "+y"
+     }
+    ],
+    "text": "על הגוף למעלה; ההטיה פונה בעיקר לרצפה.",
+    "source": "כרטיס 09; שרון 14.11"
+   }
+  },
+  {
+   "id": "motor",
+   "name": "מנוע מפרק (עתידי)",
+   "model": "CubeMars AKE60-8 (מידות)",
+   "group": "motion",
+   "shape": "cyl",
+   "dims": [
+    69,
+    25,
+    69
+   ],
+   "qty": 14,
+   "weight": 260,
+   "power": null,
+   "note": "ישן, לא בשימוש מאז שלב 3 (14.11). הנתונים העדכניים ב-motors.",
+   "source": "CubeMars",
+   "why": "בדופן הצד, כדי שהכלי לא יתרחב (כרטיס מנועים)",
+   "heat": "source"
+  },
+  {
+   "id": "battery",
+   "name": "סוללה",
+   "model": "סוליד סטייט, בסיס ProLogium Gen 3.5",
+   "group": "power",
+   "shape": "box",
+   "dims": [
+    95.2,
+    101.2,
+    95.2
+   ],
+   "qty": 1,
+   "weight": 1850,
+   "power": null,
+   "cap_wh": 600,
+   "splittable": true,
+   "estimate": [
+    "dims",
+    "weight"
+   ],
+   "note": "עם מארז ולוח בקרה: 95.2×95.2×101.2 (קובייה). בשכבה שטוחה כ-108×108×84. תאים בלבד: קובייה 87. 600 Wh (שרון, 13.11). משקל 1.8-1.9 ק\"ג: חישוב. אפשר לפצל.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 11",
+   "why": "נמוך ובמרכז, כדי שהכלי לא ייפול בשיפוע (כרטיס סוללה)",
+   "heat": "both",
+   "alt_dims": {
+    "flat": [
+     108,
+     84,
+     108
+    ],
+    "cells_only": [
+     87,
+     87,
+     87
+    ]
+   }
+  },
+  {
+   "id": "drivelight",
+   "name": "תאורת נסיעה",
+   "model": "Luminus SFT-70X",
+   "group": "light",
+   "shape": "cyl",
+   "dims": [
+    28,
+    20,
+    28
+   ],
+   "qty": 2,
+   "weight": 10,
+   "power": 8.6,
+   "estimate": [
+    "dims",
+    "weight"
+   ],
+   "note": "גובה עם עדשה: הערכה.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 12",
+   "why": "בשני הקצוות, לכיוון המצלמות (כרטיס תאורה)",
+   "heat": "source",
+   "wall": 1,
+   "fov": {
+    "beam_deg": 114,
+    "text": "114° בלי עדשה. עם עדשה: לא ידוע.",
+    "source": "כרטיס 12"
+   },
+   "orient": {
+    "units": [
+     {
+      "face": "+x"
+     },
+     {
+      "face": "-x"
+     }
+    ],
+    "text": "אחת בכל קצה, לכיוון הנסיעה.",
+    "source": "כרטיס 12"
+   }
+  },
+  {
+   "id": "doclight",
+   "name": "תאורת תיעוד",
+   "model": "Luminus SFT-70X High CRI",
+   "group": "light",
+   "shape": "cyl",
+   "dims": [
+    28,
+    20,
+    28
+   ],
+   "qty": 2,
+   "weight": 10,
+   "power": 8.6,
+   "estimate": [
+    "dims",
+    "weight"
+   ],
+   "note": "אחת תאורת תיעוד ואחת מהצד לחריטות. נדלקות רק כשעוצרים לצלם.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 12",
+   "why": "לא ליד העדשה: רחוק ממצלמות התיעוד, בצד הגוף, מאירה מהצד (כרטיס תאורה, 13.11). המרחק המדויק ייקבע עם צורת הגוף",
+   "heat": "source",
+   "wall": 1,
+   "fov": {
+    "beam_deg": 114,
+    "text": "114° בלי עדשה. עם עדשה: לא ידוע.",
+    "source": "כרטיס 12"
+   },
+   "orient": {
+    "units": [
+     {
+      "face": "side"
+     },
+     {
+      "face": "side"
+     }
+    ],
+    "text": "בצד הגוף, מאירות מהצד, רחוק מהעדשה.",
+    "source": "כרטיס 12 (13.11)"
+   }
+  },
+  {
+   "id": "amber",
+   "name": "נורת התראה",
+   "model": "LUXEON FX2-L PC Amber",
+   "group": "light",
+   "shape": "box",
+   "dims": [
+    20,
+    5,
+    20
+   ],
+   "qty": 1,
+   "weight": 10,
+   "power": null,
+   "note": "גודל השבב לא פורסם. על לוח כוכב מקובל 20×20, גובה 5: הערכה.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 12",
+   "why": "במקום שאנשים רואים (כרטיס נורת התראה)",
+   "wall": 1,
+   "estimate": [
+    "dims",
+    "weight"
+   ],
+   "orient": {
+    "units": [
+     {
+      "face": "out"
+     }
+    ],
+    "text": "במקום שאנשים רואים. איזה צד: לא נקבע.",
+    "source": "כרטיס 12"
+   }
+  },
+  {
+   "id": "o2",
+   "name": "חיישן חמצן",
+   "model": "FaradaIC Faraday-Ox",
+   "group": "air",
+   "shape": "box",
+   "dims": [
+    25,
+    5,
+    10.2
+   ],
+   "qty": 1,
+   "weight": 1.3,
+   "power": 0,
+   "note": "צמוד לדופן מול פתח אוויר. רחוק ממחשב וסוללה.",
+   "source": "FaradaIC",
+   "why": "צמוד לדופן מול פתח אוויר, רחוק ממחשב, סוללה ונורות (כרטיס חיישן חמצן)",
+   "heat": "sensitive",
+   "wall": 1,
+   "orient": {
+    "units": [
+     {
+      "face": "vent"
+     }
+    ],
+    "text": "פונה לפתח האוויר.",
+    "source": "כרטיס 13"
+   }
+  },
+  {
+   "id": "co2",
+   "name": "חיישן CO2",
+   "model": "MGS MIPEX-05",
+   "group": "air",
+   "shape": "cyl",
+   "dims": [
+    20.1,
+    16.6,
+    20.1
+   ],
+   "qty": 1,
+   "weight": 7.5,
+   "power": 0,
+   "note": "הספק זניח (60 µA).",
+   "source": "MGS",
+   "why": "צמוד לדופן מול פתח אוויר, רחוק ממחשב, סוללה ונורות (כרטיס חיישן CO2)",
+   "heat": "sensitive",
+   "wall": 1,
+   "orient": {
+    "units": [
+     {
+      "face": "vent"
+     }
+    ],
+    "text": "פונה לפתח האוויר.",
+    "source": "כרטיס 13"
+   }
+  },
+  {
+   "id": "estop",
+   "name": "כפתור עצירה",
+   "model": "IDEC XA1E-BV3SG02R",
+   "group": "safety",
+   "shape": "cyl",
+   "dims": [
+    16,
+    12.6,
+    16
+   ],
+   "qty": 1,
+   "weight": 40,
+   "power": 0,
+   "note": "הגוף בפנים: קוטר 16, עומק 12.6. הראש בולט החוצה: קוטר 30, גובה 21.5 (חישוב: 34.1 פחות 12.6). משקל כ-40 ג': הערכה.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 14",
+   "why": "במקום שאדם יכול ללחוץ עליו (כרטיס כפתור עצירה)",
+   "wall": 1,
+   "estimate": [
+    "weight"
+   ],
+   "parts": [
+    {
+     "name": "ראש (בחוץ)",
+     "shape": "cyl",
+     "dims": [
+      30,
+      21.5,
+      30
+     ],
+     "outside": true
+    },
+    {
+     "name": "גוף (בפנים)",
+     "shape": "cyl",
+     "dims": [
+      16,
+      12.6,
+      16
+     ]
+    }
+   ],
+   "orient": {
+    "units": [
+     {
+      "face": "out"
+     }
+    ],
+    "text": "הראש בחוץ, נגיש ללחיצה. איזה צד: לא נקבע.",
+    "source": "כרטיס 14"
+   }
+  },
+  {
+   "id": "buzzer",
+   "name": "זמזם",
+   "model": "Same Sky CPE-244",
+   "group": "safety",
+   "shape": "cyl",
+   "dims": [
+    14,
+    10,
+    14
+   ],
+   "qty": 1,
+   "weight": 5,
+   "power": 0.42,
+   "estimate": [
+    "power"
+   ],
+   "note": "12 V × 35 mA. בדופן החיצונית.",
+   "source": "Same Sky",
+   "why": "בדופן החיצונית (כרטיס זמזם)",
+   "wall": 1,
+   "orient": {
+    "units": [
+     {
+      "face": "out"
+     }
+    ],
+    "text": "בדופן החיצונית. איזה צד: לא נקבע.",
+    "source": "כרטיס 14"
+   }
+  },
+  {
+   "id": "irled",
+   "name": "נורת אינפרה אדום",
+   "model": "ams OSRAM SFH 4258BS",
+   "group": "light",
+   "shape": "box",
+   "dims": [
+    3.5,
+    3.8,
+    2.8
+   ],
+   "qty": 1,
+   "weight": null,
+   "power": null,
+   "note": "850 ננומטר. נדלקת רק כשעוצרים לצלם.",
+   "source": "טאב 12 (ams OSRAM, 10.6.2026)",
+   "why": null,
+   "wall": 1,
+   "fov": {
+    "beam_deg": 24,
+    "text": "אלומה צרה, 12° לכל צד.",
+    "source": "כרטיס 12 (ams OSRAM)"
+   },
+   "orient": {
+    "units": [
+     {
+      "face": null
+     }
+    ],
+    "text": "לא נקבע בכרטיס.",
+    "source": "כרטיס 12"
+   }
+  },
+  {
+   "id": "backup",
+   "name": "סוללת גיבוי לבקר",
+   "model": "תא 14500 (ליתיום 3.7 V, 800 mAh, כ-2.96 Wh)",
+   "group": "power",
+   "shape": "cyl",
+   "dims": [
+    14.5,
+    49.3,
+    14.5
+   ],
+   "qty": 1,
+   "weight": 20,
+   "power": 0,
+   "estimate": [
+    "weight"
+   ],
+   "note": "תא קוטר 14.5 × 49.3. משקל כ-20 ג': הערכה.",
+   "source": "כרטיסים, טבלת סיכום (14.11); רשימות פריסה",
+   "why": null
+  },
+  {
+   "id": "leddriver",
+   "name": "דרייבר לנוריות",
+   "model": "לא נבחר דגם (הערכה)",
+   "group": "light",
+   "shape": "box",
+   "dims": [
+    30,
+    8,
+    20
+   ],
+   "qty": 1,
+   "weight": null,
+   "power": null,
+   "estimate": [
+    "dims"
+   ],
+   "note": "לא נבחר דגם. מידות הערכה 30×20×8.",
+   "source": "רשימות פריסה; סכמת חיווט 14.11",
+   "why": null
+  },
+  {
+   "id": "airboard",
+   "name": "לוח ממשק לחיישני אוויר",
+   "model": "לא נבחר דגם (הערכה)",
+   "group": "air",
+   "shape": "box",
+   "dims": [
+    30,
+    8,
+    20
+   ],
+   "qty": 1,
+   "weight": null,
+   "power": null,
+   "estimate": [
+    "dims"
+   ],
+   "note": "לא נבחר דגם. מידות הערכה 30×20×8.",
+   "source": "כרטיסים, טבלת סיכום (14.11); טאב 13",
+   "why": null
+  }
+ ],
+ "legs": {
+  "count": 4,
+  "thigh": 75,
+  "shin": 75,
+  "stand_clearance": 128,
+  "fold_clearance": 26,
+  "source": "כרטיס 10 (14.11): ירך ושוק 7.5 ס\"מ, פרופיל 20×20 (הנחה). בטן בעמידה 12.8 ס\"מ, מקופל כ-2.6 ס\"מ (חישוב בכרטיס). פריסת הרגליים לחוליות: ברירת מחדל זמנית.",
+  "link_profile": [
+   20,
+   20
+  ]
+ },
+ "motors": {
+  "_note": "לפי כרטיס 10 (14.11): אין מפרק צד. לכל רגל 2 מנועים (ירך וברך). בין חוליות: מנוע אחד לכל חיבור. מאז שלב 3 (14.11) התבנית משתמשת בנתונים האלה.",
+  "per_leg": {
+   "hip": 1,
+   "knee": 1,
+   "side": 0
+  },
+  "leg": {
+   "model": "CubeMars AKE40-6 + דרייבר AK48-2405-2D-A2",
+   "shape": "cyl",
+   "dims": [
+    51,
+    34.5,
+    51
+   ],
+   "weight": 160,
+   "estimate": [
+    "dims",
+    "weight"
+   ],
+   "torque_rated_nm": 1.8,
+   "torque_peak_nm": 5.5,
+   "note": "מנוע קוטר 51 × 24.5 (140 ג') ועוד דרייבר 48×48×10 (גובה ו-20 ג': הערכה).",
+   "source": "כרטיס 10, טבלה עליונה"
+  },
+  "joint": {
+   "model": "CubeMars AKE60-8 + דרייבר",
+   "shape": "cyl",
+   "dims": [
+    69,
+    35,
+    69
+   ],
+   "weight": 290,
+   "estimate": [
+    "dims",
+    "weight"
+   ],
+   "torque_rated_nm": 5,
+   "torque_peak_nm": 12.5,
+   "note": "מנוע קוטר 69 × 25 (260 ג') ועוד דרייבר 54×54×10 (גובה ו-30 ג': הערכה). 0 בלי חוליות, 1 ב-2, 2 ב-3.",
+   "source": "כרטיס 10, טבלה עליונה"
+  }
+ },
+ "card_totals": {
+  "_note": "מספרי הכרטיסים לכלי השלם (חישוב שלי בכרטיס, לא מדידה). להשוואה בלבד.",
+  "segments": [
+   0,
+   2,
+   3
+  ],
+  "length_cm": [
+   29,
+   32,
+   35
+  ],
+  "width_cm": [
+   15,
+   15,
+   15
+  ],
+  "height_stand_cm": [
+   31,
+   31,
+   31
+  ],
+  "height_fold_cm": [
+   21,
+   21,
+   21
+  ],
+  "weight_kg": [
+   6.5,
+   6.9,
+   7.3
+  ],
+  "source": "כרטיסים, סיכום, טבלת 'הכלי השלם' (rev 109)"
+ },
+ "openings": [
+  {
+   "id": "air_vent",
+   "for": [
+    "o2",
+    "co2"
+   ],
+   "kind": "פתח אוויר",
+   "size_mm": null,
+   "movable": true,
+   "rule": "פתח רחב וקצר, החיישן קרוב אליו. לא מול משטח; אם אין ברירה, לפחות 10 מ\"מ בין הפתח למשטח.",
+   "source": "כרטיס 13"
+  },
+  {
+   "id": "thermal_window",
+   "for": [
+    "thermal"
+   ],
+   "per_unit": true,
+   "kind": "חלון שמעביר אינפרה אדום רחוק",
+   "size_mm": null,
+   "rule": "חלון מול כל מצלמה תרמית. גודל: לא נקבע.",
+   "source": "כרטיס 08"
+  },
+  {
+   "id": "light_window",
+   "for": [
+    "drivelight"
+   ],
+   "per_unit": true,
+   "kind": "חלון לנורת נסיעה",
+   "size_mm": null,
+   "rule": "הנורות מאחורי חלון. גודל: לא נקבע.",
+   "source": "כרטיס 12"
+  },
+  {
+   "id": "lidar_window",
+   "for": [
+    "lidar"
+   ],
+   "kind": "חלון הלידאר חשוף",
+   "size_mm": {
+    "height": 23.8
+   },
+   "rule": "רצועת החלון (23.8 מ\"מ) חייבת להיות חשופה, ושום דבר לא נכנס לשדה הראייה.",
+   "source": "כרטיס 03"
+  },
+  {
+   "id": "estop_hole",
+   "for": [
+    "estop"
+   ],
+   "kind": "חור לכפתור",
+   "size_mm": {
+    "dia": 16
+   },
+   "rule": "חור 16 מ\"מ בדופן.",
+   "source": "כרטיס 14"
+  }
+ ],
+ "_openings_note": "פתחי קירור למחשב: לא כתובים בכרטיסים, לכן לא נוספו.",
+ "dependencies": [
+  {
+   "child": "doccam",
+   "parent": "gimbal",
+   "type": "mounted_on",
+   "moves_with_parent": true,
+   "text": "מצלמות התיעוד יושבות על הגימבל, צמודות זו לזו.",
+   "source": "כרטיס 07, 09"
+  },
+  {
+   "child": "gimbal",
+   "parent": "shell_top",
+   "type": "mounted_on",
+   "moves_with_parent": true,
+   "text": "הגימבל יושב למעלה על הגוף, מחוץ לגוף.",
+   "source": "שרון 14.11; כרטיס 09"
+  },
+  {
+   "child": "imu",
+   "parent": "lidar",
+   "type": "same_rigid_part",
+   "moves_with_parent": true,
+   "text": "ה-IMU על אותו חלק קשיח של הלידאר, מחובר חזק לשלדה, בלי מתכת חשופה מתחתיו.",
+   "source": "כרטיס 06"
+  },
+  {
+   "child": "backup",
+   "parent": "safety",
+   "type": "near",
+   "moves_with_parent": false,
+   "inferred": true,
+   "text": "סוללת הגיבוי מזינה רק את בקר הבטיחות, לכן קרוב אליו (הסקה שלי).",
+   "source": "סכמת חיווט 14.11"
+  },
+  {
+   "child": "airboard",
+   "parent": [
+    "o2",
+    "co2"
+   ],
+   "type": "near",
+   "moves_with_parent": false,
+   "inferred": true,
+   "text": "לוח הממשק ליד חיישני האוויר, כדי שהחוטים קצרים (הסקה שלי).",
+   "source": "הסקה"
+  },
+  {
+   "child": [
+    "o2",
+    "co2"
+   ],
+   "parent": "air_vent",
+   "type": "faces_opening",
+   "moves_with_parent": true,
+   "text": "צמודים לדופן מול פתח האוויר.",
+   "source": "כרטיס 13"
+  },
+  {
+   "child": "thermal",
+   "parent": "thermal_window",
+   "type": "faces_opening",
+   "moves_with_parent": true,
+   "text": "כל מצלמה תרמית מאחורי חלון משלה.",
+   "source": "כרטיס 08"
+  },
+  {
+   "child": "drivelight",
+   "parent": "light_window",
+   "type": "faces_opening",
+   "moves_with_parent": true,
+   "text": "כל נורת נסיעה מאחורי חלון.",
+   "source": "כרטיס 12"
+  },
+  {
+   "child": "estop",
+   "parent": "estop_hole",
+   "type": "faces_opening",
+   "moves_with_parent": true,
+   "text": "הכפתור בחור בדופן, הראש בחוץ.",
+   "source": "כרטיס 14"
+  },
+  {
+   "child": "motors.leg",
+   "parent": "leg",
+   "type": "mounted_on",
+   "moves_with_parent": true,
+   "text": "מנוע הירך בגוף ליד חיבור הרגל; מנוע הברך על הרגל וזז איתה.",
+   "source": "כרטיס 10"
+  },
+  {
+   "child": "motors.joint",
+   "parent": "segment_gap",
+   "type": "mounted_on",
+   "moves_with_parent": true,
+   "text": "מנוע בכל חיבור בין שתי חוליות.",
+   "source": "כרטיס 10"
+  },
+  {
+   "child": "navcam",
+   "parent": "lidar",
+   "type": "keep_out_of_fov",
+   "moves_with_parent": false,
+   "text": "מצלמת הניווט הקדמית מחוץ לשדה הראייה של הלידאר.",
+   "source": "כרטיס 03, 04"
+  },
+  {
+   "child": "gimbal",
+   "parent": "lidar",
+   "type": "keep_out_of_fov",
+   "moves_with_parent": false,
+   "text": "הגימבל לא יסתיר ללידאר את השדה קדימה.",
+   "source": "כרטיס 09; סיכום, שאלה 3"
+  },
+  {
+   "child": "doclight",
+   "parent": "doccam",
+   "type": "keep_away",
+   "moves_with_parent": false,
+   "text": "תאורת התיעוד רחוק מהעדשה ומאירה מהצד. המרחק המדויק ייקבע עם צורת הגוף.",
+   "source": "כרטיס 12 (13.11)"
+  }
+ ],
+ "_dependencies_note": "moves_with_parent=true: כשמזיזים את ההורה, הילד זז איתו. inferred=true: הסקה שלי, לא מהכרטיס. רכיבים שאין להם תלות בכרטיסים: מחשב, סוללה, מכ\"מים, חיישני תהום, מצלמות ניווט, נורות ענבר ו-IR, זמזם, דרייבר נוריות.",
+ "cables": {
+  "_note": "לפי סכמת החיווט (components/wiring, 14.11). זו הצעה לסכמה, לא שרטוט חשמלי. verified=false: קו מקווקו בסכמה (הסקה שלי). חלוקת ההספק היא צומת בלי רכיב, כי לא נבחר דגם.",
+  "nodes_without_item": [
+   {
+    "id": "pdu",
+    "name": "חלוקת הספק והגנה",
+    "note": "דגם לא נבחר, מידות לא ידועות"
+   },
+   {
+    "id": "tether",
+    "name": "כבל סיב לעמדה",
+    "note": "Ethernet על סיב"
+   }
+  ],
+  "links": [
+   {
+    "from": "computer",
+    "to": "navcam",
+    "kind": "data",
+    "interface": "GMSL2",
+    "verified": true
+   },
+   {
+    "from": "computer",
+    "to": "thermal",
+    "kind": "data",
+    "interface": "לא אומת",
+    "verified": true
+   },
+   {
+    "from": "computer",
+    "to": "radar",
+    "kind": "data",
+    "interface": "לא אומת",
+    "verified": true
+   },
+   {
+    "from": "computer",
+    "to": "cliff",
+    "kind": "data",
+    "interface": "לא אומת",
+    "verified": true
+   },
+   {
+    "from": "computer",
+    "to": "imu",
+    "kind": "data",
+    "interface": "לא אומת",
+    "verified": true
+   },
+   {
+    "from": "computer",
+    "to": "lidar",
+    "kind": "data",
+    "interface": "Ethernet (לא אומת)",
+    "verified": true
+   },
+   {
+    "from": "computer",
+    "to": "doccam",
+    "kind": "data",
+    "interface": "CSI (לפי כרטיס המחשב)",
+    "verified": true
+   },
+   {
+    "from": "computer",
+    "to": "tether",
+    "kind": "data",
+    "interface": "Ethernet על סיב",
+    "verified": true
+   },
+   {
+    "from": "computer",
+    "to": "gimbal",
+    "kind": "data",
+    "interface": "לא אומת",
+    "verified": false
+   },
+   {
+    "from": "computer",
+    "to": "leddriver",
+    "kind": "data",
+    "interface": "דרייבר לא נבחר",
+    "verified": false
+   },
+   {
+    "from": "computer",
+    "to": "airboard",
+    "kind": "data",
+    "interface": "לא אומת",
+    "verified": false
+   },
+   {
+    "from": "computer",
+    "to": "buzzer",
+    "kind": "data",
+    "interface": null,
+    "verified": false
+   },
+   {
+    "from": "computer",
+    "to": "motors",
+    "kind": "data",
+    "interface": "CAN (לפי חנות CubeMars)",
+    "verified": false
+   },
+   {
+    "from": "computer",
+    "to": "safety",
+    "kind": "data",
+    "interface": "פעימת חיים (הסקה)",
+    "verified": false
+   },
+   {
+    "from": "leddriver",
+    "to": [
+     "drivelight",
+     "doclight",
+     "irled",
+     "amber"
+    ],
+    "kind": "data",
+    "verified": false
+   },
+   {
+    "from": "airboard",
+    "to": [
+     "o2",
+     "co2"
+    ],
+    "kind": "data",
+    "verified": false
+   },
+   {
+    "from": "battery",
+    "to": "pdu",
+    "kind": "power",
+    "verified": true
+   },
+   {
+    "from": "pdu",
+    "to": "computer",
+    "kind": "power",
+    "verified": true
+   },
+   {
+    "from": "pdu",
+    "to": "motors",
+    "kind": "power",
+    "voltage": "24 V",
+    "via": "safety",
+    "text": "דרך מנתק של בקר הבטיחות",
+    "verified": true
+   },
+   {
+    "from": "pdu",
+    "to": "gimbal",
+    "kind": "power",
+    "voltage": "12-26.4 V",
+    "verified": true
+   },
+   {
+    "from": "pdu",
+    "to": [
+     "navcam",
+     "thermal",
+     "doccam",
+     "radar",
+     "cliff",
+     "imu",
+     "lidar",
+     "o2",
+     "co2",
+     "leddriver",
+     "airboard",
+     "buzzer"
+    ],
+    "kind": "power",
+    "text": "מצלמות, חיישנים, נוריות, זמזם",
+    "verified": true
+   },
+   {
+    "from": "backup",
+    "to": "safety",
+    "kind": "power",
+    "verified": true
+   },
+   {
+    "from": "estop",
+    "to": "safety",
+    "kind": "power",
+    "verified": true
+   }
+  ]
+ }
+}

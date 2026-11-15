@@ -1,0 +1,201 @@
+<title>שאלות על הכלי</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600&family=Rubik:wght@500;600&display=swap">
+<style>
+/* Layout: one column chat, status strip on top, composer pinned at the bottom. */
+:root{
+  --bg:#e9eaed; --card:#f6f6f7; --paper:#ffffff; --line:#d6d9de; --fg:#15181e; --muted:#6f7685;
+  --accent:#16263f; --accent-fg:#ffffff; --soft:#dfe5ee; --ok:#2e6b4a; --bad:#b0412f;
+  --body:"Heebo",system-ui,"Segoe UI",Arial,sans-serif; --display:"Rubik","Heebo",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12151b; --card:#1a1f27; --paper:#202630; --line:#2e3542; --fg:#e8eaee; --muted:#9aa2b1;
+  --accent:#8fb0db; --accent-fg:#0d1420; --soft:#263244; --ok:#7fc39c; --bad:#e58a77; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151b; --card:#1a1f27; --paper:#202630; --line:#2e3542; --fg:#e8eaee; --muted:#9aa2b1;
+  --accent:#8fb0db; --accent-fg:#0d1420; --soft:#263244; --ok:#7fc39c; --bad:#e58a77; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 var(--body);direction:rtl}
+.wrap{max-width:860px;margin:0 auto;height:100%;display:flex;flex-direction:column;gap:12px;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font:600 20px/1.2 var(--display);margin:0;text-wrap:balance}
+.sp{flex:1}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;color:var(--muted)}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.chip.ok i{background:var(--ok)}.chip.bad i{background:var(--bad)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.btn{padding:7px 14px;border-radius:999px;background:var(--paper);border:1px solid var(--line);font-size:13px}
+.btn:hover{border-color:var(--accent)}
+.btn.main{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn[disabled]{opacity:.45;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.log{flex:1;min-height:0;overflow:auto;background:var(--paper);border-radius:18px;border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:92%;min-width:0;overflow-wrap:anywhere}
+.msg.u{align-self:flex-start;background:var(--accent);color:var(--accent-fg);padding:9px 14px;border-radius:16px 16px 16px 4px}
+.msg.a{align-self:flex-end;background:var(--card);padding:12px 16px;border-radius:16px 16px 4px 16px;border:1px solid var(--line)}
+.msg.a p{margin:0 0 8px}.msg.a p:last-child{margin:0}
+.msg.a ul{margin:4px 0 8px;padding-inline-start:20px}
+.msg.a .src{font-size:12px;color:var(--muted);margin-top:6px}
+.msg.err{color:var(--bad)}
+.intro{color:var(--muted);font-size:14px;max-width:62ch}
+.intro b{color:var(--fg);font-weight:500}
+.ex{display:flex;flex-wrap:wrap;gap:8px}
+.ex button{padding:7px 12px;border-radius:12px;background:var(--soft);font-size:13px;text-align:start}
+.ex button:hover{outline:1px solid var(--accent)}
+form{display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;min-width:0;resize:none;font:inherit;color:var(--fg);background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px 14px;min-height:46px;max-height:160px}
+.note{font-size:12px;color:var(--muted)}
+.dots::after{content:"…";animation:d 1.2s infinite}
+@keyframes d{50%{opacity:.2}}
+@media (prefers-reduced-motion: reduce){.dots::after{animation:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>שאלות על הכלי</h1>
+    <div class="sp"></div>
+    <div class="chips">
+      <span class="chip ok" id="docChip"><i></i><span>ידע מהמסמכים: עותק מ-14.11</span></span>
+      <span class="chip" id="cfgChip"><i></i><span>אין קובץ קונפיגורציות</span></span>
+    </div>
+    <button class="btn" id="loadBtn" type="button">טעינת קובץ מהאפליקציה</button>
+    <input type="file" id="file" accept="application/json,.json" hidden>
+  </header>
+
+  <div class="log" id="log" aria-live="polite">
+    <div class="intro" id="intro">
+      <p>הצ'אט עונה מתוך <b>סיכום כרטיסי הרכיבים</b>, <b>לוג ההחלטות</b> ו<b>נתוני הרכיבים</b> שבאפליקציית הפריסה. כדי לשאול על הקונפיגורציות שלכן, שמרו קובץ באפליקציה (כפתור השמירה ⤓) וטענו אותו כאן.</p>
+      <p>מה שלא כתוב במסמכים יקבל תשובה "לא יודע".</p>
+      <div class="ex" id="ex"></div>
+    </div>
+  </div>
+
+  <form id="form">
+    <label for="q" class="note" hidden>שאלה</label>
+    <textarea id="q" rows="1" placeholder="למשל: למה הסוללה באמצע?"></textarea>
+    <button class="btn main" id="send" type="submit">שליחה</button>
+  </form>
+  <div class="note" id="foot">הידע הוא עותק מ-14.11. כשהכרטיסים משתנים, בקשו לעדכן את הצ'אט.</div>
+</div>
+
+<script type="application/json" id="cat">{"catalog": [{"id": "computer", "name": "מחשב", "model": "Qualcomm IQ-9075 (מודול)", "group": "computing", "dims": [65, 4.55, 65], "qty": 1, "weight": 33, "power": null, "note": "הספק חסר בדף היצרן. 33 ג' הם של המודול.", "source": "Qualcomm Rev C", "why": null, "heat": "source", "shape": "box"}, {"id": "safety", "name": "בקר בטיחות", "model": "TI AM2612", "group": "computing", "dims": [30, 5, 30], "qty": 1, "weight": null, "power": null, "estimate": ["dims"], "note": "מידות: הערכה שלנו.", "source": "החלטה 13.11", "why": null, "shape": "box"}, {"id": "radar", "name": "מכ\"ם", "model": "TI IWRL6844 (לוח משוער)", "group": "sensing", "dims": [31, 3.8, 15.5], "qty": 4, "weight": null, "power": 1.15, "estimate": ["dims", "power"], "note": "עד כ-4.6 W לארבעה (כרטיס מכ\"ם, הערכה).", "source": "TI", "why": "אחד קדימה, אחד אחורה ושניים בצדדים למעלה (כרטיס מכ\"ם)", "wall": 1, "shape": "box"}, {"id": "lidar", "name": "לידאר", "model": "Hesai JT128", "group": "sensing", "dims": [62.55, 73.05, 62.55], "qty": 1, "weight": 265, "power": 8.4, "note": "שדה ראייה אנכי: 95° לפי המדריך, לא 189°. לא מאושר. אסור שדבר ייכנס לשדה הראייה.", "source": "Hesai J01-en-260710", "why": "בקצה ולמעלה, כדי שהשדה שלו יהיה פנוי (כרטיס לידאר)", "wall": 1, "shape": "cyl"}, {"id": "navcam", "name": "מצלמת ניווט", "model": "Orbbec Gemini 345Lg", "group": "sensing", "dims": [124, 29, 43.95], "qty": 2, "weight": 223, "power": 3.6, "note": "המחבר בולט מאחור.", "source": "Orbbec", "why": "אחת בכל קצה, מחוץ לשדה של הלידאר (כרטיס מצלמות ניווט)", "wall": 1, "shape": "box"}, {"id": "cliff", "name": "חיישן תהום", "model": "ST VL53L9CX", "group": "sensing", "dims": [12.8, 4.6, 6.1], "qty": 4, "weight": null, "power": 0.15, "estimate": ["power"], "note": "הספק מדף מוצר (150 mW), דף נתונים לא נפתח.", "source": "ST", "why": "שניים בכל קצה, בפינות התחתונות (כרטיס חיישני תהום)", "wall": "bottom", "shape": "box"}, {"id": "imu", "name": "IMU", "model": "SBG Pulse-40 OEM", "group": "sensing", "dims": [30, 13.3, 28], "qty": 1, "weight": 19, "power": 0.3, "note": "מחובר חזק לשלדה. בלי מתכת חשופה מתחתיו.", "source": "SBG", "why": "על אותו חלק קשיח של הלידאר (כרטיס IMU)", "shape": "box"}, {"id": "doccam", "name": "מצלמת תיעוד", "model": "FRAMOS FSM:GO IMX06A (גוף+עדשה)", "group": "imaging", "dims": [32, 32, 39.4], "qty": 2, "weight": 74, "power": 1.455, "estimate": ["weight"], "note": "משקל: גבול עליון מחישוב של הכרטיס (עד 74 ג'). אחת צבע ואחת אינפרה אדום.", "source": "FRAMOS", "why": "על הגימבל, צמודות זו לזו (כרטיס מצלמות תיעוד)", "mount": "gimbal", "shape": "box"}, {"id": "thermal", "name": "מצלמה תרמית", "model": "FLIR Boson+ 640", "group": "sensing", "dims": [21, 21, 28], "qty": 2, "weight": 20, "power": 1.55, "note": "עד 3.1 W לשתיים (כרטיס מצלמות תרמיות). מאחורי חלון שמעביר אינפרה אדום רחוק.", "source": "FLIR Rev 114", "why": "אחת בכל קצה, מאחורי חלון (כרטיס מצלמה תרמית)", "wall": 1, "shape": "box"}, {"id": "gimbal", "name": "גימבל", "model": "AllXF C-200T", "group": "imaging", "dims": [90.9, 91.55, 81.5], "qty": 1, "weight": 125, "power": 1.7, "note": "מעטפת מקסימלית לפי היצרן, עם בולם. מוסיף כ-9.2 ס\"מ לגובה הכלי.", "source": "AllXF אפריל 2026", "why": "יושב למעלה על הגוף (שרון, 14.11). אסור שיסתיר ללידאר את השדה קדימה (כרטיס גימבל)", "external": true, "shape": "box"}, {"id": "motor", "name": "מנוע מפרק (עתידי)", "model": "CubeMars AKE60-8 (מידות)", "group": "motion", "dims": [69, 25, 69], "qty": 14, "weight": 260, "power": null, "note": "הספק לא ידוע. ההערכה 20-40 W לא מתיישבת עם המומנט.", "source": "CubeMars", "why": "בדופן הצד, כדי שהכלי לא יתרחב (כרטיס מנועים)", "heat": "source", "shape": "cyl"}, {"id": "battery", "name": "סוללה", "model": "סוליד סטייט, בסיס ProLogium Gen 3.5", "group": "power", "dims": [87, 87, 87], "qty": 1, "weight": 1850, "power": null, "estimate": ["dims", "weight"], "note": "תאים בלבד: קובייה 87 מ\"מ (כ-0.66 ליטר). 600 וואט-שעה (שרון, 13.11). משקל 1.8-1.9 ק\"ג: חישוב של כרטיס הסוללה. אפשר לפצל.", "source": "ProLogium", "why": "נמוך ובמרכז, כדי שהכלי לא ייפול בשיפוע (כרטיס סוללה)", "splittable": true, "cap_wh": 600, "heat": "both", "shape": "box"}, {"id": "drivelight", "name": "תאורת נסיעה", "model": "Luminus SFT-70X", "group": "light", "dims": [28, 20, 28], "qty": 2, "weight": null, "power": 8.6, "estimate": ["dims"], "note": "גובה עם עדשה: הערכה.", "source": "Luminus", "why": "בשני הקצוות, לכיוון המצלמות (כרטיס תאורה)", "heat": "source", "wall": 1, "shape": "cyl"}, {"id": "doclight", "name": "תאורת תיעוד", "model": "Luminus SFT-70X High CRI", "group": "light", "dims": [28, 20, 28], "qty": 2, "weight": null, "power": 8.6, "estimate": ["dims"], "note": "אחת תאורת תיעוד ואחת מהצד לחריטות. נדלקות רק כשעוצרים לצלם.", "source": "Luminus", "why": "לא ליד העדשה: רחוק ממצלמות התיעוד, בצד הגוף, מאירה מהצד (כרטיס תאורה, 13.11). המרחק המדויק ייקבע עם צורת הגוף", "heat": "source", "wall": 1, "shape": "cyl"}, {"id": "amber", "name": "נורת התראה", "model": "LUXEON FX2-L PC Amber", "group": "light", "dims": null, "qty": 1, "weight": null, "power": null, "note": "מידות לא ידועות (Lumileds LUXEON FX2-L). מוצג בגודל ניסיון 10 מ\"מ.", "source": "", "why": "במקום שאנשים רואים (כרטיס נורת התראה)", "wall": 1, "shape": "box"}, {"id": "o2", "name": "חיישן חמצן", "model": "FaradaIC Faraday-Ox", "group": "air", "dims": [25, 5, 10.2], "qty": 1, "weight": 1.3, "power": 0, "note": "צמוד לדופן מול פתח אוויר. רחוק ממחשב וסוללה.", "source": "FaradaIC", "why": "צמוד לדופן מול פתח אוויר, רחוק ממחשב, סוללה ונורות (כרטיס חיישן חמצן)", "heat": "sensitive", "wall": 1, "shape": "box"}, {"id": "co2", "name": "חיישן CO2", "model": "MGS MIPEX-05", "group": "air", "dims": [20.1, 16.6, 20.1], "qty": 1, "weight": 7.5, "power": 0, "note": "הספק זניח (60 µA).", "source": "MGS", "why": "צמוד לדופן מול פתח אוויר, רחוק ממחשב, סוללה ונורות (כרטיס חיישן CO2)", "heat": "sensitive", "wall": 1, "shape": "cyl"}, {"id": "estop", "name": "כפתור עצירה", "model": "IDEC XA1E-BV3SG02R", "group": "safety", "dims": [16, 12.6, 16], "qty": 1, "weight": null, "power": 0, "note": "הנכנס מתחת לדופן. חייב להיות נגיש ללחיצה.", "source": "IDEC", "why": "במקום שאדם יכול ללחוץ עליו (כרטיס כפתור עצירה)", "wall": 1, "shape": "cyl"}, {"id": "buzzer", "name": "זמזם", "model": "Same Sky CPE-244", "group": "safety", "dims": [14, 10, 14], "qty": 1, "weight": 5, "power": 0.42, "estimate": ["power"], "note": "12 V × 35 mA. בדופן החיצונית.", "source": "Same Sky", "why": "בדופן החיצונית (כרטיס זמזם)", "wall": 1, "shape": "cyl"}, {"id": "irled", "name": "נורת אינפרה אדום", "model": "ams OSRAM SFH 4258BS", "group": "light", "dims": [3.5, 3.8, 2.8], "qty": 1, "weight": null, "power": null, "note": "850 ננומטר. נדלקת רק כשעוצרים לצלם.", "source": "ams OSRAM", "why": null, "wall": 1, "shape": "box"}, {"id": "backup", "name": "סוללת גיבוי לבקר", "model": "תא קטן, כ-2 Wh", "group": "power", "dims": [13, 13, 13], "qty": 1, "weight": 5, "power": 0, "estimate": ["dims", "weight"], "note": "כרטיס 1: קובייה 13 מ\"מ, כ-5 גרם (הערכה).", "source": "כרטיס 1", "why": null, "shape": "box"}], "segment_defaults": {"total": 660, "wid": 120, "hei": 150, "n": 3, "gap": 30, "_note": "מידות ניסיון, לא מחייבות. המידות הקודמות (450×540×720) התבססו על Unitree ובוטלו."}, "legs": {"count": 4, "thigh": 75, "shin": 75, "stand_clearance": 128, "fold_clearance": 25, "source": "כרטיס 10: ירך ושוק 7.5 ס\"מ כל אחד, בטן בעמידה 12.8 ס\"מ, מקופל 2.5 ס\"מ. פריסת הרגליים לחוליות היא ברירת מחדל זמנית, לא הוחלטה."}}</script>
+<script type="text/plain" id="kb">ידע לצ'אט (עותק מקוצר, נכון ל-14.11.2026). המקורות המלאים: לוג ההחלטות https://claude.ai/artifact/Gq6pUe8zp6V1aT7u1tKFou וכרטיסי הרכיבים https://claude.ai/artifact/2tctnonvAZcRkQvsc3rcue
+
+## קונספט (לוג החלטות, נכון ל-11.11)
+- משפט הקונספט: כלי אוטונומי לסיוע צוות ארכיאולוגים במערות בשלבי מיפוי המערה ותיעוד הממצאים.
+- איפה: מערות טבעיות וחצובות במדבר יהודה ובשפלת יהודה. מעברים צרים, קרקע לא שטוחה, אבק וחושך.
+- מי: צוות הארכיאולוגים בשטח. משני: מנהל האתר, מנהל האזור, רשות העתיקות.
+- איך: מגיע עם הצוות לפתח המערה (הם סוחבים אותו). נכנס לבד למיפוי והצוות מחכה. מתעד ממצא בקריאה של הארכיאולוג. יוצא לבד.
+- שלוש חובות: לצאת לבד בבטחה, להתמודד עם קרקע לא שטוחה ובורות, ולמפות ולתעד באבק ובחושך.
+- לא עושה: לא באוויר (רחפן מעיף אבק), לא חופר, לא מוציא חול וממצאים, לא מרסס נגד קדחת מערות, לא מגן מפני שודדים.
+- מה הוא עושה הכי טוב: "הוא ממפה ומתעד ממצאים".
+- עדיין פתוח (לפי הלוג): כבל לתקשורת בלבד או כבל עם מתח, ומצוקים (סתירה: בטבלת ההחלטות "בפנים", במצגת בסימן שאלה). הערך המוסף מעבר לסריקה לא סגור.
+- נתוני הבסיס הישנים (450×540×720 מ"מ, 20 עד 22 ק"ג) התבססו על Unitree AS2 ולא מחייבים יותר.
+
+## החלטות עיקריות (לוג החלטות)
+- 11.11: הכלי דו-כיווני: חיישני ניווט ומכשולים מקדימה ומאחור, תנועה בשני הכיוונים. סיבה: אין מקום להסתובב במערות, וחזרה הביתה אם הכבל מתנתק.
+- 11.11: עיבוד מפוצל. בטיחות והתחמקות ממכשולים בכלי. עיבוד תמונות ומיפוי מפורט בעמדה. אם הכבל מתנתק הכלי חוזר הביתה לבד במסלול שעשה (תקדים: NASA JPL CoSTAR, 2025). מאפשר מחשב קטן וקל בכלי.
+- 11.11: לא ננעלים על Unitree AS2. המרצים: Unitree לא מיועד למערות, והרגליים צורכות אנרגיה.
+- 11.11: לבדוק חוליות (גוף מפרקי, פניות חדות). המרצה: אפשר להקטין משקל בחצי ואת הגודל מעט.
+- 11.11: כיוון המרצה: כבל לתקשורת בלבד, המתח מסוללה. עוד לא הוכרע.
+- 11.11: הוראות לשיעור הבא: אפיון כתוב כחוברת, 3 קונפיגורציות של אותם רכיבים פנימיים מקרטון, 1:1 אם אפשר, להחליט על אמצעי הנעה אחד.
+- כלל מנחה: כלי אוטונומי במחשבה על 3 עד 5 שנים קדימה. לסגור פינות.
+
+## סיכום כרטיסי הרכיבים (14.11)
+- רגליים וחוליות (כרטיס 10): 4 רגליים מתחת לגוף. בכל רגל 3 מפרקים: ירך הטיה לצד (מינוס 48 עד 48 מעלות), ירך קדימה-אחורה, וברך. ירך ושוק 75 מ"מ כל אחת. גובה הבטן בעמידה 128 מ"מ, מקופל 25 מ"מ. מנוע עתידי במעטפת CubeMars AKE60-8: קוטר 69 מ"מ, עובי 25 מ"מ, 260 גרם (תחזית). 12 מנועים לרגליים, ועוד 1 או 2 בין החוליות (13 או 14). משקל המנועים בערך 3.1 עד 3.6 ק"ג.
+- סוללה (כרטיס 11): סוללת מצב מוצק, 600 וואט-שעה, קובייה 87 מ"מ, בערך 1.8 עד 1.9 ק"ג (חישוב שלנו). טעינה בעמדה.
+- הגימבל (כרטיס 9): AllXF C-200T. החלטה של שרון 14.11: הגימבל יושב למעלה על הגוף ומוסיף בערך 92 מ"מ לגובה. שאלה פתוחה: שהגימבל לא יסתיר את הליידאר קדימה.
+- מידות הכלי לפי הכרטיסים: אורך בערך 310 / 340 / 370 מ"מ (בלי חוליות / 2 / 3 חוליות), רוחב בערך 180 מ"מ, גובה בעמידה בערך 200 מ"מ ומקופל בערך 110 מ"מ, בלי הגימבל.
+- המחשב (כרטיס 1): Qualcomm IQ-9075, 33 גרם, הספק עד 30 וואט (בתקציב).
+- לפרטים, מקורות וקישורים מלאים: כרטיסי הרכיבים (קישור למעלה).
+
+## פער ידוע
+- האפליקציה מוצאת אורך מינימלי של 315 / 280 / 435 מ"מ ל-1 / 2 / 3 חוליות, כי מצלמת הניווט באורך 124 מ"מ בכל חוליית קצה. זה שונה מ-310 / 340 / 370 מ"מ שבכרטיסים. עוד לא הוכרע.
+</script>
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const CAT=JSON.parse($('#cat').textContent);
+const KB=$('#kb').textContent;
+const RULES='כללי ההנדסה באפליקציה (אזהרות רכות עם תיקון, כל המספרים ערכי ניסיון ולא מקור): ליידאר לא מוסתר (מישור הסריקה בגובה מרכז הליידאר, הזווית האנכית לא ידועה; קדימה בלבד או סביב); חום (סוללה וחיישני אוויר לפחות 30 מ"מ ממחשב, מנועים ופנסים); מרכז כובד (עד 10% מהאורך/רוחב מהאמצע, גובה עד 60% מהגובה הכולל, לפי משקלים ידועים בלבד, בלי הרגליים); שירות (דרך פנויה החוצה מלמעלה או מהצד); חיישנים ופנסים צמודים לדופן (חיישני תהום לתחתית); IMU באותה חוליה עם הליידאר; כל הכלי בעמידה עד 600 מ"מ (מעבר הזחילה הנמוך במקורות על המערות); ירך ושוק לפחות 69 מ"מ (קוטר המנוע). קליפה דינמית: כל חוליה גבוהה כמו מה שבתוכה. צירים בקובץ: אורך 0 = אמצע הגוף, ערך חיובי = צד B (החזית); גובה נמדד מתחתית הגוף, ובשדה height_from_floor מהרצפה.';
+const SYS='את עוזרת לשרון ולרותם, סטודנטיות לעיצוב תעשייתי, בפרויקט כלי אוטונומי לסקר ארכיאולוגי במערות. הן מעצבות ולא מהנדסות.\n'+
+'כללים:\n1. עני בעברית פשוטה, משפטים קצרים, רעיון אחד במשפט. בלי מילים מומצאות. שמות רכיבים ודגמים באנגלית.\n'+
+'2. השתמשי רק במידע מהכלים: ידע הפרויקט (קונספט, החלטות וסיכום הכרטיסים), נתוני הרכיבים, קובץ הקונפיגורציות וכללי האפליקציה. כשחסר פירוט, הפני לכרטיס הרכיב במסמך כרטיסי הרכיבים, עם הקישור.\n'+
+'3. כל מספר עם יחידה ועם המקור בסוגריים ("סיכום הכרטיסים", "לוג החלטות", "נתוני האפליקציה" או "קובץ הקונפיגורציות").\n'+
+'4. אם אין מידע, כתבי "לא יודע". אל תמציאי ואל תשערי בלי לומר שזו הערכה.\n'+
+'5. אל תבחרי עיצוב בשבילן. מיקום רכיב מציעים רק כשיש לו סיבה טכנית, ואז כותבים את הסיבה.\n'+
+'6. כשהשאלה היא על קונפיגורציה, השתמשי בדוח שבקובץ (warnings, cog_mm, standing_height_mm ועוד). אם לא נטען קובץ, אמרי שצריך לטעון אותו.\n'+
+'7. קצר: עד 8 שורות, אלא אם ביקשו פירוט. אפשר רשימה עם "- ". הדגשה עם **.\n\n'+RULES;
+let sample=null,cfg=null,cfgName='',hist=[],busy=false,ctrl=null;
+
+/* ---------- status ---------- */
+function chip(id,state,text){const c=$(id);c.className='chip'+(state===true?' ok':state===false?' bad':'');c.querySelector('span').textContent=text}
+function setCfg(o,name){
+  cfg=o;cfgName=name||'';
+  if(!o){chip('#cfgChip',null,'אין קובץ קונפיגורציות');return}
+  const n=(o.report||o.state.configs||[]).length;
+  chip('#cfgChip',true,'נטען: '+n+' קונפיגורציות'+(o.report?'':' (קובץ ישן, בלי דוח)'));
+}
+try{const t=localStorage.getItem('cfg-file');if(t){const o=JSON.parse(t);setCfg(o.data,o.name)}}catch(e){}
+$('#loadBtn').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const o=JSON.parse(r.result);if(!o.state||!o.state.configs)throw 0;setCfg(o,f.name);try{localStorage.setItem('cfg-file',JSON.stringify({name:f.name,data:o}))}catch(x){}}
+    catch(x){addMsg('a','הקובץ לא מתאים. צריך את הקובץ ששומרים באפליקציית הפריסה (layout-data.json).',true)}};
+  r.readAsText(f);e.target.value=''};
+
+/* ---------- tools for Claude ---------- */
+function cfgSummary(){
+  if(!cfg)return'לא נטען קובץ קונפיגורציות. בקשי מהן לשמור קובץ באפליקציה ולטעון אותו כאן.';
+  if(cfg.report)return JSON.stringify({file:cfgName,saved:cfg.saved,active:cfg.state.active,rules:cfg.rules,configurations:cfg.report});
+  return JSON.stringify({file:cfgName,note:'קובץ ישן בלי דוח מחושב. אין אזהרות ומרכז כובד.',configurations:cfg.state.configs.map(c=>({name:c.name,shell:c.shell,legs:c.legs,items:c.items.map(i=>({id:i.cid,pos:i.pos,frac:i.frac}))}))});
+}
+const TOOLS=[
+  {name:'get_project_knowledge',description:'ידע הפרויקט: הקונספט, ההחלטות מלוג ההחלטות, וסיכום כרטיסי הרכיבים (רגליים, סוללה, גימבל, מידות, פערים ידועים).',execute:()=>KB},
+  {name:'get_component_data',description:'נתוני הרכיבים שבאפליקציית הפריסה: מידות במ"מ, משקל בגרם, הספק בוואט, null = לא ידוע, why = סיבת המיקום הטכנית.',execute:()=>JSON.stringify(CAT)},
+  {name:'get_configurations',description:'הקונפיגורציות מהקובץ שנטען: חוליות, מידות, רגליים, גובה, משקל, הספק, מרכז כובד, אזהרות, ומיקום כל רכיב.',execute:()=>cfgSummary()}
+];
+
+/* ---------- chat ---------- */
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function md(s){
+  const lines=esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').split('\n');let o='',ul=false;
+  lines.forEach(l=>{const m=l.match(/^\s*[-•*]\s+(.*)/);
+    if(m){if(!ul){o+='<ul>';ul=true}o+='<li>'+m[1]+'</li>'}
+    else{if(ul){o+='</ul>';ul=false}if(l.trim())o+='<p>'+l+'</p>'}});
+  return o+(ul?'</ul>':'');
+}
+function addMsg(who,text,err){const d=document.createElement('div');d.className='msg '+who+(err?' err':'');if(who==='u')d.textContent=text;else d.innerHTML=md(text);$('#log').appendChild(d);d.scrollIntoView({block:'end'});return d}
+async function ask(q){
+  if(busy||!q.trim())return;
+  if(!sample){addMsg('a','הצ\'אט לא זמין בצפייה הזו. צריך לפתוח את הדף ב-claude.ai כשאתן מחוברות.',true);return}
+  busy=true;$('#send').disabled=true;$('#intro').hidden=true;
+  addMsg('u',q);const box=addMsg('a','');box.innerHTML='<p class="dots">קוראת את המסמכים</p>';
+  hist.push({role:'user',content:q});
+  const msgs=hist.map((m,i)=>i===0?{role:'user',content:SYS+'\n\nשאלה:\n'+m.content}:m);
+  ctrl=new AbortController();
+  try{
+    const r=await sample(msgs,{tools:TOOLS,cache:false,modelTier:'complex',signal:ctrl.signal,onText:u=>{box.innerHTML=md(u.text)}});
+    box.innerHTML=md(r.text||'לא יודע.');hist.push({role:'assistant',content:r.text||'לא יודע.'});
+  }catch(e){
+    hist.pop();const c=e&&e.code;
+    box.classList.add('err');
+    box.innerHTML=md(c==='not_granted'?'לא אושרה גישה לשאלות. אפשר לאשר מחדש בטעינה הבאה של הדף.':c==='rate_limited'?'יותר מדי שאלות ברצף. נסי שוב בעוד דקה.':c==='prompt_too_large'?'השיחה ארוכה מדי. רעננו את הדף ונתחיל שיחה חדשה.':'משהו נכשל ('+(c||'שגיאה')+'). נסי שוב.');
+  }
+  busy=false;$('#send').disabled=false;box.scrollIntoView({block:'end'});
+}
+$('#form').onsubmit=e=>{e.preventDefault();const q=$('#q').value;$('#q').value='';fit();ask(q)};
+const fit=()=>{const t=$('#q');t.style.height='auto';t.style.height=Math.min(t.scrollHeight,160)+'px'};
+$('#q').addEventListener('input',fit);
+$('#q').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#form').requestSubmit()}});
+['איזו קונפיגורציה שלנו עומדת הכי טוב בכללים, ולמה?','למה הסוללה נמצאת באמצע הגוף?','האם הגימבל מסתיר את הליידאר?','כמה הכלי שוקל ומה עוד חסר במשקל?','מה ההבדל בין 2 ל-3 חוליות?']
+ .forEach(t=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>ask(t);$('#ex').appendChild(b)});
+
+/* ---------- capabilities ---------- */
+(async()=>{
+  if(!window.claude||!window.claude.use){$('#foot').textContent='הצ\'אט עובד רק כשפותחים את הדף ב-claude.ai.';return}
+  sample=await claude.use('sample');if(!sample)$('#foot').textContent='הצ\'אט לא זמין בצפייה הזו.';
+})();
+})();
+</script>
