@@ -327,50 +327,35 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
   {
    "id": "radar",
    "name": "מכ\"ם",
-   "model": "TI IWRL6844 על לוח עם אנטנות ומחבר (הערכה)",
+   "model": "Innosent CTMRR-130Pro",
    "group": "sensing",
    "shape": "box",
    "dims": [
-    35,
-    7,
-    25
+    17.75,
+    62,
+    71.4
    ],
-   "qty": 4,
-   "weight": 5,
-   "power": 1.15,
-   "estimate": [
-    "dims",
-    "weight",
-    "power"
-   ],
-   "note": "עד כ-4.6 W לארבעה (כרטיס מכ\"ם, הערכה).",
-   "source": "כרטיסים, טבלת סיכום (14.11); טאב 02",
-   "why": "אחד קדימה, אחד אחורה ושניים בצדדים למעלה (כרטיס מכ\"ם)",
+   "qty": 1,
+   "weight": 67,
+   "power": 3.6,
+   "estimate": [],
+   "note": "מוצר סגור עם מארז משלו (IP6K9K, חיבור CAN-FD). 71.4×62×17.75 מ\"מ, 67 גרם, פחות מ-3.6 W (יצרן, נפתח 16.11). ההספק כאן הוא הגבול העליון. איזה צד לרוחב ואיזה לגובה: הנחה שלי, היצרן לא כותב.",
+   "source": "דף המוצר של Innosent, 16.11; כרטיס 02",
+   "why": "בחזית, מול כיוון הנסיעה קדימה: מכ\"ם רואה רק מה שמולו (כרטיס 02)",
    "wall": 1,
    "fov": {
-    "h_deg": 140,
-    "v_deg": 130,
-    "text": "70° לכל צד ו-65° למעלה ולמטה.",
-    "source": "כרטיס 02 (TI)"
+    "h_deg": 150,
+    "v_deg": 24,
+    "text": "75° לכל צד לרוחב ו-12° למעלה ולמטה.",
+    "source": "Innosent (יצרן), כרטיס 02"
    },
    "orient": {
     "units": [
      {
       "face": "+x"
-     },
-     {
-      "face": "-x"
-     },
-     {
-      "face": "+z",
-      "tilt_up_deg": 45
-     },
-     {
-      "face": "-z",
-      "tilt_up_deg": 45
      }
     ],
-    "text": "קדימה, אחורה, ושניים לצדדים באלכסון 45° למעלה.",
+    "text": "בחזית, פונה קדימה.",
     "source": "כרטיס 02"
    }
   },
@@ -1086,9 +1071,9 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
    "model": "CubeMars AKE40-6 + דרייבר AK48-2405-2D-A2",
    "shape": "cyl",
    "dims": [
-    51,
-    34.5,
-    51
+    54,
+    40.5,
+    54
    ],
    "weight": 160,
    "estimate": [
@@ -1097,7 +1082,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
    ],
    "torque_rated_nm": 1.8,
    "torque_peak_nm": 5.5,
-   "note": "מנוע קוטר 51 × 24.5 (140 ג') ועוד דרייבר 48×48×10 (גובה ו-20 ג': הערכה).",
+   "note": "מנוע קוטר 51 × 24.5 (140 ג', יצרן) ועוד דרייבר בקופסה 54×54×16 (הערכה, כרטיס 16.11), צמוד מאחורי המנוע. המעטפת כאן: 54 × 40.5. הדרייבר צמוד למנוע: החלטה שלי (חוטים קצרים, חלק אחד).",
    "source": "כרטיס 10, טבלה עליונה"
   },
   "joint": {
@@ -1105,7 +1090,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
    "shape": "cyl",
    "dims": [
     69,
-    35,
+    41,
     69
    ],
    "weight": 290,
@@ -1115,7 +1100,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
    ],
    "torque_rated_nm": 5,
    "torque_peak_nm": 12.5,
-   "note": "מנוע קוטר 69 × 25 (260 ג') ועוד דרייבר 54×54×10 (גובה ו-30 ג': הערכה). 0 בלי חוליות, 1 ב-2, 2 ב-3.",
+   "note": "מנוע קוטר 69 × 25 (260 ג', יצרן) ועוד דרייבר בקופסה 60×60×16 (הערכה, כרטיס 16.11), צמוד מאחורי המנוע. המעטפת כאן: 69 × 41. 0 בלי חוליות, 1 ב-2, 2 ב-3.",
    "source": "כרטיס 10, טבלה עליונה"
   }
  },
@@ -1651,40 +1636,30 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
   },
   "02": {
    "tab": "02 מכ\"ם",
-   "title": "מכ\"ם (4 יחידות)",
+   "title": "מכ\"ם (יחידה אחת, קדימה)",
    "items": [
     "radar"
    ],
-   "short": "מכ\"ם שולח גלי רדיו ומודד את ההחזר שלהם. כך הוא מזהה מכשולים ומודד מהירות תנועה, גם כשאבק או עשן מסתירים את המצלמות ואת הלידאר.",
+   "short": "מכ\"ם שולח גלי רדיו ומודד את ההחזר שלהם. כך הוא מזהה מכשולים ומודד מהירות תנועה, גם כשאבק או עשן מסתירים את המצלמות ואת הלידאר. בכלי יש מכ\"ם אחד בחזית, כגיבוי ללידאר כשיש אבק.",
    "needs": [
     "לזהות מכשול לפני הכלי, גם כשיש אבק או חושך.",
     "אפשרות נוספת: לעזור לכלי לדעת כמה הוא זז, כשהלידאר והמצלמות לא רואים."
    ],
    "decided": [
     {
-     "text": "התפקיד: במערות הרבה אבק וחול, לכן המכ\"ם עובד כל הזמן יחד עם הלידאר ולא רק כגיבוי. אחראי על בטיחות וניווט: מכשולים ומיקום גם באבק. המיפוי המפורט נשאר אצל הלידאר, כי המכ\"ם פחות מדויק.",
+     "text": "מכ\"ם אחד בלבד, בחזית. הוא גיבוי ללידאר כשיש אבק. הוא מחליף את ארבעת מכ\"מי TI.",
      "who": "שרון",
-     "date": "11.11"
+     "date": "16.11"
     },
     {
-     "text": "4 מכ\"מים: אחד קדימה, אחד אחורה, ועוד שניים בזווית של 45 מעלות למעלה, אחד לכל צד. כל מכ\"ם רואה 70 מעלות לכל צד ו-65 למעלה ולמטה (TI). ארבעה מכסים גם את הצדדים ואת התקרה.",
+     "text": "דגם: Innosent CTMRR-130Pro, מוצר סגור עם מארז משלו. 71.4 × 62 × 17.75 מ\"מ, 67 גרם, פחות מ-3.6 וואט, אטימות IP6K9K. מקור: דף המוצר של Innosent (יצרן), נפתח ב-16.11.",
      "who": "שרון",
-     "date": "11.11"
+     "date": "16.11"
     },
     {
-     "text": "חשמל: 1.145 וואט לשבב במצב פעיל רציף, כלומר עד כ-4.6 וואט לארבעה (חישוב שלי). בין מדידות הממוצע יורד ל-36 מילי-וואט לשבב במחזור של 1% (TI SWRS326A, דצמבר 2025). כמה בפועל: לא יודע.",
+     "text": "ההחלטה הקודמת (4 מכ\"מי TI IWRL6844 על לוח שלנו) בוטלה, כי לשבב אין לוח מוכן עם מידות ומשקל.",
      "who": "שרון",
-     "date": "11.11"
-    },
-    {
-     "text": "הדגם: שבב TI IWRL6844 על לוח שנתכנן בעצמנו. היום אין לו לוח מוכן.",
-     "who": "שרון",
-     "date": "11.11"
-    },
-    {
-     "text": "מידה זמנית: בהחלטה 31×15.5×3.8 מ\"מ (מודול דומה של TI, IWRL6432WMOD, עם אנטנות; עובי מקסימלי 3.8 מדף המודול). בטבלת הכרטיס ובנתוני הדשבורד: 35×25×7 מ\"מ (הערכה שלי). שתי המידות הערכות והן אינן תואמות בתוך הכרטיס. השבב עצמו 9.1×9.1 מ\"מ ועובי עד 1.044 מ\"מ.",
-     "who": "שרון",
-     "date": "11.11"
+     "date": "16.11"
     }
    ],
    "why": [
@@ -1693,52 +1668,35 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
     "מאמר Nissov ו-Alexis (מאי 2026): מכ\"ם עמיד בסביבות שמקשות על לידאר ועל מצלמות.",
     "מסקנה: הלידאר מצייר את המערה בפירוט, המכ\"ם עובד איתו כל הזמן ושומר על בטיחות וניווט כשהאבק מסתיר."
    ],
-   "explainer": "המכ\"ם הוא שבב קטן, 9 על 9 מ\"מ, שרואה דרך אבק וחושך. השבב לבדו לא עובד, הוא צריך לוח עם אנטנות וחשמל. היום אין לוח מוכן לשבב החדש ביותר של TI, ולכן אנחנו מתכננות לוח משלנו סביב השבב. בחרנו בשבב החדש כי הוא רואה רחב יותר ובפרטים רבים יותר, וזה חשוב לכלי שיפעל בעוד 3 עד 5 שנים. את המידה לקחנו ממודול דומה של אותה חברה. זו הערכה, לא מידה סופית.",
+   "explainer": "המכ\"ם הוא קופסה סגורה בגודל של כף יד קטנה, 71 על 62 מ\"מ ובעובי 18 מ\"מ. הוא רואה קדימה דרך אבק וחושך. הוא רואה רחב לצדדים (75 מעלות לכל צד) אבל צר מאוד בגובה (12 מעלות למעלה ולמטה). בחרנו במוצר גמור עם מארז, כי יש לו מידות ומשקל מהיצרן.",
    "alternatives": [
-    "מכ\"ם אחד בכל כיוון מספיק למכשולים; לניווט ב-MRIO השתמשו בשישה. כל כיוון נוסף הוא עוד מכ\"ם, משקל וחשמל.",
-    "המאמרים משתמשים בדור הקודם (IWR6843AOP). לא בדקתי את התאריך שלו ולכן הוא לא בהמלצה.",
-    "לוח מוכן לשבב IWRL6844 עם מידות ומשקל: לא נמצא. נמצא רק לוח הפיתוח של TI, ובמדריך שלו (ינואר 2026) אין מידות."
+    "TI IWRL6844: שבב 9.1 × 9.1 מ\"מ, אין לו לוח מוכן ולכן אין מידות ומשקל. לא נבחר.",
+    "מודול TI IWRL6432WMOD: 31 × 15.5 מ\"מ, קטן יותר, אבל בלי משקל מפורסם."
    ],
    "placement": [
-    "קדימה: מכ\"ם אחד בחזית, בכיוון התנועה.",
-    "אחורה: מכ\"ם אחד בגב, לדרך החזרה.",
-    "בשני הצדדים, באלכסון למעלה: מכ\"ם אחד בכל צד בזווית 45 מעלות, כך רואים את הקירות הקרובים ואת התקרה.",
-    "אם הגוף מחולק לחוליות: הקדמי בחוליה הראשונה והאחורי באחרונה. לשני הצדדיים אין סיבה טכנית לחוליה מסוימת, והמקום ייקבע עם צורת הגוף."
+    "בחזית, מול כיוון הנסיעה קדימה. מכ\"ם רואה רק מה שמולו.",
+    "מחוץ לשדה הראייה של הלידאר, כמו כל רכיב בחזית (כרטיס 03).",
+    "אם יש כיסוי מולו, צריך חומר שמעביר גלי רדיו. העובי המותר: לא יודע.",
+    "אם הגוף מחולק לחוליות: בחוליה הקדמית."
    ],
    "problems": [
-    "התמונה של מכ\"ם דלילה ורועשת ולכן הוא לא מחליף את הלידאר במיפוי (נראה בתוצאת חיפוש בלבד, לא במקור שנפתח).",
-    "מכ\"ם אחד כנראה לא מספיק לניווט (הסקה שלי)."
+    "שדה ראייה צר בגובה, 24 מעלות (יצרן).",
+    "מכ\"ם אחד רואה רק קדימה, והכלי נוסע גם אחורה.",
+    "התמונה של מכ\"ם דלילה ורועשת, ולכן הוא לא מחליף את הלידאר (ראיתי רק בתוצאת חיפוש, לא במקור שנפתח)."
    ],
    "open": [
-    "משקל של לוח המכ\"ם: לא יודע (לא נמצא מקור).",
-    "טווח זיהוי מכשולים: לא נמצא מקור. TI כותבת על יותר מ-20 מטר בזיהוי אנשים בבניין.",
-    "האם אפשר להסתיר אותו מאחורי כיסוי: לא נמצא מקור.",
-    "כמה חשמל בפועל, לפי קצב המדידה."
+    "האם גובה ראייה צר כזה (24 מעלות) מספיק למכ\"ם קדמי.",
+    "האם מכ\"ם אחד קדימה מספיק כשהכלי נוסע גם אחורה.",
+    "עובי הכיסוי (radome) שמותר לשים מולו: לא נמצא מקור."
    ],
    "sources": [
     {
-     "t": "TI IWRL6844 דף נתונים",
-     "u": "https://www.ti.com/lit/gpn/iwrl6844"
+     "t": "Innosent CTMRR-130Pro (דף 77GHz)",
+     "u": "https://www.innosent.de/en/radar-systems/"
     },
     {
      "t": "TI IWRL6844 דף מוצר",
      "u": "https://www.ti.com/product/IWRL6844"
-    },
-    {
-     "t": "TI SWRS326A (חשמל)",
-     "u": "https://www.ti.com/document-viewer/lit/html/SWRS326/GUID-1A9706FC-5345-4C32-8E39-BE01FECAC661"
-    },
-    {
-     "t": "TI תבנית קרינה, AWRL6844EVM",
-     "u": "https://dev.ti.com/tirex/explore/content/radar_toolbox_3_20_00_04/hardware_docs/antenna_radiation_patterns/awrl6844evm.html"
-    },
-    {
-     "t": "TI SBAA802, אפריל 2026",
-     "u": "https://www.ti.com/lit/ab/sbaa802/sbaa802.pdf"
-    },
-    {
-     "t": "TI IWRL6432WMOD",
-     "u": "https://www.ti.com/lit/ds/symlink/iwrl6432wmod.pdf"
     },
     {
      "t": "FIRE-LIVWO",
@@ -3684,7 +3642,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
   ]
  },
  "links": {
-  "_note": "קישורים לרכיב עצמו (דגם/יצרן), נבחרו מרשימת המקורות בכרטיסים, בלי קישורים חדשים. אין קישור לרכיב שאין לו דגם (backup, leddriver, airboard). מכ\"ם: לא נוסף, כי שרון מעדכנת אותו.",
+  "_note": "קישורים לרכיב עצמו (דגם/יצרן), נבחרו מרשימת המקורות בכרטיסים, בלי קישורים חדשים. אין קישור לרכיב שאין לו דגם (backup, leddriver, airboard).",
   "by_id": {
    "computer": [
     {
@@ -3828,6 +3786,12 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
     {
      "t": "CubeMars AKE60-8 דף נתונים",
      "u": "https://img.cubemars.com/products/cubemars-product-parameter/AKE60-8-KV80.pdf"
+    }
+   ],
+   "radar": [
+    {
+     "t": "Innosent CTMRR-130Pro",
+     "u": "https://www.innosent.de/en/radar-systems/"
     }
    ]
   }
@@ -4077,7 +4041,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
      "p": [
       0,
       0,
-      0
+      12.25
      ],
      "ax": "z"
     },
@@ -4089,14 +4053,14 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
       16
      ],
      "p": [
-      70,
       0,
-      0
+      0,
+      -8
      ],
      "ghost": true
     }
    ],
-   "label": "מנוע קוטר 51 × 24.5 (CubeMars). השקוף: דרייבר בקופסה נפרדת 54×54×16, הערכה. המרחק ביניהם להמחשה."
+   "label": "מנוע קוטר 51 × 24.5 (CubeMars), ומאחוריו דרייבר 54×54×16 (שקוף: הערכה). הדרייבר צמוד למנוע: החלטה שלי."
   },
   "jmotor": {
    "parts": [
@@ -4107,7 +4071,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
      "p": [
       0,
       0,
-      0
+      12.5
      ],
      "ax": "z"
     },
@@ -4119,14 +4083,14 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
       16
      ],
      "p": [
-      85,
       0,
-      0
+      0,
+      -8
      ],
      "ghost": true
     }
    ],
-   "label": "מנוע קוטר 69 × 25 (CubeMars). השקוף: דרייבר בקופסה נפרדת 60×60×16, הערכה. המרחק ביניהם להמחשה."
+   "label": "מנוע קוטר 69 × 25 (CubeMars), ומאחוריו דרייבר 60×60×16 (שקוף: הערכה). הדרייבר צמוד למנוע: החלטה שלי."
   },
   "safety": {
    "parts": [
@@ -4239,6 +4203,24 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
     }
    ],
    "label": "תא 14500: קוטר 14.5 × 49.3."
+  },
+  "radar": {
+   "parts": [
+    {
+     "t": "box",
+     "d": [
+      17.75,
+      62,
+      71.4
+     ],
+     "p": [
+      0,
+      0,
+      0
+     ]
+    }
+   ],
+   "label": "קופסה סגורה 71.4 × 62 × 17.75 מ\"מ (יצרן). אין לי מודל STEP של היצרן."
   }
  }
 }
@@ -5975,7 +5957,7 @@ function ruleFor(c,it){
     case 'safety':return{s:'A',f:[.5,.6,.7]};
     case 'navcam':return{s:AB,f:[sgn,.3,1],rot:[0,1,0]}; // step 4: card 04, long side (124) across the tool, lenses face out
     case 'thermal':return{s:AB,f:[sgn,-.3,1],rot:[0,1,0]}; // step 4: card 08, 21x21 face out, 34 = core+lens+board depth along the lens
-    case 'radar':return[{s:'A',f:[-1,.7,0]},{s:'B',f:[1,.7,0]},{s:'M',f:[0,.9,-1]},{s:'M',f:[0,.9,1]}][i%4];
+    case 'radar':return{s:'B',f:[1,.7,0]}; // 16.11: one radar, at the front (end B, where the lidar faces +x), card 02
     case 'cliff':return[{s:'A',f:[-1,-1,-1]},{s:'A',f:[-1,-1,1]},{s:'B',f:[1,-1,-1]},{s:'B',f:[1,-1,1]}][i%4];
     case 'drivelight':return{s:AB,f:[sgn,.8,sgn*.4],rot:[0,0,1]};
     case 'doclight':return{s:AB,f:[sgn,-.5,i%2?1:-1],rot:[1,0,0]}; // step 4: card 12, lights from the side: lamp axis across the tool (like drivelight along it)
@@ -7050,7 +7032,7 @@ addEventListener('keydown',e=>{
    Once per saved configuration; the body grows only if something no longer fits. */
 const ROT4={navcam:[0,1,0],thermal:[0,1,0],doclight:[1,0,0]};
 function migrate4(){S.configs.forEach(c=>{if(c.orient4)return;c.orient4=true;let ch=false;c.items.forEach(i=>{if(ROT4[i.cid]&&i.rot.every(v=>!v)){i.rot=ROT4[i.cid].slice();ch=true}});if(ch)growIfNeeded(c,false)})}
-function migrate(){S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
+function migrate(){S.configs.forEach(c=>{if(!c.radar1){c.radar1=true;const rs=c.items.filter(i=>i.cid==='radar');if(rs.length>1){c.items=c.items.filter(i=>i.cid!=='radar'||i===rs[0]);rs[0].manual=false}}});S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
 
 /* ---------- legs tab: play with leg length and proportions, then import into a configuration ---------- */
 function showTab(tab){LV.on=tab==='legs';$('.app').classList.toggle('tl',LV.on);

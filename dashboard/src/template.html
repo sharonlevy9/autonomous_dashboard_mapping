@@ -573,7 +573,7 @@ function ruleFor(c,it){
     case 'safety':return{s:'A',f:[.5,.6,.7]};
     case 'navcam':return{s:AB,f:[sgn,.3,1],rot:[0,1,0]}; // step 4: card 04, long side (124) across the tool, lenses face out
     case 'thermal':return{s:AB,f:[sgn,-.3,1],rot:[0,1,0]}; // step 4: card 08, 21x21 face out, 34 = core+lens+board depth along the lens
-    case 'radar':return[{s:'A',f:[-1,.7,0]},{s:'B',f:[1,.7,0]},{s:'M',f:[0,.9,-1]},{s:'M',f:[0,.9,1]}][i%4];
+    case 'radar':return{s:'B',f:[1,.7,0]}; // 16.11: one radar, at the front (end B, where the lidar faces +x), card 02
     case 'cliff':return[{s:'A',f:[-1,-1,-1]},{s:'A',f:[-1,-1,1]},{s:'B',f:[1,-1,-1]},{s:'B',f:[1,-1,1]}][i%4];
     case 'drivelight':return{s:AB,f:[sgn,.8,sgn*.4],rot:[0,0,1]};
     case 'doclight':return{s:AB,f:[sgn,-.5,i%2?1:-1],rot:[1,0,0]}; // step 4: card 12, lights from the side: lamp axis across the tool (like drivelight along it)
@@ -1648,7 +1648,7 @@ addEventListener('keydown',e=>{
    Once per saved configuration; the body grows only if something no longer fits. */
 const ROT4={navcam:[0,1,0],thermal:[0,1,0],doclight:[1,0,0]};
 function migrate4(){S.configs.forEach(c=>{if(c.orient4)return;c.orient4=true;let ch=false;c.items.forEach(i=>{if(ROT4[i.cid]&&i.rot.every(v=>!v)){i.rot=ROT4[i.cid].slice();ch=true}});if(ch)growIfNeeded(c,false)})}
-function migrate(){S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
+function migrate(){S.configs.forEach(c=>{if(!c.radar1){c.radar1=true;const rs=c.items.filter(i=>i.cid==='radar');if(rs.length>1){c.items=c.items.filter(i=>i.cid!=='radar'||i===rs[0]);rs[0].manual=false}}});S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
 
 /* ---------- legs tab: play with leg length and proportions, then import into a configuration ---------- */
 function showTab(tab){LV.on=tab==='legs';$('.app').classList.toggle('tl',LV.on);
