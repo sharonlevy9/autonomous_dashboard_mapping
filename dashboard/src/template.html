@@ -10,6 +10,15 @@
   --bg:#e7e8ea; --card:#f4f4f5; --card2:#ffffff; --line:#d6d8dc; --text:#15181e; --muted:#7b8290;
   --accent:#16263f; --accent2:#2f5d8c; --warn:#c2571a; --bad:#c0352b; --ok:#2e6b4a;
   --r:22px; --shadow:0 1px 2px rgba(20,25,35,.05),0 8px 24px rgba(20,25,35,.06);
+  /* Material 3 tokens (Google Material Web components read these) */
+  --md-sys-color-primary:#16263f; --md-sys-color-on-primary:#fff;
+  --md-sys-color-primary-container:#dbe4f1; --md-sys-color-on-primary-container:#16263f; --md-sys-color-surface-container-highest:#e4e6ea;
+  --md-sys-color-secondary-container:#dbe4f1; --md-sys-color-on-secondary-container:#16263f;
+  --md-sys-color-surface:#f4f4f5; --md-sys-color-surface-container:#f4f4f5; --md-sys-color-on-surface:#15181e;
+  --md-sys-color-on-surface-variant:#5b6270; --md-sys-color-outline:#8b919c; --md-sys-color-outline-variant:#d6d8dc;
+  --md-sys-color-surface-container-highest:#e4e6ea; --md-sys-color-surface-container-low:#f4f4f5;
+  --md-sys-typescale-label-large-font:"Heebo","Roboto",system-ui,sans-serif;
+  --md-ref-typeface-brand:"Heebo","Roboto",system-ui,sans-serif; --md-ref-typeface-plain:"Heebo","Roboto",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -47,6 +56,22 @@ main{display:grid;grid-template-columns:210px minmax(0,1fr) 330px;gap:12px;min-h
 /* editor */
 .editor{display:flex;flex-direction:column;overflow:hidden}
 .stats{display:flex;gap:6px;padding:14px 22px 0;align-items:flex-end}
+.checks{display:flex;flex-wrap:wrap;gap:6px;padding:10px 22px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px}
+.chip i{font-style:normal;width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;color:#fff;background:var(--ok)}
+.chip b{font-weight:600}
+.chip.bad{border-color:var(--bad);color:var(--bad)}.chip.bad i{background:var(--bad)}
+.chip.wv{border-color:#b8860b;color:#7a5a00}.chip.wv i{background:#b8860b}
+.chip:hover{background:#f3f5f9}
+.wl2{list-style:none;margin:0;padding:0}.wl2>li{border-bottom:1px solid var(--line);padding:8px 2px}
+.wl2 summary{cursor:pointer;display:flex;gap:8px;align-items:center;list-style:none}.wl2 summary::-webkit-details-marker{display:none}
+.wl2 .st{width:9px;height:9px;border-radius:50%;background:var(--bad);flex:none}.wl2 .st.wv{background:#b8860b}
+.ex{margin:8px 0 6px;padding-inline-start:17px}.ex dt{font-size:12px;color:var(--muted)}.ex dd{margin:0 0 6px;font-size:14px}
+.opt{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.opt .res{font-size:13px;color:var(--muted);margin-top:3px}.opt .res b{color:var(--ink,#16263f)}
+.bx{background:#fff6e6;border:1px solid #e3c88a;border-radius:10px;padding:8px 10px;font-size:13px;margin:8px 0}
+.wvrow[hidden]{display:none}.wvrow{display:flex;gap:6px;margin-top:8px}.wvrow input{flex:1;min-width:0;padding:6px 10px;border:1px solid var(--line);border-radius:10px;font:inherit}
+.pill[disabled]{opacity:.45;pointer-events:none}
+.app.pres~.modal .edit{display:none}
 .stat{padding-inline-end:26px;min-width:0}
 .stat .k{font-size:12px;color:var(--muted)}
 .stat .v{font-size:30px;font-weight:300;letter-spacing:-.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -147,8 +172,10 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 }
 /* legs tab */
 .ctl.col{grid-template-columns:1fr;gap:4px}.ctl.col .seg{justify-self:start}
-.legtab{display:none;grid-template-columns:330px minmax(0,1fr);gap:12px;min-height:0;grid-row:2/4}
-.app.tl main,.app.tl .strip,.app.tl #viewseg{display:none}
+.legtab{display:none;position:fixed;inset:72px 16px 16px;z-index:9;background:var(--bg);border-radius:var(--r);padding:12px;box-shadow:0 16px 60px rgba(15,20,30,.35);grid-template-columns:330px minmax(0,1fr);gap:12px;min-height:0}
+.legscrim{display:none;position:fixed;inset:0;background:rgba(15,20,30,.4);z-index:8}
+.app.tl .legscrim{display:block}
+.lclose{position:absolute;top:8px;inset-inline-end:10px;z-index:2}
 .app.tl .legtab{display:grid}
 .lctl{overflow:auto;padding-bottom:14px}
 .lctl select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);min-width:0}
@@ -158,24 +185,63 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .lsv{overflow:hidden}.lsv svg{width:100%;height:100%;display:block}
 .lnum{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:6px 18px 8px;font-size:13px}.lnum span{color:var(--muted)}.lnum b{font-weight:600;font-variant-numeric:tabular-nums;text-align:end}.lnum b.bad{color:var(--bad)}
 .lw{padding:2px 18px 4px;font-size:12px;color:var(--bad)}.lw.ok{color:var(--ok)}
-@media (max-width:1100px){.legtab{grid-template-columns:1fr;grid-row:auto}.lmain{grid-template-rows:60vh 320px}}
+@media (max-width:1100px){.legtab{grid-template-columns:1fr;overflow:auto}.lmain{grid-template-rows:60vh 320px}}
+/* stage 2: Material shell */
+header md-tabs{--md-primary-tab-container-color:transparent;min-width:200px;border-radius:999px}
+header md-icon-button svg{width:24px;height:24px;fill:currentColor}
+header md-icon-button{--md-icon-button-icon-color:var(--text)}
+header md-icon-button[disabled]{opacity:.35}
+.modesw{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.modesw md-switch{--md-switch-selected-track-color:var(--accent)}
+.pres-badge{display:none;font-size:12px;color:var(--muted)}
+/* presentation mode: read-only, only looking. Nothing can be dragged or edited. */
+.app.pres{grid-template-rows:64px minmax(0,1fr)}
+.app.pres .strip,.app.pres #ctrl,.app.pres .edit,.app.pres .pop .fields,.app.pres .pop .btns,.app.pres .xbtn,.app.pres .act{display:none}
+.app.pres main{grid-template-columns:210px minmax(0,1fr) 330px}
+.app.pres .it{cursor:default}
+.app.pres .side .m3{height:auto;flex:1}
+@media (max-width:1100px){.app.pres{grid-template-rows:auto auto}}
+
+/* stage 4: component card drawer */
+.row .thumb{flex:none}.row .info{flex:none;width:18px;height:18px;border-radius:50%;border:1px solid var(--line);font-size:11px;display:grid;place-items:center;color:var(--muted);background:var(--card2);font-style:italic;font-family:Georgia,serif}
+.row .info:hover{background:var(--accent);color:#fff}.row.sel .info{background:transparent;color:#fff;border-color:#c7d3e6}
+.rsep{font-size:12px;color:var(--muted);padding:12px 10px 4px}
+.cdrawer{position:fixed;top:64px;bottom:10px;left:10px;width:min(440px,92vw);background:var(--card2);border-radius:20px;box-shadow:0 8px 30px rgba(20,28,40,.25);z-index:8;display:none;flex-direction:column;overflow:hidden}
+.cdrawer.on{display:flex}
+.chd{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid var(--line);flex:none}.chd .cht{flex:1;font-size:13px;color:var(--muted)}
+.cb2{overflow:auto;padding:12px 16px 20px;flex:1}
+.ctitle{display:flex;gap:12px;align-items:center}.ctitle h3{margin:0;font-size:19px;font-weight:600}.ctitle .m{font-size:12px;color:var(--muted);margin-top:2px}
+.cshort{margin:12px 0 4px;font-size:15px;line-height:1.55}
+.cs{border-top:1px solid var(--line);padding:2px 0}.cs>summary{cursor:pointer;padding:9px 0;font-weight:600;font-size:14px;list-style:none;display:flex;justify-content:space-between}
+.cs>summary::after{content:'▾';color:var(--muted)}.cs[open]>summary::after{content:'▴'}
+.cs .cb{padding:0 0 10px;font-size:14px;line-height:1.55}.cs ul{margin:0;padding-inline-start:20px}.cs li{margin:4px 0}.cs p{margin:6px 0}
+.cmeta{font-size:12px;color:var(--muted)}
+.term{border-bottom:1px dotted var(--muted);cursor:help}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap}.chip.est{background:#f3e3bf;color:#6b4b00}.chip.unk{background:#f0d6d2;color:#7a2a1f}.chip.src{background:var(--accent-soft,#dbe4f1);color:var(--accent)}
+.nums td{padding:6px 6px;font-size:13px}.pill.sm{font-size:11px;padding:2px 8px;margin-inline-start:6px}
+dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:#fff3c4;padding:2px 6px;border-radius:6px}dl.gl dd{margin:2px 0 0;color:#333;line-height:1.5}
+.trow{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}.tv{display:flex;flex-direction:column;align-items:center;gap:6px}.tr{background:#cfd6e2;border:1px solid #16263f;box-sizing:border-box}.tr.ref{background:#e4e6ea;border-color:#8b919c}.tl{font-size:12px;color:var(--muted);text-align:center;max-width:200px}
+@media(max-width:900px){.cdrawer{top:auto;height:70vh;left:6px;right:6px;width:auto}}
+.clinks{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}.clinks a{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--md-sys-color-primary-container,#dbe4f1);color:var(--accent);text-decoration:none;direction:ltr}.clinks a:hover{background:var(--accent);color:#fff}
+.pvw{margin:10px 0 2px;background:#eef0f3;border-radius:14px;overflow:hidden}.pv3{width:100%;height:auto;aspect-ratio:5/3;display:block;cursor:grab;touch-action:none}.pvl{margin-bottom:6px}.row img.thumb{flex:none;border-radius:6px}
 </style>
 </head>
 <body>
 <div class="app">
   <header>
     <div class="brand">פריסת רכיבים</div>
-    <div class="seg" id="tabs"><button data-t="layout" class="on">פריסה</button><button data-t="legs">רגליים</button></div>
+    <md-filled-tonal-button id="legsbtn">רגליים</md-filled-tonal-button>
     <div class="spacer"></div>
     <div class="seg" id="viewseg"><button data-m="side" class="on">מהצד</button><button data-m="top">מלמעלה</button><button data-m="front">מלפנים</button><button data-m="3d">תלת מימד</button><button data-m="win" title="שלושה היטלים ותלת מימד, יחד">הכול יחד</button></div>
     <div class="spacer"></div>
     <div class="hgrp">
-      <button class="pill" id="rulesbtn" style="box-shadow:var(--shadow)">כללי הנדסה</button>
-      <button class="ibtn" id="undo" title="ביטול" aria-label="ביטול">↶</button>
-      <button class="ibtn" id="redo" title="שחזור" aria-label="שחזור">↷</button>
-      <button class="ibtn" id="compare" title="השוואה בין קונפיגורציות" aria-label="השוואה">⇄</button>
-      <button class="ibtn" id="export" title="שמירת נתונים לקובץ" aria-label="שמירה">⤓</button>
-      <button class="ibtn" id="import" title="טעינת נתונים מקובץ" aria-label="טעינה">⤒</button>
+      <label class="modesw"><md-switch id="modesw" aria-label="מצב הצגה"></md-switch><span id="modelab">מצב תכנון</span></label>
+      <md-filled-tonal-button id="rulesbtn" class="edit">כללי הנדסה</md-filled-tonal-button>
+      <md-icon-button id="undo" class="edit" title="ביטול" aria-label="ביטול"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></md-icon-button>
+      <md-icon-button id="redo" class="edit" title="שחזור" aria-label="שחזור"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/></svg></md-icon-button>
+      <md-icon-button id="compare" title="השוואה בין קונפיגורציות" aria-label="השוואה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.01 14H2v2h7.01v3L13 15l-3.99-4v3zm5.98-1v-3H22V8h-7.01V5L11 9l3.99 4z"/></svg></md-icon-button>
+      <md-icon-button id="export" title="שמירת נתונים לקובץ" aria-label="שמירה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></md-icon-button>
+      <md-icon-button id="import" class="edit" title="טעינת נתונים מקובץ" aria-label="טעינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg></md-icon-button>
       <input type="file" id="file" accept="application/json" hidden>
     </div>
   </header>
@@ -183,6 +249,7 @@ th{font-size:12px;color:var(--muted);font-weight:500}
     <section class="card list"><div class="cardh">רכיבים</div><div class="rows" id="rows"></div></section>
     <section class="card editor">
       <div class="stats" id="stats"></div>
+      <div class="checks" id="checks" role="group" aria-label="בדיקות בזמן אמת"></div>
       <div class="vopts" id="vopts"></div>
       <div class="stage" id="stage">
         <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -203,7 +270,9 @@ th{font-size:12px;color:var(--muted);font-weight:500}
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
-  <section class="legtab" id="legtab">
+  <aside class="cdrawer" id="cdrawer" aria-label="כרטיס רכיב"></aside>
+  <div class="legscrim" id="legscrim"></div>
+  <section class="legtab" id="legtab"><md-icon-button class="lclose" id="lclose" title="סגירה" aria-label="סגירת חלון הרגליים"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></md-icon-button>
     <div class="card lctl" id="lctl"></div>
     <div class="lmain">
       <div class="card l3"><canvas id="lc3"></canvas><div class="lst"><span>עומד</span><input type="range" id="lt" min="0" max="100" value="0" aria-label="עמידה או קיפול"><span>מקופל</span></div></div>
@@ -216,8 +285,10 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 <div class="toast" id="toast"></div>
 
 <script type="application/json" id="data-default">__DATA__</script>
+<script type="application/json" id="meshes">__MESHES__</script>
 <script>__THREE__</script>
 <script>__ORBIT__</script>
+<script>__MW__</script>
 <script>
 (function(){
 'use strict';
@@ -239,7 +310,7 @@ function motorCat(){const M=DEF.motors||{},i0=Math.max(0,DEF.catalog.findIndex(k
 motorCat();
 const isMotor=it=>it.cid==='legmotor'||it.cid==='jmotor';
 let S=null,hist=[],fut=[],sel=null,showFields=false;
-const V={mode:'side',vb:null,seg:0,hint:null,dims:false,rng:'sel',cab:'off',arr:false,rlen:300,w3:0,gTilt:0,gPan:0};
+const V={mode:'3d',vb:null,seg:0,hint:null,dims:false,rng:'sel',cab:'off',arr:false,rlen:300,w3:0,gTilt:0,gPan:0};
 const uid=()=>Math.random().toString(36).slice(2,9);
 const cfg=()=>S.configs[S.active];
 
@@ -305,7 +376,7 @@ const KNEE_NAMES={in:'פנימה',out:'החוצה',fwd:'קדימה',back:'אחו
 /* legs per segment come in pairs (one per side). My rule: a leg without a partner on the other side tips the tool over. */
 function legsOf(c){const L=c.legs,n=c.shell.n;
   if(!Array.isArray(L.per)||L.per.length!==n){const pairs=Math.ceil((L.count||0)/2),per=new Array(n).fill(0),seq=['A','B','M'];for(let j=0;j<pairs;j++)per[segIdx(c,seq[j%3])]++;L.per=per}
-  if(!(L.thigh>0)){const l=Math.round((L.clear||LG.stand_clearance)/LRAT/2);L.thigh=l;L.shin=l}
+  if(!(L.thigh>0)){const l=L.clear?Math.round(L.clear/LRAT/2):LEGMIN;L.thigh=l;L.shin=l}  /* default belly = the lowest the geometry allows: thigh = shin = motor diameter (card 10: low height matters most) */
   if(!(L.thick>0))L.thick=THICK0;if(!L.knee)L.knee='in';delete L.clear;
   L.count=2*L.per.reduce((a,b)=>a+b,0);return L}
 const reachOf=c=>Math.max(LRAT*(c.legs.thigh+c.legs.shin),Math.abs(c.legs.thigh-c.legs.shin)+1);
@@ -319,7 +390,16 @@ function setClear(c,v){const L=c.legs,r=L.thigh/(L.thigh+L.shin),tot=(v+maxHipY(
 function bodyTop(c){let t=Math.max(...shellOf(c).map(s=>s.hei));stepsOf(c).forEach(s=>t=Math.max(t,s.top));c.items.forEach(it=>{if(it.unfit||it.auto==='knee')return;const p=P(c,it),e=ext(it);t=Math.max(t,p[1]+e[1]/2)});return t}
 /* shell only (with steps), without the gimbal and other parts outside */
 function shellTop(c){let t=Math.max(...shellOf(c).map(s=>s.hei));stepsOf(c).forEach(s=>t=Math.max(t,s.top));if(c.shell.dyn)c.items.forEach(it=>{if(it.cid==='lidar'&&!it.unfit){const b=aabb(c,it);t=Math.max(t,b.max[1])}});return t}
-function clearRange(c){const mn=Math.max(0,Math.ceil(LRAT*2*LEGMIN-maxHipY(c))),mx=Math.floor(PASS-bodyTop(c));return[mn,mx]}
+/* belly range, computed from the geometry:
+   min = both links as short as the motor diameter allows; max = the smaller of (crawl passage - body top) and the longest leg whose motors still manage (binary search on legTorques). */
+function legsOk(c){const q=legTorques(c);return!q||(q.walk<=q.rated&&q.rise<=q.peak)}
+function clearInfo(c){const mn=Math.max(0,Math.ceil(LRAT*2*LEGMIN-maxHipY(c))),pass=Math.floor(PASS-bodyTop(c));
+  const L=c.legs,t0=L.thigh,s0=L.shin;let lo=mn,hi=Math.max(mn,pass),tq=hi;
+  if(L.count&&LM.torque_rated_nm){setClear(c,mn);if(!legsOk(c))tq=mn;else{while(lo<hi){const m=Math.ceil((lo+hi)/2);setClear(c,m);if(legsOk(c))lo=m;else hi=m-1}tq=lo}L.thigh=t0;L.shin=s0}
+  return{mn,pass,tq,mx:Math.min(pass,tq)}}
+function clearRange(c){const i=clearInfo(c);return[i.mn,i.mx]}
+/* shortest legs for a chosen belly height: thigh = shin. The motor torque limits only the MAXIMUM leg length, not the minimum. */
+function minLegsFor(c,v){const L=c.legs,tot=(v+maxHipY(c))/LRAT,l=Math.max(LEGMIN,Math.round(tot/2));L.thigh=l;L.shin=l}
 function baseDims(it){const k=cat[it.cid];if(it.dims)return it.dims;return k.dims?k.dims.slice():[10,10,10]}
 function ext(it){
   const d=baseDims(it),e=new THREE.Euler(it.rot[0]*Math.PI/2,it.rot[1]*Math.PI/2,it.rot[2]*Math.PI/2);
@@ -358,24 +438,25 @@ function hit(a,b){const q=.01;for(let k=0;k<3;k++)if(a.max[k]<=b.min[k]+q||b.max
 const isMounted=it=>cat[it.cid].mount==='gimbal';
 const isExternal=it=>cat[it.cid].external||isMounted(it);
 function name(c,it){const k=cat[it.cid],same=c.items.filter(x=>x.cid===it.cid);let n=k.name;if(it.role==='hip')n+=' (ירך, רגל '+(it.leg+1)+')';if(it.role==='knee')n+=' (ברך, רגל '+(it.leg+1)+')';if(it.role==='joint')n+=' (בין חוליות)';return n+(same.length>1&&!it.role?' '+(same.indexOf(it)+1):'')}
+function overshoot(c,b,segs,it){let best=1e9;segs.forEach(s=>{const o=Math.max(0,s.cx-s.len/2-b.min[0],b.max[0]-(s.cx+s.len/2),-s.wid/2-b.min[2],b.max[2]-s.wid/2,-b.min[1],b.max[1]-(s.hmax+allowUp(c,it)));best=Math.min(best,o)});return best}
 function warnings(c){
   const W=[],segs=shellOf(c),clear=clearance(c),items=c.items.filter(i=>!i.auto),bb=new Map(items.map(i=>[i.id,aabb(c,i)]));
   items.forEach(it=>{
     const b=bb.get(it.id);
     if(it.unfit){W.push({t:'nofit',a:it.id,text:name(c,it)+': לא נכנס בגוף במידות האלה'});return}
-    if(!isExternal(it)&&!segs.some(s=>b.min[0]>=s.cx-s.len/2-.2&&b.max[0]<=s.cx+s.len/2+.2&&b.min[2]>=-s.wid/2-.2&&b.max[2]<=s.wid/2+.2&&b.min[1]>=-.2&&b.max[1]<=s.hmax+allowUp(c,it)+.2))W.push({t:'out',a:it.id,text:name(c,it)+': חורג מהחוליה'});
+    if(!isExternal(it)&&!segs.some(s=>b.min[0]>=s.cx-s.len/2-.2&&b.max[0]<=s.cx+s.len/2+.2&&b.min[2]>=-s.wid/2-.2&&b.max[2]<=s.wid/2+.2&&b.min[1]>=-.2&&b.max[1]<=s.hmax+allowUp(c,it)+.2))W.push({t:'out',a:it.id,text:name(c,it)+': חורג מהחוליה',amt:'חורג בכ-'+Math.max(1,Math.ceil(overshoot(c,b,segs,it)))+' מ"מ'});
     else if(!isExternal(it)&&!roundOK(c,segAt(segs,P(c,it)[0]),b))W.push({t:'round',a:it.id,text:name(c,it)+': בולט מהפינה המעוגלת'});
-    if(b.min[1]+clear<-.01)W.push({t:'floor',a:it.id,text:name(c,it)+': מתחת לרצפה'});
+    if(b.min[1]+clear<-.01)W.push({t:'floor',a:it.id,text:name(c,it)+': מתחת לרצפה',amt:'מתחת לרצפה ב-'+Math.max(1,Math.round(-(b.min[1]+clear)))+' מ"מ'});
   });
   for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){
     const a=items[i],b=items[j];
     if(a.unfit||b.unfit)continue;
     if((a.cid==='gimbal'&&isMounted(b))||(b.cid==='gimbal'&&isMounted(a)))continue;
-    if(hit(bb.get(a.id),bb.get(b.id)))W.push({t:'hit',a:a.id,b:b.id,text:name(c,a)+' מתנגש עם '+name(c,b)});
+    if(hit(bb.get(a.id),bb.get(b.id))){const A=bb.get(a.id),B=bb.get(b.id),ov=[0,1,2].map(k=>Math.min(A.max[k],B.max[k])-Math.max(A.min[k],B.min[k]));W.push({t:'hit',a:a.id,b:b.id,text:name(c,a)+' מתנגש עם '+name(c,b),amt:'חפיפה של '+fmt(Math.min(...ov),1)+' מ"מ בכיוון הקצר ביותר (שם צריך להזיז כדי להפריד)'})}
   }
-  if(c.legs.count&&c.legs.stance!=='fold'){const H=Math.round(clear+bodyTop(c));if(H>PASS)W.push({t:'tall',a:(c.items.find(i=>i.cid==='gimbal')||c.items[0]).id,text:'הכלי בעמידה גבוה '+H+' מ"מ, יותר ממעבר הזחילה הנמוך ('+PASS+' מ"מ)'})}
-  {const ow=outerWidth(c);if(ow>PASSW)W.push({t:'wide',a:(items.find(i=>i.cid==='battery')||items[0]).id,text:'הכלי ברוחב '+ow+' מ"מ כולל הרגליים, יותר ממעבר הזחילה הצר ('+PASSW+' מ"מ)'})}
-  c.items.filter(i=>i.auto==='joint').forEach(j=>{const a=segs[j.gap],b=segs[j.gap+1];if(!a||!b)return;const e=ext(j),h=Math.min(a.hmax,b.hmax),w=Math.min(a.wid,b.wid);if(e[1]>h+.2||e[2]>w+.2)W.push({t:'joint',a:j.id,g:j.gap,text:'מנוע החיבור בין חוליה '+(j.gap+1)+' ל-'+(j.gap+2)+' ('+Math.round(e[1])+' מ"מ) לא נכנס בחוליה הנמוכה או הצרה'})});
+  if(c.legs.count&&c.legs.stance!=='fold'){const H=Math.round(clear+bodyTop(c));if(H>PASS)W.push({t:'tall',a:(c.items.find(i=>i.cid==='gimbal')||c.items[0]).id,text:'הכלי בעמידה גבוה '+H+' מ"מ, יותר ממעבר הזחילה הנמוך ('+PASS+' מ"מ)',amt:'גבוה ב-'+(H-PASS)+' מ"מ מעל הסף ('+H+' מול '+PASS+')'})}
+  {const ow=outerWidth(c);if(ow>PASSW)W.push({t:'wide',a:(items.find(i=>i.cid==='battery')||items[0]).id,text:'הכלי ברוחב '+ow+' מ"מ כולל הרגליים, יותר ממעבר הזחילה הצר ('+PASSW+' מ"מ)',amt:'רחב ב-'+(ow-PASSW)+' מ"מ מעל הסף ('+ow+' מול '+PASSW+')'})}
+  c.items.filter(i=>i.auto==='joint').forEach(j=>{const a=segs[j.gap],b=segs[j.gap+1];if(!a||!b)return;const e=ext(j),h=Math.min(a.hmax,b.hmax),w=Math.min(a.wid,b.wid);if(e[1]>h+.2||e[2]>w+.2)W.push({t:'joint',a:j.id,g:j.gap,text:'מנוע החיבור בין חוליה '+(j.gap+1)+' ל-'+(j.gap+2)+' ('+Math.round(e[1])+' מ"מ) לא נכנס בחוליה הנמוכה או הצרה',amt:(e[1]>h+.2?'חסרים '+Math.ceil(e[1]-h)+' מ"מ בגובה':'')+(e[1]>h+.2&&e[2]>w+.2?' ו-':'')+(e[2]>w+.2?'חסרים '+Math.ceil(e[2]-w)+' מ"מ ברוחב':'')})});
   legWarnings(c).forEach(x=>W.push(x));
   if(S&&S.rules)ruleWarnings(c).forEach(x=>W.push(x));
   return W;
@@ -439,7 +520,7 @@ function ruleWarnings(c){
   const R=RU(),W=[],items=c.items.filter(i=>!i.unfit),inner=items.filter(i=>!i.auto&&!isExternal(i)),segs=shellOf(c);
   const lid=items.find(i=>i.cid==='lidar');
   if(R.joint&&R.joint.on){const J=DEF.motors&&DEF.motors.joint,rt=J&&J.torque_rated_nm,pk=J&&J.torque_peak_nm;if(rt)jointLoads(c).forEach(L=>{if(L.nm<=rt)return;const j=c.items.find(i=>i.auto==='joint'&&i.gap===L.k);if(!j)return;
-    W.push({t:'rule',r:'joint',a:j.id,k:L.k,seg:L.seg,text:'החיבור בין חוליה '+(L.k+1)+' ל-'+(L.k+2)+': כדי להרים את חוליה '+(L.seg+1)+' צריך '+fmt(L.nm,1)+' Nm, והמנוע נותן '+rt+' Nm ברציפות'+(L.nm>pk?' (יותר גם מהשיא, '+pk+' Nm)':' (השיא '+pk+' Nm)')+(L.unk?'. חסר משקל ב-'+L.unk+' רכיבים':'')})})}
+    W.push({t:'rule',r:'joint',a:j.id,k:L.k,seg:L.seg,text:'החיבור בין חוליה '+(L.k+1)+' ל-'+(L.k+2)+': כדי להרים את חוליה '+(L.seg+1)+' צריך '+fmt(L.nm,1)+' Nm, והמנוע נותן '+rt+' Nm ברציפות'+(L.nm>pk?' (יותר גם מהשיא, '+pk+' Nm)':' (השיא '+pk+' Nm)')+(L.unk?'. חסר משקל ב-'+L.unk+' רכיבים':''),amt:'צריך '+fmt(L.nm,1)+' Nm, המנוע נותן '+rt+' Nm ברציפות ועד '+pk+' Nm לרגע'})})}
   if(R.lidar.on&&lid){const bl=lidarBlockers(c,lid);if(bl.length)W.push({t:'rule',r:'lidar',a:lid.id,text:'הליידאר מוסתר על ידי '+bl.map(x=>x.label).join(', ')})}
   if(R.imu.on&&lid){const im=inner.find(i=>i.cid==='imu');if(im&&segAt(segs,P(c,im)[0]).i!==segAt(segs,P(c,lid)[0]).i)W.push({t:'rule',r:'imu',a:im.id,text:'IMU לא באותה חוליה עם הליידאר'})}
   if(R.heat.on){const seen=new Set();inner.concat(items.filter(i=>i.auto==='joint')).filter(isSens).forEach(it=>{const o=heatConflict(c,it,P(c,it));if(o){const k=[it.id,o.id].sort().join();if(!seen.has(k)){seen.add(k);W.push({t:'rule',r:'heat',a:it.id,b:o.id,text:name(c,it)+' קרוב מדי לחום של '+name(c,o)+' (פחות מ-'+R.heat.d+' מ"מ)'})}}})}
@@ -448,19 +529,25 @@ function ruleWarnings(c){
   if(R.cog.on){const g=cogOf(c),b=cogBad(c,g);if(g&&(b.x||b.z||b.y)){const bat=items.filter(i=>i.cid==='battery').sort((a,b)=>b.frac-a.frac)[0],h=items.slice().sort((a,b)=>(eff(b,'weight')||0)-(eff(a,'weight')||0))[0];
     W.push({t:'rule',r:'cog',a:(bat||h).id,text:'מרכז הכובד '+(b.x?'רחוק מהאמצע לאורך':'')+(b.z?(b.x?', ':'')+'רחוק מהאמצע לרוחב':'')+(b.y?((b.x||b.z)?', ':'')+'גבוה מדי':'')})}}
   if(R.legs&&R.legs.on){const q=legTorques(c);if(q){
-    if(q.walk>q.rated)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הברך חלש מדי להליכה: צריך בערך '+fmt(q.walk,1)+' ניוטון-מטר, המנוע נותן '+q.rated+' ברציפות'});
-    if(q.rise>q.peak)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הירך חלש מדי כדי לקום מהבטן: צריך בערך '+fmt(q.rise,1)+' ניוטון-מטר, המנוע נותן עד '+q.peak+' לרגע'})}}
+    if(q.walk>q.rated)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הברך חלש מדי להליכה: צריך בערך '+fmt(q.walk,1)+' ניוטון-מטר, המנוע נותן '+q.rated+' ברציפות',amt:'חסרים כ-'+fmt(q.walk-q.rated,1)+' Nm'});
+    if(q.rise>q.peak)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הירך חלש מדי כדי לקום מהבטן: צריך בערך '+fmt(q.rise,1)+' ניוטון-מטר, המנוע נותן עד '+q.peak+' לרגע',amt:'חסרים כ-'+fmt(q.rise-q.peak,1)+' Nm'})}}
   if(R.stab&&R.stab.on&&c.legs.count>0&&c.legs.count<4){const h=hipItem(c,0);if(h)W.push({t:'rule',r:'stab',a:h.id,text:'עם '+c.legs.count+' רגליים הכלי לא יכול להרים רגל בלי ליפול. בהליכה צריך לפחות 3 רגליים על הקרקע בכל רגע'})}
   ventWarnings(c).forEach(x=>W.push(x));
   return W;
 }
-/* leg motor load (my calculation, known weights only; leg links, shell and cables have no weight yet).
+/* leg motor load (my calculation, known weights plus an ESTIMATE for shell, cables and leg links, see extraWeight).
    Walking (slow crawl, one leg in the air): weight / (legs - 1) on each standing leg; knee torque = that force x horizontal knee-to-foot distance.
    Getting up from the belly: weight / legs, thigh horizontal, foot under the knee: hip torque = force x thigh length.
    Walking is compared with the rated (continuous) torque, getting up with the peak (short) torque. */
-function legTorques(c){const n=c.legs.count;if(!n||!LM.torque_rated_nm)return null;const t=totals(c),F=t.w/1000*9.81;let kx=0;
+/* ESTIMATE (card 10, 13-14.11, my numbers): shell, cables and leg links have no weight in the catalog, so they are added here for the torque only.
+   Shell = 0.389 g per cm2 of outer surface (card: carbon 2 mm, 1,800 cm2, about 0.7 kg incl. seals), cables+connectors 300 g,
+   leg links 22 g per 75 mm link (20x20 aluminium, wall 1.5) plus 20 g of hardware per leg. */
+function extraWeight(c){const E=LG.est||{shell_g_cm2:.389,cables_g:300,link_g_75:22,hardware_g_leg:20};
+  const area=shellOf(c).reduce((a,s)=>a+2*(s.len*s.wid+s.len*s.hei+s.wid*s.hei),0)/100,sh=area*E.shell_g_cm2,n=c.legs.count||0,
+  lk=n*(E.link_g_75*(c.legs.thigh+c.legs.shin)/75+E.hardware_g_leg);return{shell:sh,cables:E.cables_g,links:lk,total:sh+E.cables_g+lk}}
+function legTorques(c){const n=c.legs.count;if(!n||!LM.torque_rated_nm)return null;const t=totals(c),X=extraWeight(c),F=(t.w+X.total)/1000*9.81;let kx=0;
   for(let i=0;i<n;i++){const g=legGeom(c,i,'stand');if(g)kx=Math.max(kx,Math.abs(g.knee[0]-g.foot[0]))}
-  const h=hipItem(c,0);return{walk:F/Math.max(1,n-1)*kx/1000,rise:F/n*c.legs.thigh/1000,rated:LM.torque_rated_nm,peak:LM.torque_peak_nm,kx,F,unk:t.wu,a:h?h.id:c.items[0].id}}
+  const h=hipItem(c,0);return{walk:F/Math.max(1,n-1)*kx/1000,rise:F/n*c.legs.thigh/1000,rated:LM.torque_rated_nm,peak:LM.torque_peak_nm,kx,F,unk:t.wu,extra:X.total,a:h?h.id:c.items[0].id}}
 function shortenLegs(c){const L=c.legs,ok=()=>{const q=legTorques(c);return!q||(q.walk<=q.rated&&q.rise<=q.peak)};
   for(let i=0;i<80&&!ok();i++){if(L.thigh<=LEGMIN&&L.shin<=LEGMIN)break;L.thigh=Math.max(LEGMIN,Math.round(L.thigh*.97));L.shin=Math.max(LEGMIN,Math.round(L.shin*.97))}return ok()}
 function eff(it,key){const k=cat[it.cid];if(key==='cap')return k.cap_wh?k.cap_wh*it.frac:0;const v=k[key];return v===null||v===undefined?null:v*it.frac}
@@ -504,7 +591,7 @@ function ruleFor(c,it){
     case 'safety':return{s:'A',f:[.5,.6,.7]};
     case 'navcam':return{s:AB,f:[sgn,.3,1],rot:[0,1,0]}; // step 4: card 04, long side (124) across the tool, lenses face out
     case 'thermal':return{s:AB,f:[sgn,-.3,1],rot:[0,1,0]}; // step 4: card 08, 21x21 face out, 34 = core+lens+board depth along the lens
-    case 'radar':return[{s:'A',f:[-1,.7,0]},{s:'B',f:[1,.7,0]},{s:'M',f:[0,.9,-1]},{s:'M',f:[0,.9,1]}][i%4];
+    case 'radar':return{s:'B',f:[1,.7,0]}; // 16.11: one radar, at the front (end B, where the lidar faces +x), card 02
     case 'cliff':return[{s:'A',f:[-1,-1,-1]},{s:'A',f:[-1,-1,1]},{s:'B',f:[1,-1,-1]},{s:'B',f:[1,-1,1]}][i%4];
     case 'drivelight':return{s:AB,f:[sgn,.8,sgn*.4],rot:[0,0,1]};
     case 'doclight':return{s:AB,f:[sgn,-.5,i%2?1:-1],rot:[1,0,0]}; // step 4: card 12, lights from the side: lamp axis across the tool (like drivelight along it)
@@ -622,7 +709,7 @@ function layout(c){
       else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2,0]}
       return}
     if(isMounted(it)){const g=gim();if(g){const gp=g.pos,gi=c.items.filter(x=>x.cid===it.cid&&isMounted(x)).indexOf(it);
-      it.pos=[gp[0]+(gi?17:-17),gp[1],gp[2]];it.rot=[0,0,0];return}}
+      const off=ext(it)[0]/2+1;it.pos=[gp[0]+(gi?off:-off),gp[1],gp[2]]  /* side by side, touching (was fixed 17 mm for the 32 mm body; 16.11 the size with enclosure is 38) */;it.rot=[0,0,0];return}}
     // hip motors: both motors of a pair at the same spot (left and right walls), so the two legs are symmetric
     if(it.role==='hip'){const sg=segs[segIdx(c,it.seg)],zz=s=>s*(sg.wid/2-e[2]/2),mate=c.items.find(o=>o!==it&&o.role==='hip'&&o.seg===it.seg&&o.pair===it.pair),both=mate&&rest.includes(mate);
       const ax=[],ay=[],L0=sg.cx-sg.len/2+e[0]/2,L1=sg.cx+sg.len/2-e[0]/2,Y0=e[1]/2,Y1=sg.hei-e[1]/2;for(let v=L0;v<=L1+.01;v+=5)ax.push(v);ax.push(L1);for(let v=Y0;v<=Y1+.01;v+=5)ay.push(v);ay.push(Y1);
@@ -1043,10 +1130,10 @@ let drag=null,pan=null;
 function bind2D(v){const el=v.el;
   el.addEventListener('pointerdown',ev=>{
     const vg=ev.target.closest('.vent'),c0=cfg();
-    if(vg&&c0.vent){sel='vent';drag={v,vent:true,p0:svgPt(v,ev),pos0:c0.vent.pos.slice(),moved:false,locked:c0.vent.locked};el.setPointerCapture(ev.pointerId);renderLight();return}
+    if(vg&&c0.vent&&!PRES){sel='vent';drag={v,vent:true,p0:svgPt(v,ev),pos0:c0.vent.pos.slice(),moved:false,locked:c0.vent.locked};el.setPointerCapture(ev.pointerId);renderLight();return}
     const g=ev.target.closest('.it');
     if(g){sel=g.dataset.id;const it=cfg().items.find(i=>i.id===sel);
-      if(it&&!it.auto){drag={v,it,p0:svgPt(v,ev),pos0:it.pos.slice(),moved:false,locked:!!it.locked};el.setPointerCapture(ev.pointerId)}
+      if(it&&!it.auto&&!PRES){drag={v,it,p0:svgPt(v,ev),pos0:it.pos.slice(),moved:false,locked:!!it.locked};el.setPointerCapture(ev.pointerId)}
       renderLight()}
     else{const sg=ev.target.closest('[data-seg]');if(sg&&perOn(cfg())&&V.seg!==+sg.dataset.seg){V.seg=+sg.dataset.seg;renderCtrl()}sel=null;pan={v,p0:svgPt(v,ev),vb0:{...v.vb}};el.setPointerCapture(ev.pointerId);renderLight()}
   });
@@ -1085,7 +1172,7 @@ function moveItem(c,it,want,free){
   kids.forEach(k=>{k.manual=true;k.pos=k.pos.map((v,i)=>Math.round((v+d[i])*10)/10);if(!isLegal(c,k)){const s=snapPos(c,k,k.pos,[true,true,true]);if(s){k.pos=s;k.unfit=false}else k.unfit=true}});
 }
 let raf=0;function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;renderLight()})}
-function renderLight(){computeTops(cfg());render2D(false);build3D();renderStats();renderRows();renderPop();renderStrip()}
+function renderLight(){computeTops(cfg());render2D(false);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard()}
 
 /* ---------- 3D mini ---------- */
 const cv=$('#c3'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
@@ -1300,7 +1387,7 @@ W3.addEventListener('pointerdown',ev=>{if(!(V.mode==='3d'||V.mode==='win')||ev.b
   ev.stopPropagation();ev.preventDefault();
   const c=cfg(),it=c.items.find(i=>i.id===h.object.userData.id);sel=it?it.id:null;
   if(it&&it.locked)toast('נעול. אפשר לבטל את הנעילה בחלון שלמטה');
-  if(it&&!it.auto&&!it.locked){const vert=ev.shiftKey,n=new THREE.Vector3(0,1,0);
+  if(it&&!it.auto&&!it.locked&&!PRES){const vert=ev.shiftKey,n=new THREE.Vector3(0,1,0);
     if(vert){cam.getWorldDirection(n);n.y=0;if(n.lengthSq()<1e-4)n.set(0,0,1);n.normalize()}
     d3={it,plane:new THREE.Plane().setFromNormalAndCoplanarPoint(n,h.point),p0:h.point.clone(),pos0:it.pos.slice(),vert,moved:false};
     oc.enabled=false;W3.setPointerCapture(ev.pointerId)}
@@ -1315,36 +1402,123 @@ W3.addEventListener('pointerup',end3);W3.addEventListener('pointercancel',end3);
 /* ---------- panels ---------- */
 const fmt=(n,d=1)=>(Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toLocaleString('en');
 function renderStats(){
-  const c=cfg(),t=totals(c),w=warnings(c),h=t.p>0&&t.cap>0?t.cap/t.p:null;
+  const c=cfg(),t=totals(c),w=warnings(c),wo=w.filter(x=>!isWaived(c,x)),h=t.p>0&&t.cap>0?t.cap/t.p:null;
   $('#stats').innerHTML=
    '<div class="stat"><div class="k">משקל</div><div class="v">'+fmt(t.w/1000,2)+'<small>ק"ג</small></div>'+(t.wu?'<div class="s">חסר ב-'+t.wu+' רכיבים</div>':'')+'</div>'+
    '<div class="stat"><div class="k">הספק</div><div class="v">'+fmt(t.p,0)+'<small>W</small></div>'+(t.pu?'<div class="s">חסר ב-'+t.pu+' רכיבים</div>':'')+'</div>'+
    '<div class="stat"><div class="k">זמן עבודה</div><div class="v">'+(h?fmt(h,1):'—')+'<small>שעות</small></div>'+(h&&t.pu?'<div class="s">עד, חסרים נתונים</div>':'')+'</div>'+
    '<div class="stat"><div class="k">נפח רכיבים</div><div class="v">'+fmt(t.vol/t.sv*100,0)+'<small>% מהגוף</small></div></div>'+
-   '<button class="stat '+(w.length?'bad':'ok')+'" id="wbtn"><div class="k">אזהרות</div><div class="v">'+(w.length||'אין')+'</div></button>';
-  $('#wbtn').onclick=()=>{if(w.length)openWarnings()};
+   '<button class="stat '+(wo.length?'bad':'ok')+'" id="wbtn"><div class="k">אזהרות</div><div class="v">'+(wo.length||'אין')+'</div>'+(w.length>wo.length?'<div class="s" style="color:#7a5a00">'+(w.length-wo.length)+' הוחלט שבסדר</div>':'')+'</button>';
+  $('#wbtn').onclick=()=>{if(w.length)openWarnings()};renderChecks();
 }
-function openWarnings(){
-  const c=cfg(),w=warnings(c);
-  if(!w.length){$('#modal').classList.remove('on');return}
-  const fx=w.map(x=>fixesFor(c,x));
-  $('#mcard').innerHTML='<h2>אזהרות</h2><div class="btns" style="margin-bottom:10px"><button class="pill" id="fixall">תקני הכול</button></div><ul class="wl">'+w.map((x,i)=>'<li><div><div>'+x.text+'</div><div class="btns" style="margin-top:6px">'+fx[i].map((f,j)=>'<button class="pill" data-i="'+i+'" data-j="'+j+'">'+f.label+'</button>').join('')+'<button class="pill" data-s="'+i+'">הצגה</button></div></div></li>').join('')+'</ul><div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
-  $('#modal').classList.add('on');$('#mc').onclick=()=>$('#modal').classList.remove('on');
-  $('#fixall').onclick=()=>{snap();autoFixAll(c);save();refresh(true);openWarnings();toast(warnings(c).length?'נשארו אזהרות':'הכול תוקן')};
-  $('#mcard').querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{snap();const ok=fx[+b.dataset.i][+b.dataset.j].run();layout(c);save();refresh(true);if(ok===false)toast('לא נמצא מקום פנוי. נסי להגדיל את הגוף');openWarnings()});
-  $('#mcard').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{sel=w[+b.dataset.s].a;$('#modal').classList.remove('on');renderLight()});
+/* ---------- step 5: live checks bar, explanation window, "תקני" window with preview ---------- */
+const CHK_GROUPS=[
+ ['fit','נכנס בגוף','רכיבים בתוך הגוף: בלי חריגה, בלי חפיפה ובלי מגע ברצפה',w=>['nofit','out','round','floor','hit'].includes(w.t)],
+ ['pass','מעבר צר','גובה ורוחב הכלי מול מעברי הזחילה במערות ('+PASS+' מ"מ גובה, '+PASSW+' מ"מ רוחב)',w=>['tall','wide'].includes(w.t)],
+ ['legs','רגליים','הרגליים לא מתנגשות, לא נוגעות ברצפה והמנועים מספיק חזקים',w=>['legshort','kneefloor','legclash'].includes(w.t)||['legs','stab'].includes(w.r)],
+ ['joint','חיבורי חוליות','מנוע החיבור נכנס בחוליות ומסוגל להרים חוליה',w=>w.t==='joint'||w.r==='joint'],
+ ['sens','חיישנים ושירות','ליידאר לא מוסתר, חום, דופן, פתח אוויר וגישה להוצאת רכיבים',w=>['lidar','imu','heat','wall','service','vent','ventblock'].includes(w.r)],
+ ['cog','מרכז כובד','הכלי לא נוטה ליפול (מרכז הכובד קרוב לאמצע ונמוך)',w=>w.r==='cog']];
+/* [what the problem means in plain words, why it matters] */
+const WHY={
+ nofit:['הרכיב גדול מדי למקום שיש לו בגוף במידות הנוכחיות.','רכיב שלא נכנס לא יכול להיות בכלי. אפשר להגדיל את הגוף או לשנות את מספר החוליות.'],
+ out:['חלק מהרכיב יוצא מדופן הגוף.','הדופן לא תיסגר עליו, או שהוא ייתקע במעבר הצר.'],
+ round:['פינות הגוף מעוגלות, והרכיב נוגע בעיגול.','הרכיב ייצא מהדופן באזור הפינה.'],
+ floor:['הרכיב נמוך מגובה הרצפה.','בפועל הוא ייתקע בקרקע.'],
+ hit:['שני רכיבים תופסים חלק מאותו מקום בגוף.','אי אפשר להניח שני דברים באותו מקום. צריך להזיז אחד מהם.'],
+ tall:['הכלי בעמידה גבוה יותר ממעבר הזחילה הנמוך שמצאנו.','כלי גבוה מדי לא יעבור בעמידה, ויצטרך ללכת מקופל או נמוך יותר.'],
+ wide:['הכלי רחב יותר ממעבר הזחילה הצר שמצאנו.','כלי רחב מדי ייתקע במעבר.'],
+ joint:['המנוע שמחבר בין שתי חוליות לא נכנס בחוליה הנמוכה או הצרה.','בלי מקום למנוע אי אפשר לחבר את החוליות.'],
+ legshort:['מנוע הירך גבוה מדי לאורך הרגל, והרגל קצרה מכדי להרים את הבטן.','הבטן תישב על הרצפה, והרגליים לא יעזרו.'],
+ kneefloor:['מנוע הברך נוגע ברצפה בעמידה.','הרגל לא תוכל לזוז בחופשיות.'],
+ legclash:['שתי רגליים תפגשנה זו בזו.','הן יפריעו זו לזו בתנועה או בקיפול.'],
+ r_joint:['המנוע בחיבור בין חוליות חלש מדי להרים את החוליה.','החוליה לא תירים ולא תתקפל כמו שתכננו. החישוב הוא הערכה שלי.'],
+ r_lidar:['משהו עומד בדרך של הליידאר.','הליידאר הוא החיישן שבונה את המפה. אם הוא מוסתר, הוא לא רואה חלק מהסביבה.'],
+ r_imu:['ה-IMU (חיישן התנועה) לא יושב באותה חוליה עם הליידאר.','הוא צריך להיות קרוב לליידאר כדי שהמפה תתאים לתנועה (כרטיס 06).'],
+ r_heat:['חיישן קרוב מדי לרכיב שמתחמם.','החום ישנה את הקריאה של החיישן או יפגע בו.'],
+ r_wall:['הרכיב צריך לראות או לפלוט החוצה, אבל הוא לא צמוד לדופן החיצונית.','בלי קשר לדופן הוא לא יקלוט או יאיר את הסביבה.'],
+ r_service:['אין דרך פנויה להוציא את הרכיב מהגוף.','אי אפשר יהיה להחליף או לתקן אותו בלי לפרק חלקים אחרים.'],
+ r_cog:['מרכז הכובד רחוק מהאמצע, או גבוה.','כלי כזה נוטה ליפול בשיפוע או בהליכה.'],
+ r_legs:['מנוע ברגל חלש מדי לעומס שהוא נושא.','הרגל לא תצליח ללכת או להרים את הכלי מהבטן. החישוב הוא הערכה שלי.'],
+ r_stab:['עם מעט רגליים אי אפשר להרים רגל ולהישאר יציבים.','בהליכה צריך לפחות 3 רגליים על הקרקע בכל רגע, אחרת הכלי נופל.'],
+ r_vent:['חיישן האוויר לא יושב מול פתח האוויר.','הוא ימדוד אוויר מתוך הכלי ולא מבחוץ (כרטיס 13).'],
+ r_ventblock:['משהו קרוב לפתח האוויר.','הוא יחסום או יחמם את האוויר שנכנס (כרטיס 13).']};
+const whyKey=w=>w.t==='rule'?'r_'+w.r:w.t;
+const wkey=w=>[w.t,w.r||'',w.a,w.b||'',w.k===undefined?'':w.k,w.g===undefined?'':w.g].join('|');
+const isWaived=(c,w)=>!!(c.waive&&c.waive[wkey(w)]!==undefined);
+function chipsData(c){const rows=CHK_GROUPS.map(g=>({id:g[0],name:g[1],help:g[2],ws:[]})),oth={id:'other',name:'אחר',help:'',ws:[]};
+  warnings(c).forEach(w=>{const g=CHK_GROUPS.find(x=>x[3](w));(g?rows.find(r=>r.id===g[0]):oth).ws.push(w)});if(oth.ws.length)rows.push(oth);return rows}
+function renderChecks(){const e=$('#checks');if(!e)return;const c=cfg(),rows=chipsData(c);
+  e.innerHTML=rows.map(r=>{const o=r.ws.filter(w=>!isWaived(c,w)).length,v=r.ws.length-o,st=o?'bad':v?'wv':'ok';
+    return '<button class="chip '+st+'" data-g="'+r.id+'" title="'+esc(r.help)+'" aria-label="'+esc(r.name+': '+(o?o+' אזהרות':v?v+' הוחלט שבסדר':'תקין'))+'"><i aria-hidden="true">'+(o?'!':v?'~':'✓')+'</i>'+r.name+(o?' <b>'+o+'</b>':v?' <b>'+v+'</b>':'')+'</button>'}).join('');
+  e.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const r=rows.find(x=>x.id===b.dataset.g);if(r.ws.length)openWarnings(r.id);else toast(r.name+': תקין')})}
+const cloneCfg=c=>JSON.parse(JSON.stringify(c));
+function metricsOf(c){const t=totals(c);return{len:shellLen(c),wid:outerWidth(c),w:t.w,h:t.p>0&&t.cap>0?t.cap/t.p:null,pu:t.pu}}
+/* trial on a copy: the real configuration does not change until the fix is chosen */
+function previewFix(c,w,j,k0,m0){const cl=cloneCfg(c);let ok;
+  try{const f=fixesFor(cl,w)[j];ok=f.run();layout(cl);computeTops(cl)}catch(e){return{ok:false}}
+  const ka=warnings(cl).map(wkey);return{ok,solved:!ka.includes(wkey(w)),neu:ka.filter(x=>!k0.includes(x)).length,m:metricsOf(cl),m0}}
+function previewLines(p){if(p.ok===false)return[];const L=[],m=p.m,m0=p.m0,d=(a,b)=>Math.round(a-b);
+  L.push('<b>'+(p.solved?'הבעיה נפתרת':'הבעיה לא נפתרת')+'</b>');L.push(p.neu?'נוצרות '+p.neu+' אזהרות חדשות':'לא נוצרות אזהרות חדשות');
+  const ch=[];if(Math.abs(d(m.len,m0.len))>=1)ch.push('הכלי נעשה '+(m.len>m0.len?'ארוך':'קצר')+' ב-'+Math.abs(d(m.len,m0.len))+' מ"מ');
+  if(Math.abs(d(m.wid,m0.wid))>=1)ch.push('הכלי נעשה '+(m.wid>m0.wid?'רחב':'צר')+' ב-'+Math.abs(d(m.wid,m0.wid))+' מ"מ');
+  if(Math.abs(d(m.w,m0.w))>=1)ch.push('המשקל '+(m.w>m0.w?'עולה':'יורד')+' ב-'+Math.abs(d(m.w,m0.w))+' גרם');
+  if(m.h!==null&&m0.h!==null){const mn=(m.h-m0.h)*60;if(Math.abs(mn)>=1)ch.push('זמן העבודה '+(mn>0?'ארוך':'קצר')+' ב-'+Math.round(Math.abs(mn))+' דקות'+(m.pu?' (חסרים נתוני הספק)':''))}
+  L.push(ch.length?ch.join('. '):'שאר המידות לא משתנות');return L}
+function srcOf(w){return w.t==='rule'?'הכלל הוא ערך ניסיון שלי (אפשר לשנות ב"כללי הנדסה"), לא בדיקה של יצרן.':(w.t==='tall'||w.t==='wide')?'הסף מגיע ממסמך המערות של הפרויקט (מעברי זחילה, רוחב 0.5-0.8 מ\' וגובה 0.6-0.9 מ\').':'חישוב מהמידות שבקובץ.'}
+function closeModal(){$('#modal').classList.remove('on')}
+function openWarnings(g){
+  const c=cfg(),all=warnings(c);
+  if(!all.length){closeModal();return}
+  let grp=g&&g!=='all'?chipsData(c).find(r=>r.id===g):null;if(grp&&!grp.ws.length)grp=null;
+  const ws=grp?grp.ws:all,open=ws.length<=3;
+  $('#mcard').innerHTML='<h2>'+(grp?grp.name:'כל האזהרות')+'</h2>'+(grp&&grp.help?'<div class="m" style="margin-bottom:8px">'+esc(grp.help)+'</div>':'')+
+   '<div class="btns" style="margin-bottom:6px">'+(grp?'<button class="pill" id="wall">כל האזהרות</button>':'<button class="pill edit" id="fixall">תקני הכול</button>')+'</div>'+
+   '<ul class="wl2">'+ws.map((x,i)=>{const wv=isWaived(c,x),k=WHY[whyKey(x)]||['',''];
+     return '<li><details'+(open||i===0?' open':'')+'><summary><span class="st'+(wv?' wv':'')+'"></span><span>'+x.text+(wv?' <small style="color:#7a5a00">(הוחלט שבסדר)</small>':'')+'</span></summary>'+
+     '<dl class="ex"><dt>מה הבעיה</dt><dd>'+k[0]+'</dd>'+(x.amt?'<dt>כמה</dt><dd>'+x.amt+'</dd>':'')+'<dt>למה זה חשוב</dt><dd>'+k[1]+'</dd><dt>מאיפה זה</dt><dd>'+srcOf(x)+'</dd></dl>'+
+     (wv?'<div class="bx">הוחלט שזה בסדר: '+esc(c.waive[wkey(x)]||'ללא הערה')+'</div>':'')+
+     '<div class="btns"><button class="pill edit" data-f="'+i+'">תקני</button>'+(wv?'<button class="pill edit" data-u="'+i+'">ביטול ההחלטה</button>':'')+'<button class="pill" data-s="'+i+'">הצגה במודל</button></div></details></li>'}).join('')+'</ul>'+
+   '<div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
+  $('#modal').classList.add('on');$('#mc').onclick=closeModal;
+  const wa=$('#wall');if(wa)wa.onclick=()=>openWarnings();
+  const fa=$('#fixall');if(fa)fa.onclick=()=>{snap();autoFixAll(c);save();refresh(true);openWarnings();toast(warnings(c).length?'נשארו אזהרות':'הכול תוקן')};
+  $('#mcard').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>openFix(wkey(ws[+b.dataset.f]),grp&&grp.id));
+  $('#mcard').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{snap();delete c.waive[wkey(ws[+b.dataset.u])];save();refresh();openWarnings(g)});
+  $('#mcard').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{sel=ws[+b.dataset.s].a;closeModal();renderLight()});
+}
+function openFix(key,g){
+  const c=cfg(),w=warnings(c).find(x=>wkey(x)===key);if(!w){openWarnings(g);return}
+  const fx=fixesFor(c,w),k0=warnings(c).map(wkey),m0=metricsOf(c),lk=[c.items.find(i=>i.id===w.a),w.b&&c.items.find(i=>i.id===w.b)].filter(x=>x&&x.locked);
+  const pv=fx.map((f,j)=>previewFix(c,w,j,k0,m0)),blocked=pv.some(p=>p.ok===false)&&lk.length;
+  $('#mcard').innerHTML='<h2>תקני</h2><div class="m" style="margin-bottom:6px">'+w.text+'</div><div class="m" style="margin-bottom:8px">מה אפשר להזיז או לשנות. התוצאה של כל אפשרות מחושבת בניסוי, ושום דבר לא משתנה עד שתבחרי.</div>'+
+   (blocked?'<div class="bx">חלק מהפתרונות דורשים להזיז רכיב נעול: '+lk.map(x=>name(c,x)).join(', ')+'. <button class="pill" id="unl">שחררי נעילה</button></div>':'')+
+   '<ul class="wl2">'+(fx.length?fx.map((f,j)=>{const p=pv[j],bad=p.ok===false;
+     return '<li class="opt"><div><div>'+f.label+'</div><div class="res">'+(bad?(lk.length?'לא אפשרי כרגע: הרכיב נעול':'לא נמצא מקום פנוי בגוף'):previewLines(p).join('<br>'))+'</div></div><button class="pill" data-j="'+j+'"'+(bad?' disabled':'')+'>בחרי</button></li>'}).join(''):'<li class="m">אין לי הצעת תיקון אוטומטית לבעיה הזו. אפשר להזיז רכיב ידנית בגרירה.</li>')+'</ul>'+
+   '<div class="btns" style="margin-top:12px"><button class="pill" id="wvb">אין מה לתקן, זה בסדר בשבילי</button><button class="pill" id="bk">חזרה</button><button class="pill" id="mc">סגירה</button></div>'+
+   '<div class="wvrow" id="wvrow" hidden><input id="wvn" maxlength="140" placeholder="למה זה בסדר? הערה קצרה"><button class="pill" id="wvok">שמירה</button></div>'+
+   '<div class="m" style="margin-top:6px">הבעיה תישאר מסומנת בצהוב ותופיע גם במצב הצגה.</div>';
+  $('#modal').classList.add('on');$('#mc').onclick=closeModal;$('#bk').onclick=()=>openWarnings(g);
+  const ul=$('#unl');if(ul)ul.onclick=()=>{snap();lk.forEach(x=>x.locked=false);save();refresh();openFix(key,g)};
+  $('#mcard').querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{snap();const f=fixesFor(c,w)[+b.dataset.j];f.run();layout(c);computeTops(c);save();refresh(true);
+    const n=warnings(c).filter(x=>!isWaived(c,x)).length;toast('בוצע. '+(n?'נשארו '+n+' אזהרות':'אין אזהרות'));if(warnings(c).length)openWarnings(g);else closeModal()});
+  $('#wvb').onclick=()=>{$('#wvrow').hidden=false;$('#wvn').focus()};
+  $('#wvok').onclick=()=>{const n=$('#wvn').value.trim();if(!n){toast('כתבי הערה קצרה למה זה בסדר');return}snap();c.waive=c.waive||{};c.waive[key]=n;save();refresh();openWarnings(g)};
 }
 function renderRows(){
   const c=cfg(),bad=badSet(c),R=$('#rows');R.innerHTML='';
   DEF.catalog.forEach(k=>{
     const its=c.items.filter(i=>i.cid===k.id);if(!its.length)return;
     const on=its.some(i=>i.id===sel),b=document.createElement('button');b.className='row'+(on?' sel':'');
-    b.innerHTML='<span class="dot" style="background:'+GROUPS[k.group][0]+'"></span><span class="n">'+k.name+'</span>'+(its.some(i=>i.locked)?'<svg width="14" height="14" viewBox="-7 -7 14 14" aria-label="נעול">'+lockG(0,0,1).replace(' pointer-events="none"','')+'</svg>':'')+(its.some(i=>bad.has(i.id))?'<span class="w"></span>':'')+'<span class="c">'+(its.length>1?'×'+its.length:'')+'</span>';
+    b.innerHTML=thumbImg(k,30)+'<span class="n">'+k.name+'</span>'+(its.some(i=>i.locked)?'<svg width="14" height="14" viewBox="-7 -7 14 14" aria-label="נעול">'+lockG(0,0,1).replace(' pointer-events="none"','')+'</svg>':'')+(its.some(i=>bad.has(i.id))?'<span class="w"></span>':'')+'<span class="c">'+(its.length>1?'×'+its.length:'')+'</span><span class="info" role="button" tabindex="0" title="כרטיס הרכיב" aria-label="כרטיס הרכיב: '+esc(k.name)+'">i</span>';
+    b.querySelector('.info').onclick=e=>{e.stopPropagation();openCard(k.id)};
     b.onclick=()=>{const cur=its.findIndex(i=>i.id===sel);sel=its[(cur+1)%its.length].id;renderLight()};R.appendChild(b);
   });
   if(c.vent&&ventSensors(c).length){const b=document.createElement('button');b.className='row'+(sel==='vent'?' sel':'');
     b.innerHTML='<span class="dot" style="background:#0a1a30"></span><span class="n">פתח אוויר</span>'+(c.vent.locked?'<svg width="14" height="14" viewBox="-7 -7 14 14" aria-label="נעול">'+lockG(0,0,1).replace(' pointer-events="none"','')+'</svg>':'')+(bad.has('vent')?'<span class="w"></span>':'')+'<span class="c"></span>';
     b.onclick=()=>{sel='vent';renderLight()};R.appendChild(b)}
+  const hd=document.createElement('div');hd.className='rsep';hd.textContent='כרטיסים נוספים';R.appendChild(hd);
+  EXTRA.forEach(([id,nm,sub])=>{const b=document.createElement('button');b.className='row'+(CD.open&&CD.extra===id?' sel':'');b.innerHTML='<span class="n">'+nm+'</span><span class="c">'+sub+'</span>';b.onclick=()=>openCard(null,id);R.appendChild(b)});
 }
 function numField(label,val,unk,fn,step){
   const l=document.createElement('span');l.textContent=label;const i=document.createElement('input');i.type='number';i.step=step||1;i.className=unk?'unk':'';
@@ -1363,8 +1537,8 @@ function renderPop(){
   const B=document.createElement('div');B.className='b';
   const row=document.createElement('div');row.className='btns';
   const lk=it.auto?'':'<button class="pill'+(it.locked?' on':'')+'" data-a="lock">'+(it.locked?'ביטול נעילה':'נעילת מקום')+'</button>';
-  row.innerHTML=lk+(it.auto||it.locked?'':it.role?(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''):'<button class="pill" data-a="rot">סיבוב</button><button class="pill" data-a="dup">שכפול</button><button class="pill" data-a="del">הסרה</button>'+(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''))+'<button class="pill" data-a="det">פרטים</button>';
-  row.onclick=e=>{const a=e.target.dataset.a;if(!a)return;
+  row.innerHTML=lk+(it.auto||it.locked?'':it.role?(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''):'<button class="pill" data-a="rot">סיבוב</button><button class="pill" data-a="dup">שכפול</button><button class="pill" data-a="del">הסרה</button>'+(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''))+'<button class="pill" data-a="card">כרטיס</button><button class="pill" data-a="det">פרטים</button>';
+  row.onclick=e=>{const a=e.target.dataset.a;if(!a)return;if(a==='card'){openCard(it.cid);return}
     if(a==='det'){showFields=!showFields;renderPop();return}
     snap();
     if(a==='rot'){const ax=V.mode==='side'?2:V.mode==='front'?0:1;it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
@@ -1475,8 +1649,10 @@ function renderCtrl(){
     const re=fin=>{if(!fin){schedule();return}save();refresh()};
     slider('ירך',LL.thigh,LEGMIN,300,1,(v,fin)=>{LL.thigh=v;re(fin)});
     slider('שוק',LL.shin,LEGMIN,300,1,(v,fin)=>{LL.shin=v;re(fin)});
-    const [mn,mx]=clearRange(c),cur=Math.round(clearance(c,'stand')),hi=Math.max(mn,mx,cur);
+    const CI=clearInfo(c),mn=CI.mn,mx=CI.mx,cur=Math.round(clearance(c,'stand')),hi=Math.max(mn,mx,cur);
     slider('גובה מהרצפה',cur,mn,hi,1,(v,fin)=>{setClear(c,v);re(fin)},{k:'clear'});
+    el.insertAdjacentHTML('beforeend','<div class="note">טווח גובה הבטן: מ-'+mn+' מ"מ (שני חלקי הרגל קצרים כקוטר המנוע, '+LEGMIN+' מ"מ) עד '+mx+' מ"מ. '+(CI.tq<CI.pass?'המגבלה היא כוח המנוע: רגל ארוכה יותר דורשת יותר מומנט (המשקל כולל הערכה שלי לקליפה, חיווט וחלקי הרגל, '+Math.round(extraWeight(c).total)+' גרם). ':'המגבלה היא מעבר הזחילה ('+PASS+' מ"מ פחות גובה הגוף). ')+'ברירת המחדל היא הנמוך ביותר שאפשרי. גובה מכשול שהכלי עובר: לא יודע (אין מקור בראיונות).</div>');
+    {const mb=document.createElement('div');mb.className='btns reset';mb.innerHTML='<button class="pill">רגליים קצרות ביותר לגובה הזה</button>';mb.onclick=()=>{snap();minLegsFor(c,Math.round(clearance(c,'stand')));save();refresh()};el.appendChild(mb)}
     slider('עובי הרגל',LL.thick,THICK0,KD,1,(v,fin)=>{LL.thick=v;re(fin)});
     segBtns('ברכיים',Object.entries(KNEE_NAMES),LL.knee,v=>{snap();LL.knee=v;save();refresh()}).classList.add('col');
     el.insertAdjacentHTML('beforeend','<div class="note">כרטיס 10: ירך 75 ושוק 75 מ"מ. מינימום '+LEGMIN+' מ"מ, קוטר מנוע הרגל, כדי שמנוע הירך ומנוע הברך לא ייגעו זה בזה. גובה מהרצפה משנה את הירך והשוק יחד, באותו יחס. עובי הרגל: מינימום '+THICK0+' מ"מ (פרופיל 20×20 בכרטיס 10, הנחה). בירך ובברך העובי הוא המנוע עצמו, קוטר '+KD+' מ"מ.<br>מנוע הירך יושב בתוך הגוף, צמוד לדופן, והרגל מחוברת אליו מבחוץ. אפשר לגרור אותו לאורך החוליה ולמעלה ולמטה, והרגל זזה איתו. מנוע גבוה יותר = בטן נמוכה יותר. מקופל: '+LG.fold_clearance+' מ"מ מהרצפה (כרטיס 10).<br>עם הרגליים: רוחב '+outerWidth(c)+' מ"מ, אורך '+outerLength(c,'stand')+' מ"מ בעמידה ו-'+outerLength(c,'fold')+' מ"מ מקופל.'+(mx<mn?' <b>הגוף גבוה מדי למעבר של '+PASS+' מ"מ.</b>':'')+'</div>');
@@ -1517,7 +1693,7 @@ function renderStrip(){
   const add=document.createElement('button');add.className='cfg add';add.textContent='+';add.setAttribute('aria-label','קונפיגורציה חדשה');
   add.onclick=()=>{snap();S.configs.push(newConfig('קונפיגורציה '+(S.configs.length+1)));S.active=S.configs.length-1;sel=null;save();refresh(true)};st.appendChild(add);
 }
-function refresh(refit){if(refit)camSet=false;computeTops(cfg());renderCtrl();render2D(!!refit);build3D();renderStats();renderRows();renderPop();renderStrip();updUndo();if(LV.on)renderLab()}
+function refresh(refit){if(refit)camSet=false;computeTops(cfg());renderCtrl();render2D(!!refit);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard();updUndo();if(LV.on)renderLab()}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),2200)}
 
 function openRules(){
@@ -1574,12 +1750,22 @@ addEventListener('keydown',e=>{
    Once per saved configuration; the body grows only if something no longer fits. */
 const ROT4={navcam:[0,1,0],thermal:[0,1,0],doclight:[1,0,0]};
 function migrate4(){S.configs.forEach(c=>{if(c.orient4)return;c.orient4=true;let ch=false;c.items.forEach(i=>{if(ROT4[i.cid]&&i.rot.every(v=>!v)){i.rot=ROT4[i.cid].slice();ch=true}});if(ch)growIfNeeded(c,false)})}
-function migrate(){S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
+function migrate(){S.configs.forEach(c=>{if(!c.radar1){c.radar1=true;const rs=c.items.filter(i=>i.cid==='radar');if(rs.length>1){c.items=c.items.filter(i=>i.cid!=='radar'||i===rs[0]);rs[0].manual=false}}});S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
 
 /* ---------- legs tab: play with leg length and proportions, then import into a configuration ---------- */
-function showTab(tab){LV.on=tab==='legs';$('.app').classList.toggle('tl',LV.on);document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+function showTab(tab){LV.on=tab==='legs';$('.app').classList.toggle('tl',LV.on);
   if(LV.on){lcamSet=false;if(S.lab){S.lab.target=S.active;Object.assign(S.lab,labFrom(cfg()))}renderLab();requestAnimationFrame(lresize)}else{requestAnimationFrame(()=>{resize3();refresh(true)})}}
-document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
+$('#legsbtn').addEventListener('click',()=>showTab(LV.on?'layout':'legs'));$('#lclose').addEventListener('click',()=>showTab('layout'));$('#legscrim').addEventListener('click',()=>showTab('layout'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&LV.on&&!$('#modal').classList.contains('on'))showTab('layout')});
+/* stage 2: planning mode / presentation mode (same file, same data; presentation = read-only) */
+let PRES=false;
+function setPres(on,init){PRES=!!on;$('.app').classList.toggle('pres',PRES);$('#modelab').textContent=PRES?'מצב הצגה':'מצב תכנון';
+  const sw=$('#modesw');if(sw.selected!==PRES)sw.selected=PRES;
+  if(PRES){sel=null;if(LV.on)showTab('layout')}
+  try{localStorage.setItem('dash-mode',PRES?'pres':'plan')}catch(e){}
+  if(!init){requestAnimationFrame(()=>{resize3();refresh(true)})}}
+$('#modesw').addEventListener('change',()=>setPres($('#modesw').selected));
+try{if(localStorage.getItem('dash-mode')==='pres')setTimeout(()=>setPres(true,true),0)}catch(e){}
 function labTarget(){const i=S.lab&&S.lab.target!==undefined?S.lab.target:S.active;return S.configs[Math.max(0,Math.min(i,S.configs.length-1))]}
 function labFrom(c){legsOf(c);const h=hips(c);return{thigh:c.legs.thigh,shin:c.legs.shin,thick:c.legs.thick,knee:c.legs.knee,hipY:h.length?Math.round(Math.max(...h.map(x=>x.pos[1]))):Math.round(KR)}}
 /* real=true: on the configuration itself (hip motors snap to a free legal height); false: on a copy, for the preview */
@@ -1625,6 +1811,7 @@ function lab3D(c){clearRoot(lroot);const {segs,clear}=fillTool(lroot,c,LV.t,{fad
 function labNums(c){const n=$('#lnum');if(!n)return;const q=legTorques(c),cs=clearance(c,'stand'),bt=bodyTop(c),mm=v=>Math.round(v)+' מ"מ';
   const rows=[['רגליים',c.legs.count],['ירך : שוק',c.legs.thigh+' : '+c.legs.shin],['מהרצפה לבטן, עומד',mm(cs)],['מהרצפה לבטן, מקופל',mm(LG.fold_clearance)],['גובה כולל, עומד',mm(cs+bt)],['רוחב עם הרגליים',mm(outerWidth(c))],['אורך עם הרגליים, עומד',mm(outerLength(c,'stand'))],['אורך עם הרגליים, מקופל',mm(outerLength(c,'fold'))]];
   if(q)rows.push(['ברך בהליכה (ניוטון-מטר)',fmt(q.walk,2)+' מתוך '+q.rated,q.walk>q.rated],['ירך בקימה (ניוטון-מטר)',fmt(q.rise,2)+' מתוך '+q.peak,q.rise>q.peak]);
+  if(q)rows.push(['משקל בחישוב המומנט (כולל הערכה: '+Math.round(q.extra)+' ג\')',fmt(q.F/9.81,2)+' ק"ג']);
   rows.push(['משקל מנועי הרגליים',fmt(2*c.legs.count*(cat.legmotor?cat.legmotor.weight:LM.weight)/1000,2)+' ק"ג']);
   n.innerHTML=rows.map(r=>'<span>'+r[0]+'</span><b'+(r[2]?' class="bad"':'')+'>'+r[1]+'</b>').join('');
   const W=warnings(c).filter(w=>['legshort','kneefloor','legclash','tall','wide'].includes(w.t)||['legs','stab'].includes(w.r));
@@ -1652,7 +1839,7 @@ function labSide(c){const sv=$('#lsvg');let i=-1,bx=-Infinity;for(let k=0;k<c.le
   sv.setAttribute('viewBox',vb.x+' '+vb.y+' '+vb.w+' '+vb.h);sv.innerHTML=o}
 $('#lt').oninput=e=>{LV.t=+e.target.value/100;if(LV.on){const c=labCfg();lab3D(c);labSide(c)}};
 
-window.__app={showTab,labCfg,legTorques:()=>legTorques(cfg()),cogOf:()=>cogOf(cfg()),fixesFor:w=>fixesFor(cfg(),w),state:()=>S,cfg,warnings:()=>warnings(cfg()),layout:()=>layout(cfg()),select:id=>{sel=id;renderLight()},refresh,mode:m=>setMode(m)};
+window.__app={clearInfo:()=>clearInfo(cfg()),setClear:v=>setClear(cfg(),v),legsOk:()=>legsOk(cfg()),minLegsFor:v=>minLegsFor(cfg(),v),clearance:()=>clearance(cfg(),'stand'),showTab,labCfg,legTorques:()=>legTorques(cfg()),cogOf:()=>cogOf(cfg()),fixesFor:w=>fixesFor(cfg(),w),state:()=>S,cfg,warnings:()=>warnings(cfg()),layout:()=>layout(cfg()),select:id=>{sel=id;renderLight()},refresh,mode:m=>setMode(m)};
 
 const FRESH=(()=>{try{return!localStorage.getItem(STORE)}catch(e){return true}})();
 S=load();
@@ -1662,6 +1849,112 @@ S.rules=Object.assign(RULE_DEF(),S.rules||{});
 migrate();migrate4();
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
+/* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
+const CARDS=DEF.cards||{},COV={};((DEF.coverage&&DEF.coverage.rows)||[]).forEach(r=>COV[r.id]=r);
+const GL=(DEF.glossary&&DEF.glossary.terms)||[],GLMAP={};GL.forEach((g,i)=>g.aliases.forEach(a=>{GLMAP[a]=i}));
+const GLRE=GL.length?new RegExp(Object.keys(GLMAP).sort((a,b)=>b.length-a.length).map(a=>a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g'):null;
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+let GSEEN=new Set();
+/* text with glossary terms: the first time a term appears in a card it is underlined, hover or click explains it */
+function gl(s){s=String(s==null?'':s);if(!GLRE)return esc(s);let o='',p=0,m;GLRE.lastIndex=0;
+  while((m=GLRE.exec(s))){const i=GLMAP[m[0]];o+=esc(s.slice(p,m.index));
+    o+=GSEEN.has(i)?esc(m[0]):'<span class="term" data-g="'+i+'" title="'+esc(GL[i].text)+'">'+esc(m[0])+'</span>';GSEEN.add(i);p=m.index+m[0].length}
+  return o+esc(s.slice(p))}
+/* small shape picture: the simple box or cylinder of the component (same shapes as in the model). Not to scale between parts: the size is in the 1:1 view */
+function thumb(k,w){w=w||30;const col=(GROUPS[k.group]||GROUPS.motion)[0],d=k.dims,pad=2;let body='',bw,bh;
+  if(k.shape==='cyl'){const r=d[0]/2,h=d[1],ry=r*.5;bw=2*r;bh=h+2*ry;const s=(w-2*pad)/Math.max(bw,bh),R=r*s,RY=ry*s,H=h*s,ox=w/2,oy=(w-(H+2*RY))/2+RY;
+    body='<ellipse cx="'+ox+'" cy="'+(oy+H)+'" rx="'+R+'" ry="'+RY+'" fill="'+col+'"/><rect x="'+(ox-R)+'" y="'+oy+'" width="'+2*R+'" height="'+H+'" fill="'+col+'"/><rect x="'+(ox-R)+'" y="'+oy+'" width="'+2*R+'" height="'+H+'" fill="#000" opacity=".22"/><ellipse cx="'+ox+'" cy="'+(oy+H)+'" rx="'+R+'" ry="'+RY+'" fill="'+col+'"/><ellipse cx="'+ox+'" cy="'+(oy+H)+'" rx="'+R+'" ry="'+RY+'" fill="#000" opacity=".22"/><ellipse cx="'+ox+'" cy="'+oy+'" rx="'+R+'" ry="'+RY+'" fill="'+col+'"/><ellipse cx="'+ox+'" cy="'+oy+'" rx="'+R+'" ry="'+RY+'" fill="#fff" opacity=".35"/>'}
+  else{const a=d[0],b=d[1],c=d[2],c3=.866,P=(x,y,z)=>[(x-z)*c3,(x+z)*.5-y],cs=[[0,0,0],[a,0,0],[a,0,c],[0,0,c],[0,b,0],[a,b,0],[a,b,c],[0,b,c]].map(q=>P(...q)),
+      x0=Math.min(...cs.map(q=>q[0])),x1=Math.max(...cs.map(q=>q[0])),y0=Math.min(...cs.map(q=>q[1])),y1=Math.max(...cs.map(q=>q[1])),s=(w-2*pad)/Math.max(x1-x0,y1-y0),
+      T=(x,y,z)=>{const p=P(x,y,z);return((p[0]-x0)*s+(w-(x1-x0)*s)/2).toFixed(1)+','+((p[1]-y0)*s+(w-(y1-y0)*s)/2).toFixed(1)},
+      poly=(pts,sh,op)=>'<polygon points="'+pts.map(q=>T(...q)).join(' ')+'" fill="'+col+'"/>'+(sh?'<polygon points="'+pts.map(q=>T(...q)).join(' ')+'" fill="'+sh+'" opacity="'+op+'"/>':'');
+    body=poly([[0,0,c],[a,0,c],[a,b,c],[0,b,c]],'#000',0.08)+poly([[a,0,0],[a,0,c],[a,b,c],[a,b,0]],'#000',0.26)+poly([[0,b,0],[a,b,0],[a,b,c],[0,b,c]],'#fff',0.35)}
+  return'<svg class="thumb" width="'+w+'" height="'+w+'" viewBox="0 0 '+w+' '+w+'" aria-hidden="true">'+body+'</svg>'}
+const CD={open:false,cid:null,extra:null};
+const cardOf=cid=>COV[cid]?COV[cid].card:(cat[cid]&&cat[cid].group==='motion'?'10':null);
+const CLAB={short:'בקצרה',needs:'מה הוא צריך לעשות',decided:'החלטות',why:'למה',explainer:'מה הוא עושה',alternatives:'חלופות',placement:'איך הוא יושב בכלי',problems:'בעיות לפתור',open:'שאלות פתוחות',sources:'מקורות'};
+const EXTRA=[['10','רגליים','כרטיס 10'],['15','DOCKING STATION','כרטיס 15']];
+function openCard(cid,extra){CD.open=true;if(extra){CD.extra=extra;CD.cid=null;sel=null}else{CD.extra=null;CD.cid=cid;const it=cfg().items.find(i=>i.cid===cid);if(it)sel=it.id}renderLight()}
+function closeCard(){CD.open=false;renderCard()}
+function liTxt(x){return typeof x==='string'?gl(x):gl(x&&x.text||'')+(x&&(x.who||x.date)?' <span class="cmeta">('+esc([x.who,x.date].filter(Boolean).join(', '))+')</span>':'')}
+function ulc(a){return a&&a.length?'<ul>'+a.map(x=>'<li>'+liTxt(x)+'</li>').join('')+'</ul>':''}
+function csec(t,h,open,cls){return h?'<details class="cs '+(cls||'')+'"'+(open?' open':'')+'><summary>'+t+'</summary><div class="cb">'+h+'</div></details>':''}
+function chip(k,key){const v=k[key];if(v==null)return'<span class="chip unk">לא ידוע</span>';return(k.estimate||[]).includes(key)?'<span class="chip est">הערכה</span>':'<span class="chip src">יש מקור</span>'}
+function dimTxt(k){const d=k.dims,f=v=>Math.round(v*10)/10;return k.shape==='cyl'?'קוטר '+f(d[0])+' × גובה '+f(d[1])+' מ"מ':f(d[0])+' × '+f(d[1])+' × '+f(d[2])+' מ"מ (אורך × גובה × רוחב)'}
+function renderCard(){
+  const dr=$('#cdrawer');dr.classList.toggle('on',CD.open);document.body.classList.toggle('cdon',CD.open);if(!CD.open){dr.innerHTML='';return}
+  const c=cfg();if(sel&&sel!=='vent'){const it=c.items.find(i=>i.id===sel);if(it){CD.cid=it.cid;CD.extra=null}}else if(sel==='vent'){CD.cid='o2';CD.extra=null}
+  const cid=CD.cid,k=cid&&cat[cid],cardId=CD.extra||cardOf(cid),cd=CARDS[cardId];GSEEN=new Set();
+  const top='<div class="chd"><md-icon-button id="cdx" aria-label="סגירת הכרטיס" title="סגירה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></md-icon-button><span class="cht">כרטיס רכיב</span><button class="pill" id="cdgl">מונחון</button></div>';
+  if(!cd){dr.innerHTML=top+'<div class="cb2"><div class="m">בחרי רכיב ברשימה או במודל כדי לראות את הכרטיס שלו.</div></div>';wireCard(dr);return}
+  const cov=COV[cid]||{},shared=cov.shared_with&&cov.shared_with.length,miss=(cov.missing||[]).filter(x=>x!=='problems').map(x=>CLAB[x]);
+  let h=top+'<div class="cb2"><div class="ctitle"><div><h3>'+esc(k?k.name:cd.title)+'</h3>'+(k?'<div class="m">'+esc(k.model)+'</div>':'<div class="m">'+esc(cd.tab)+'</div>')+'<div class="m">כרטיס '+esc(cardId)+': '+esc(cd.title)+(shared&&k?' (משותף עם '+cov.shared_with.map(i=>esc(cat[i]?cat[i].name:i)).join(', ')+')':'')+'</div></div></div>';
+  if(k){const s=SH[cid];h+='<div class="pvw" id="pvw"></div><div class="cmeta pvl">'+esc(s&&s.label?s.label:'צורה פשוטה לפי המידות. אין לי מודל של היצרן לרכיב הזה.')+(s&&s.extra?' '+esc(s.extra):'')+' גררי כדי לסובב, גלגלת לזום.</div>'}
+  const lk=k&&DEF.links&&DEF.links.by_id&&DEF.links.by_id[cid];
+  if(lk&&lk.length)h+='<div class="clinks">'+lk.map(x=>'<a href="'+esc(x.u)+'" target="_blank" rel="noopener">'+esc(x.t)+' ↗</a>').join('')+'</div>';
+  h+='<div class="cshort">'+gl(cd.short)+'</div>';
+  const bt=[];if(k)bt.push('<button class="pill on" id="cdshow">הראי במודל</button><button class="pill" id="cd11">בגודל 1:1</button>');if(cardId==='10')bt.push('<button class="pill on" id="cdlegs">פתחי את חלון הרגליים</button>');
+  if(bt.length)h+='<div class="btns" style="margin:8px 0">'+bt.join('')+'</div>';
+  h+=csec('מה הוא עושה',cd.explainer?'<p>'+gl(cd.explainer)+'</p>':'<p class="cmeta">חסר בכרטיס.</p>',true);
+  h+=csec('מה הוא צריך לעשות בכלי',ulc(cd.needs),true);
+  if(k){const o=(k.orient&&k.orient.text?'<p>'+gl(k.orient.text)+' <span class="cmeta">('+esc(k.orient.source||'')+')</span></p>':'')+(k.fov&&k.fov.text?'<p><b>טווח ראייה:</b> '+gl(k.fov.text)+' <span class="cmeta">('+esc(k.fov.source||'')+')</span></p>':'')+(k.why?'<p><b>למה כאן:</b> '+gl(k.why)+'</p>':'');
+    h+=csec('איך הוא יושב בכלי',o+ulc(cd.placement),true)}else h+=csec('איך הוא יושב בכלי',ulc(cd.placement),true);
+  if(k){const row=(l,v,key)=>'<tr><td>'+l+'</td><td>'+v+'</td><td>'+(key?chip(k,key):'')+'</td></tr>';
+    h+=csec('המספרים','<table class="nums">'+row('מידות','<span dir="ltr">'+esc(dimTxt(k))+'</span>','dims')+row('כמות',k.qty,null)+row('משקל ליחידה',k.weight==null?'לא ידוע':k.weight+' גרם','weight')+row('הספק ליחידה',k.power==null?'לא ידוע':k.power+' W','power')+'</table>'
+      +(k.note?'<p class="cmeta">'+gl(k.note)+'</p>':'')+(k.source?'<p class="cmeta">מקור: '+esc(k.source)+'</p>':'')+'<p class="cmeta">הערכה: מספר שלנו ולא של היצרן. יש מקור: מופיע בכרטיס או במקור שמצוין, ולא נבדק שוב בשלב הזה.</p>',true)}
+  if(k){const dep=(DEF.dependencies||[]).filter(x=>x.child===cid||x.parent===cid),op=(DEF.openings||[]).filter(x=>(x['for']||[]).includes(cid));
+    let l='';dep.forEach(x=>{const other=x.child===cid?x.parent:x.child;l+='<li>'+gl(x.text)+(cat[other]?' <button class="pill sm" data-o="'+other+'">הראי: '+esc(cat[other].name)+'</button>':'')+'</li>'});
+    op.forEach(x=>{l+='<li><b>'+esc(x.kind)+':</b> '+gl(x.rule)+'</li>'});
+    h+=csec('מה הוא מגביל בעיצוב',l?'<ul>'+l+'</ul>':'',true)}
+  h+=csec('מה עדיין פתוח',ulc(cd.open),true);
+  h+=csec('החלטות',ulc(cd.decided),false);h+=csec('למה (עם מקורות)',ulc(cd.why),false);h+=csec('חלופות שנבדקו',ulc(cd.alternatives),false);h+=csec('בעיות לפתור',ulc(cd.problems),false);h+=csec('הערות',ulc(cd.notes),false);
+  h+=csec('מקורות',cd.sources&&cd.sources.length?'<ul>'+cd.sources.map(s=>'<li><a href="'+esc(s.u)+'" target="_blank" rel="noopener">'+esc(s.t)+'</a></li>').join('')+'</ul>':'',false);
+  if(miss.length)h+='<p class="cmeta">חסר בכרטיס: '+miss.join(', ')+'.</p>';
+  dr.innerHTML=h+'</div>';const pw=dr.querySelector('#pvw');if(pw&&k)pw.appendChild(cardView(cid));wireCard(dr);
+}
+function wireCard(dr){
+  const g=(s,f)=>{const e=dr.querySelector(s);if(e)e.onclick=f};g('#cdx',closeCard);g('#cdgl',openGloss);g('#cdshow',showInModel);g('#cd11',()=>openTrue(CD.cid));g('#cdlegs',()=>{$('#legsbtn').click()});
+  dr.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const it=cfg().items.find(i=>i.cid===b.dataset.o);if(it){sel=it.id;V.rng='sel';V.arr=true;renderVopts();renderLight()}});
+  dr.querySelectorAll('.term').forEach(t=>t.onclick=()=>openGloss(+t.dataset.g))}
+/* "show in model": select it, show its view range and facing arrow, and make sure a 3D view is on screen */
+function showInModel(){const c=cfg(),it=c.items.find(i=>i.cid===CD.cid);if(!it)return;sel=it.id;V.rng='sel';V.arr=true;if(V.mode!=='3d'&&V.mode!=='win')setMode('win');saveUI();renderVopts();renderLight();render2D(true);build3D()}
+function openGloss(i){const cur=(typeof i==='number')?i:-1;$('#mcard').innerHTML='<h2>מונחון</h2><div class="m" style="margin-bottom:8px">'+esc((DEF.glossary||{})._note||'')+'</div><dl class="gl">'+GL.map((g,j)=>'<dt'+(j===cur?' class="hit"':'')+'>'+esc(g.term)+'</dt><dd>'+esc(g.text)+'</dd>').join('')+'</dl><div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
+  $('#modal').classList.add('on');$('#mc').onclick=()=>$('#modal').classList.remove('on');const h=$('#mcard .hit');if(h)h.scrollIntoView({block:'center'})}
+/* 1:1: flat views at true size. Screens differ, so the scale is set once against a bank card (85.6 x 54 mm) and remembered */
+function pxmm(){try{const v=parseFloat(localStorage.getItem('dash-pxmm'));if(v>1&&v<20)return v}catch(e){}return 96/25.4}
+function openTrue(cid){const k=cat[cid];if(!k)return;const s0=pxmm();
+  const draw=s=>{const d=k.dims,r=(w,h,l)=>'<div class="tv"><div class="tr" style="width:'+w*s+'px;height:'+h*s+'px"></div><div class="tl">'+l+'</div></div>',ci=(dd,l)=>'<div class="tv"><div class="tr" style="width:'+dd*s+'px;height:'+dd*s+'px;border-radius:50%"></div><div class="tl">'+l+'</div></div>',f=v=>Math.round(v*10)/10;
+    return(k.shape==='cyl'?ci(d[0],'מלמעלה: קוטר '+f(d[0])+' מ"מ')+r(d[0],d[1],'מהצד: '+f(d[0])+' × '+f(d[1])+' מ"מ'):r(d[0],d[2],'מלמעלה: '+f(d[0])+' × '+f(d[2])+' מ"מ')+r(d[0],d[1],'מהצד: '+f(d[0])+' × '+f(d[1])+' מ"מ')+r(d[2],d[1],'מלפנים: '+f(d[2])+' × '+f(d[1])+' מ"מ'))+'<div class="tv"><div class="tr ref" style="width:'+85.6*s+'px;height:'+54*s+'px"></div><div class="tl">כרטיס אשראי, להשוואה: 85.6 × 54 מ"מ</div></div>'};
+  $('#mcard').innerHTML='<h2>'+esc(k.name)+': בגודל 1:1</h2><div class="m" style="margin-bottom:8px">צורה פשוטה לפי המידות בנתונים'+((k.estimate||[]).includes('dims')?' (המידות הן הערכה)':'')+'. כיול: הצמידי כרטיס אשראי למסך וכווני עד שהמלבן האפור באותו גודל. הכיול נשמר. שינוי זום בדפדפן משנה את הגודל.</div><div class="ctl" style="margin-bottom:10px"><input type="range" id="pxs" min="2.5" max="7" step="0.01" value="'+s0+'" style="flex:1" aria-label="כיול גודל"></div><div class="trow" id="trow">'+draw(s0)+'</div><div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
+  $('#modal').classList.add('on');$('#mc').onclick=()=>$('#modal').classList.remove('on');
+  $('#pxs').oninput=e=>{const s=parseFloat(e.target.value);try{localStorage.setItem('dash-pxmm',s)}catch(x){}$('#trow').innerHTML=draw(s)}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CD.open&&!$('#modal').classList.contains('on')&&!(e.target&&/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))){closeCard()}});
+/* stage 4b: the component's real shape. Gimbal and lidar = manufacturer STEP models (simplified); others = simple parts from the card drawings */
+const MESH=(()=>{try{return JSON.parse($('#meshes').textContent)}catch(e){return{}}})();
+const SH=DEF.shapes||{};
+function shapeGroup(cid){const k=cat[cid],s=SH[cid],col=new THREE.Color((GROUPS[k.group]||GROUPS.motion)[0]),G=new THREE.Group();
+  const mat=new THREE.MeshStandardMaterial({color:col,roughness:.6,metalness:.1,flatShading:true,side:THREE.DoubleSide}),gm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.12,depthWrite:false}),edge=new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.55});
+  const part=p=>{let geo;if(p.t==='box')geo=new THREE.BoxGeometry(p.d[0],p.d[1],p.d[2]);else{geo=new THREE.CylinderGeometry(p.r,p.r,p.h,40);if(p.ax==='z')geo.rotateX(Math.PI/2);if(p.ax==='x')geo.rotateZ(Math.PI/2)}
+    const m=new THREE.Mesh(geo,p.ghost?gm:mat);m.position.set(p.p[0],p.p[1],p.p[2]);G.add(m);
+    if(p.ghost){const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo),edge);e.position.copy(m.position);G.add(e)}};
+  if(s&&s.mesh&&MESH[s.mesh]){const M=MESH[s.mesh],geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(M.v,3));geo.setIndex(M.i);const ng=geo.toNonIndexed();ng.computeVertexNormals();G.add(new THREE.Mesh(ng,mat))}
+  if(s&&s.parts)s.parts.forEach(part);
+  if(!s||(!s.parts&&!(s.mesh&&MESH[s.mesh]))){const d=k.dims;part(k.shape==='cyl'?{t:'cyl',r:d[0]/2,h:d[1],p:[0,0,0]}:{t:'box',d:d,p:[0,0,0]})}
+  return G}
+function mkView(w,h,keep){const cv=document.createElement('canvas'),r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true,preserveDrawingBuffer:!!keep});r.setPixelRatio(Math.min(devicePixelRatio,2));r.setSize(w,h,false);
+  const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(0xffffff,0x8a93a3,1.05));const dl=new THREE.DirectionalLight(0xffffff,.55);dl.position.set(200,300,250);sc.add(dl);
+  const cam=new THREE.PerspectiveCamera(30,w/h,1,5000),g=new THREE.Group();sc.add(g);return{cv,r,sc,cam,g,w,h,cid:null}}
+function showIn(V_,cid){while(V_.g.children.length)V_.g.remove(V_.g.children[0]);const G=shapeGroup(cid);V_.g.add(G);
+  const b=new THREE.Box3().setFromObject(G),c=b.getCenter(new THREE.Vector3()),R=(b.getSize(new THREE.Vector3()).length()/2)||10,D=R/Math.sin(15*Math.PI/180);
+  V_.cam.position.copy(c).add(new THREE.Vector3(.8,.55,.95).normalize().multiplyScalar(D));V_.cam.near=D/50;V_.cam.far=D*10;V_.cam.updateProjectionMatrix();V_.cam.lookAt(c);
+  if(V_.oc){V_.oc.target.copy(c);V_.oc.update()}V_.cid=cid}
+let TV=null,PV=null;const TH={};
+/* small picture in the list: rendered once from the same shape */
+function thumbImg(k,w){if(!(k.id in TH)){try{if(!TV)TV=mkView(112,112,true);showIn(TV,k.id);TV.r.render(TV.sc,TV.cam);TH[k.id]=TV.cv.toDataURL()}catch(e){TH[k.id]=null}}
+  return TH[k.id]?'<img class="thumb" src="'+TH[k.id]+'" width="'+w+'" height="'+w+'" alt="">':thumb(k,w)}
+function cardView(cid){if(!PV){PV=mkView(400,240,false);PV.oc=new THREE.OrbitControls(PV.cam,PV.cv);PV.oc.enableDamping=true;PV.cv.className='pv3'}
+  if(PV.cid!==cid)showIn(PV,cid);return PV.cv}
+(function pvLoop(){if(PV&&CD.open&&PV.cv.isConnected){PV.oc.update();PV.r.render(PV.sc,PV.cam)}requestAnimationFrame(pvLoop)})();
 resize3();refresh(true);
 })();
 </script>
