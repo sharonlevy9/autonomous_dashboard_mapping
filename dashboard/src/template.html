@@ -185,6 +185,27 @@ header md-icon-button[disabled]{opacity:.35}
 .app.pres .it{cursor:default}
 .app.pres .side .m3{height:auto;flex:1}
 @media (max-width:1100px){.app.pres{grid-template-rows:auto auto}}
+
+/* stage 4: component card drawer */
+.row .thumb{flex:none}.row .info{flex:none;width:18px;height:18px;border-radius:50%;border:1px solid var(--line);font-size:11px;display:grid;place-items:center;color:var(--muted);background:var(--card2);font-style:italic;font-family:Georgia,serif}
+.row .info:hover{background:var(--accent);color:#fff}.row.sel .info{background:transparent;color:#fff;border-color:#c7d3e6}
+.rsep{font-size:12px;color:var(--muted);padding:12px 10px 4px}
+.cdrawer{position:fixed;top:64px;bottom:10px;left:10px;width:min(440px,92vw);background:var(--card2);border-radius:20px;box-shadow:0 8px 30px rgba(20,28,40,.25);z-index:8;display:none;flex-direction:column;overflow:hidden}
+.cdrawer.on{display:flex}
+.chd{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid var(--line);flex:none}.chd .cht{flex:1;font-size:13px;color:var(--muted)}
+.cb2{overflow:auto;padding:12px 16px 20px;flex:1}
+.ctitle{display:flex;gap:12px;align-items:center}.ctitle h3{margin:0;font-size:19px;font-weight:600}.ctitle .m{font-size:12px;color:var(--muted);margin-top:2px}
+.cshort{margin:12px 0 4px;font-size:15px;line-height:1.55}
+.cs{border-top:1px solid var(--line);padding:2px 0}.cs>summary{cursor:pointer;padding:9px 0;font-weight:600;font-size:14px;list-style:none;display:flex;justify-content:space-between}
+.cs>summary::after{content:'▾';color:var(--muted)}.cs[open]>summary::after{content:'▴'}
+.cs .cb{padding:0 0 10px;font-size:14px;line-height:1.55}.cs ul{margin:0;padding-inline-start:20px}.cs li{margin:4px 0}.cs p{margin:6px 0}
+.cmeta{font-size:12px;color:var(--muted)}
+.term{border-bottom:1px dotted var(--muted);cursor:help}
+.chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap}.chip.est{background:#f3e3bf;color:#6b4b00}.chip.unk{background:#f0d6d2;color:#7a2a1f}.chip.src{background:var(--accent-soft,#dbe4f1);color:var(--accent)}
+.nums td{padding:6px 6px;font-size:13px}.pill.sm{font-size:11px;padding:2px 8px;margin-inline-start:6px}
+dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:#fff3c4;padding:2px 6px;border-radius:6px}dl.gl dd{margin:2px 0 0;color:#333;line-height:1.5}
+.trow{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}.tv{display:flex;flex-direction:column;align-items:center;gap:6px}.tr{background:#cfd6e2;border:1px solid #16263f;box-sizing:border-box}.tr.ref{background:#e4e6ea;border-color:#8b919c}.tl{font-size:12px;color:var(--muted);text-align:center;max-width:200px}
+@media(max-width:900px){.cdrawer{top:auto;height:70vh;left:6px;right:6px;width:auto}}
 </style>
 </head>
 <body>
@@ -230,6 +251,7 @@ header md-icon-button[disabled]{opacity:.35}
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
+  <aside class="cdrawer" id="cdrawer" aria-label="כרטיס רכיב"></aside>
   <div class="legscrim" id="legscrim"></div>
   <section class="legtab" id="legtab"><md-icon-button class="lclose" id="lclose" title="סגירה" aria-label="סגירת חלון הרגליים"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></md-icon-button>
     <div class="card lctl" id="lctl"></div>
@@ -1129,7 +1151,7 @@ function moveItem(c,it,want,free){
   kids.forEach(k=>{k.manual=true;k.pos=k.pos.map((v,i)=>Math.round((v+d[i])*10)/10);if(!isLegal(c,k)){const s=snapPos(c,k,k.pos,[true,true,true]);if(s){k.pos=s;k.unfit=false}else k.unfit=true}});
 }
 let raf=0;function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;renderLight()})}
-function renderLight(){computeTops(cfg());render2D(false);build3D();renderStats();renderRows();renderPop();renderStrip()}
+function renderLight(){computeTops(cfg());render2D(false);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard()}
 
 /* ---------- 3D mini ---------- */
 const cv=$('#c3'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
@@ -1383,12 +1405,15 @@ function renderRows(){
   DEF.catalog.forEach(k=>{
     const its=c.items.filter(i=>i.cid===k.id);if(!its.length)return;
     const on=its.some(i=>i.id===sel),b=document.createElement('button');b.className='row'+(on?' sel':'');
-    b.innerHTML='<span class="dot" style="background:'+GROUPS[k.group][0]+'"></span><span class="n">'+k.name+'</span>'+(its.some(i=>i.locked)?'<svg width="14" height="14" viewBox="-7 -7 14 14" aria-label="נעול">'+lockG(0,0,1).replace(' pointer-events="none"','')+'</svg>':'')+(its.some(i=>bad.has(i.id))?'<span class="w"></span>':'')+'<span class="c">'+(its.length>1?'×'+its.length:'')+'</span>';
+    b.innerHTML=thumb(k,30)+'<span class="n">'+k.name+'</span>'+(its.some(i=>i.locked)?'<svg width="14" height="14" viewBox="-7 -7 14 14" aria-label="נעול">'+lockG(0,0,1).replace(' pointer-events="none"','')+'</svg>':'')+(its.some(i=>bad.has(i.id))?'<span class="w"></span>':'')+'<span class="c">'+(its.length>1?'×'+its.length:'')+'</span><span class="info" role="button" tabindex="0" title="כרטיס הרכיב" aria-label="כרטיס הרכיב: '+esc(k.name)+'">i</span>';
+    b.querySelector('.info').onclick=e=>{e.stopPropagation();openCard(k.id)};
     b.onclick=()=>{const cur=its.findIndex(i=>i.id===sel);sel=its[(cur+1)%its.length].id;renderLight()};R.appendChild(b);
   });
   if(c.vent&&ventSensors(c).length){const b=document.createElement('button');b.className='row'+(sel==='vent'?' sel':'');
     b.innerHTML='<span class="dot" style="background:#0a1a30"></span><span class="n">פתח אוויר</span>'+(c.vent.locked?'<svg width="14" height="14" viewBox="-7 -7 14 14" aria-label="נעול">'+lockG(0,0,1).replace(' pointer-events="none"','')+'</svg>':'')+(bad.has('vent')?'<span class="w"></span>':'')+'<span class="c"></span>';
     b.onclick=()=>{sel='vent';renderLight()};R.appendChild(b)}
+  const hd=document.createElement('div');hd.className='rsep';hd.textContent='כרטיסים נוספים';R.appendChild(hd);
+  EXTRA.forEach(([id,nm,sub])=>{const b=document.createElement('button');b.className='row'+(CD.open&&CD.extra===id?' sel':'');b.innerHTML='<span class="n">'+nm+'</span><span class="c">'+sub+'</span>';b.onclick=()=>openCard(null,id);R.appendChild(b)});
 }
 function numField(label,val,unk,fn,step){
   const l=document.createElement('span');l.textContent=label;const i=document.createElement('input');i.type='number';i.step=step||1;i.className=unk?'unk':'';
@@ -1407,8 +1432,8 @@ function renderPop(){
   const B=document.createElement('div');B.className='b';
   const row=document.createElement('div');row.className='btns';
   const lk=it.auto?'':'<button class="pill'+(it.locked?' on':'')+'" data-a="lock">'+(it.locked?'ביטול נעילה':'נעילת מקום')+'</button>';
-  row.innerHTML=lk+(it.auto||it.locked?'':it.role?(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''):'<button class="pill" data-a="rot">סיבוב</button><button class="pill" data-a="dup">שכפול</button><button class="pill" data-a="del">הסרה</button>'+(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''))+'<button class="pill" data-a="det">פרטים</button>';
-  row.onclick=e=>{const a=e.target.dataset.a;if(!a)return;
+  row.innerHTML=lk+(it.auto||it.locked?'':it.role?(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''):'<button class="pill" data-a="rot">סיבוב</button><button class="pill" data-a="dup">שכפול</button><button class="pill" data-a="del">הסרה</button>'+(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''))+'<button class="pill" data-a="card">כרטיס</button><button class="pill" data-a="det">פרטים</button>';
+  row.onclick=e=>{const a=e.target.dataset.a;if(!a)return;if(a==='card'){openCard(it.cid);return}
     if(a==='det'){showFields=!showFields;renderPop();return}
     snap();
     if(a==='rot'){const ax=V.mode==='side'?2:V.mode==='front'?0:1;it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
@@ -1563,7 +1588,7 @@ function renderStrip(){
   const add=document.createElement('button');add.className='cfg add';add.textContent='+';add.setAttribute('aria-label','קונפיגורציה חדשה');
   add.onclick=()=>{snap();S.configs.push(newConfig('קונפיגורציה '+(S.configs.length+1)));S.active=S.configs.length-1;sel=null;save();refresh(true)};st.appendChild(add);
 }
-function refresh(refit){if(refit)camSet=false;computeTops(cfg());renderCtrl();render2D(!!refit);build3D();renderStats();renderRows();renderPop();renderStrip();updUndo();if(LV.on)renderLab()}
+function refresh(refit){if(refit)camSet=false;computeTops(cfg());renderCtrl();render2D(!!refit);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard();updUndo();if(LV.on)renderLab()}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),2200)}
 
 function openRules(){
@@ -1719,6 +1744,83 @@ S.rules=Object.assign(RULE_DEF(),S.rules||{});
 migrate();migrate4();
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
+/* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
+const CARDS=DEF.cards||{},COV={};((DEF.coverage&&DEF.coverage.rows)||[]).forEach(r=>COV[r.id]=r);
+const GL=(DEF.glossary&&DEF.glossary.terms)||[],GLMAP={};GL.forEach((g,i)=>g.aliases.forEach(a=>{GLMAP[a]=i}));
+const GLRE=GL.length?new RegExp(Object.keys(GLMAP).sort((a,b)=>b.length-a.length).map(a=>a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g'):null;
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+let GSEEN=new Set();
+/* text with glossary terms: the first time a term appears in a card it is underlined, hover or click explains it */
+function gl(s){s=String(s==null?'':s);if(!GLRE)return esc(s);let o='',p=0,m;GLRE.lastIndex=0;
+  while((m=GLRE.exec(s))){const i=GLMAP[m[0]];o+=esc(s.slice(p,m.index));
+    o+=GSEEN.has(i)?esc(m[0]):'<span class="term" data-g="'+i+'" title="'+esc(GL[i].text)+'">'+esc(m[0])+'</span>';GSEEN.add(i);p=m.index+m[0].length}
+  return o+esc(s.slice(p))}
+/* small shape picture: the simple box or cylinder of the component (same shapes as in the model). Not to scale between parts: the size is in the 1:1 view */
+function thumb(k,w){w=w||30;const col=(GROUPS[k.group]||GROUPS.motion)[0],d=k.dims,pad=2;let body='',bw,bh;
+  if(k.shape==='cyl'){const r=d[0]/2,h=d[1],ry=r*.5;bw=2*r;bh=h+2*ry;const s=(w-2*pad)/Math.max(bw,bh),R=r*s,RY=ry*s,H=h*s,ox=w/2,oy=(w-(H+2*RY))/2+RY;
+    body='<ellipse cx="'+ox+'" cy="'+(oy+H)+'" rx="'+R+'" ry="'+RY+'" fill="'+col+'"/><rect x="'+(ox-R)+'" y="'+oy+'" width="'+2*R+'" height="'+H+'" fill="'+col+'"/><rect x="'+(ox-R)+'" y="'+oy+'" width="'+2*R+'" height="'+H+'" fill="#000" opacity=".22"/><ellipse cx="'+ox+'" cy="'+(oy+H)+'" rx="'+R+'" ry="'+RY+'" fill="'+col+'"/><ellipse cx="'+ox+'" cy="'+(oy+H)+'" rx="'+R+'" ry="'+RY+'" fill="#000" opacity=".22"/><ellipse cx="'+ox+'" cy="'+oy+'" rx="'+R+'" ry="'+RY+'" fill="'+col+'"/><ellipse cx="'+ox+'" cy="'+oy+'" rx="'+R+'" ry="'+RY+'" fill="#fff" opacity=".35"/>'}
+  else{const a=d[0],b=d[1],c=d[2],c3=.866,P=(x,y,z)=>[(x-z)*c3,(x+z)*.5-y],cs=[[0,0,0],[a,0,0],[a,0,c],[0,0,c],[0,b,0],[a,b,0],[a,b,c],[0,b,c]].map(q=>P(...q)),
+      x0=Math.min(...cs.map(q=>q[0])),x1=Math.max(...cs.map(q=>q[0])),y0=Math.min(...cs.map(q=>q[1])),y1=Math.max(...cs.map(q=>q[1])),s=(w-2*pad)/Math.max(x1-x0,y1-y0),
+      T=(x,y,z)=>{const p=P(x,y,z);return((p[0]-x0)*s+(w-(x1-x0)*s)/2).toFixed(1)+','+((p[1]-y0)*s+(w-(y1-y0)*s)/2).toFixed(1)},
+      poly=(pts,sh,op)=>'<polygon points="'+pts.map(q=>T(...q)).join(' ')+'" fill="'+col+'"/>'+(sh?'<polygon points="'+pts.map(q=>T(...q)).join(' ')+'" fill="'+sh+'" opacity="'+op+'"/>':'');
+    body=poly([[0,0,c],[a,0,c],[a,b,c],[0,b,c]],'#000',0.08)+poly([[a,0,0],[a,0,c],[a,b,c],[a,b,0]],'#000',0.26)+poly([[0,b,0],[a,b,0],[a,b,c],[0,b,c]],'#fff',0.35)}
+  return'<svg class="thumb" width="'+w+'" height="'+w+'" viewBox="0 0 '+w+' '+w+'" aria-hidden="true">'+body+'</svg>'}
+const CD={open:false,cid:null,extra:null};
+const cardOf=cid=>COV[cid]?COV[cid].card:(cat[cid]&&cat[cid].group==='motion'?'10':null);
+const CLAB={short:'בקצרה',needs:'מה הוא צריך לעשות',decided:'החלטות',why:'למה',explainer:'מה הוא עושה',alternatives:'חלופות',placement:'איך הוא יושב בכלי',problems:'בעיות לפתור',open:'שאלות פתוחות',sources:'מקורות'};
+const EXTRA=[['10','רגליים','כרטיס 10'],['15','DOCKING STATION','כרטיס 15']];
+function openCard(cid,extra){CD.open=true;if(extra){CD.extra=extra;CD.cid=null;sel=null}else{CD.extra=null;CD.cid=cid;const it=cfg().items.find(i=>i.cid===cid);if(it)sel=it.id}renderLight()}
+function closeCard(){CD.open=false;renderCard()}
+function liTxt(x){return typeof x==='string'?gl(x):gl(x&&x.text||'')+(x&&(x.who||x.date)?' <span class="cmeta">('+esc([x.who,x.date].filter(Boolean).join(', '))+')</span>':'')}
+function ulc(a){return a&&a.length?'<ul>'+a.map(x=>'<li>'+liTxt(x)+'</li>').join('')+'</ul>':''}
+function csec(t,h,open,cls){return h?'<details class="cs '+(cls||'')+'"'+(open?' open':'')+'><summary>'+t+'</summary><div class="cb">'+h+'</div></details>':''}
+function chip(k,key){const v=k[key];if(v==null)return'<span class="chip unk">לא ידוע</span>';return(k.estimate||[]).includes(key)?'<span class="chip est">הערכה</span>':'<span class="chip src">יש מקור</span>'}
+function dimTxt(k){const d=k.dims,f=v=>Math.round(v*10)/10;return k.shape==='cyl'?'קוטר '+f(d[0])+' × גובה '+f(d[1])+' מ"מ':f(d[0])+' × '+f(d[1])+' × '+f(d[2])+' מ"מ (אורך × גובה × רוחב)'}
+function renderCard(){
+  const dr=$('#cdrawer');dr.classList.toggle('on',CD.open);document.body.classList.toggle('cdon',CD.open);if(!CD.open){dr.innerHTML='';return}
+  const c=cfg();if(sel&&sel!=='vent'){const it=c.items.find(i=>i.id===sel);if(it){CD.cid=it.cid;CD.extra=null}}else if(sel==='vent'){CD.cid='o2';CD.extra=null}
+  const cid=CD.cid,k=cid&&cat[cid],cardId=CD.extra||cardOf(cid),cd=CARDS[cardId];GSEEN=new Set();
+  const top='<div class="chd"><md-icon-button id="cdx" aria-label="סגירת הכרטיס" title="סגירה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></md-icon-button><span class="cht">כרטיס רכיב</span><button class="pill" id="cdgl">מונחון</button></div>';
+  if(!cd){dr.innerHTML=top+'<div class="cb2"><div class="m">בחרי רכיב ברשימה או במודל כדי לראות את הכרטיס שלו.</div></div>';wireCard(dr);return}
+  const cov=COV[cid]||{},shared=cov.shared_with&&cov.shared_with.length,miss=(cov.missing||[]).filter(x=>x!=='problems').map(x=>CLAB[x]);
+  let h=top+'<div class="cb2"><div class="ctitle">'+(k?thumb(k,76):'')+'<div><h3>'+esc(k?k.name:cd.title)+'</h3>'+(k?'<div class="m">'+esc(k.model)+'</div>':'<div class="m">'+esc(cd.tab)+'</div>')+'<div class="m">כרטיס '+esc(cardId)+': '+esc(cd.title)+(shared&&k?' (משותף עם '+cov.shared_with.map(i=>esc(cat[i]?cat[i].name:i)).join(', ')+')':'')+'</div></div></div>';
+  h+='<div class="cshort">'+gl(cd.short)+'</div>';
+  const bt=[];if(k)bt.push('<button class="pill on" id="cdshow">הראי במודל</button><button class="pill" id="cd11">בגודל 1:1</button>');if(cardId==='10')bt.push('<button class="pill on" id="cdlegs">פתחי את חלון הרגליים</button>');
+  if(bt.length)h+='<div class="btns" style="margin:8px 0">'+bt.join('')+'</div>';
+  h+=csec('מה הוא עושה',cd.explainer?'<p>'+gl(cd.explainer)+'</p>':'<p class="cmeta">חסר בכרטיס.</p>',true);
+  h+=csec('מה הוא צריך לעשות בכלי',ulc(cd.needs),true);
+  if(k){const o=(k.orient&&k.orient.text?'<p>'+gl(k.orient.text)+' <span class="cmeta">('+esc(k.orient.source||'')+')</span></p>':'')+(k.fov&&k.fov.text?'<p><b>טווח ראייה:</b> '+gl(k.fov.text)+' <span class="cmeta">('+esc(k.fov.source||'')+')</span></p>':'')+(k.why?'<p><b>למה כאן:</b> '+gl(k.why)+'</p>':'');
+    h+=csec('איך הוא יושב בכלי',o+ulc(cd.placement),true)}else h+=csec('איך הוא יושב בכלי',ulc(cd.placement),true);
+  if(k){const row=(l,v,key)=>'<tr><td>'+l+'</td><td>'+v+'</td><td>'+(key?chip(k,key):'')+'</td></tr>';
+    h+=csec('המספרים','<table class="nums">'+row('מידות','<span dir="ltr">'+esc(dimTxt(k))+'</span>','dims')+row('כמות',k.qty,null)+row('משקל ליחידה',k.weight==null?'לא ידוע':k.weight+' גרם','weight')+row('הספק ליחידה',k.power==null?'לא ידוע':k.power+' W','power')+'</table>'
+      +(k.note?'<p class="cmeta">'+gl(k.note)+'</p>':'')+(k.source?'<p class="cmeta">מקור: '+esc(k.source)+'</p>':'')+'<p class="cmeta">הערכה: מספר שלנו ולא של היצרן. יש מקור: מופיע בכרטיס או במקור שמצוין, ולא נבדק שוב בשלב הזה.</p>',true)}
+  if(k){const dep=(DEF.dependencies||[]).filter(x=>x.child===cid||x.parent===cid),op=(DEF.openings||[]).filter(x=>(x['for']||[]).includes(cid));
+    let l='';dep.forEach(x=>{const other=x.child===cid?x.parent:x.child;l+='<li>'+gl(x.text)+(cat[other]?' <button class="pill sm" data-o="'+other+'">הראי: '+esc(cat[other].name)+'</button>':'')+'</li>'});
+    op.forEach(x=>{l+='<li><b>'+esc(x.kind)+':</b> '+gl(x.rule)+'</li>'});
+    h+=csec('מה הוא מגביל בעיצוב',l?'<ul>'+l+'</ul>':'',true)}
+  h+=csec('מה עדיין פתוח',ulc(cd.open),true);
+  h+=csec('החלטות',ulc(cd.decided),false);h+=csec('למה (עם מקורות)',ulc(cd.why),false);h+=csec('חלופות שנבדקו',ulc(cd.alternatives),false);h+=csec('בעיות לפתור',ulc(cd.problems),false);h+=csec('הערות',ulc(cd.notes),false);
+  h+=csec('מקורות',cd.sources&&cd.sources.length?'<ul>'+cd.sources.map(s=>'<li><a href="'+esc(s.u)+'" target="_blank" rel="noopener">'+esc(s.t)+'</a></li>').join('')+'</ul>':'',false);
+  if(miss.length)h+='<p class="cmeta">חסר בכרטיס: '+miss.join(', ')+'.</p>';
+  dr.innerHTML=h+'</div>';wireCard(dr);
+}
+function wireCard(dr){
+  const g=(s,f)=>{const e=dr.querySelector(s);if(e)e.onclick=f};g('#cdx',closeCard);g('#cdgl',openGloss);g('#cdshow',showInModel);g('#cd11',()=>openTrue(CD.cid));g('#cdlegs',()=>{$('#legsbtn').click()});
+  dr.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const it=cfg().items.find(i=>i.cid===b.dataset.o);if(it){sel=it.id;V.rng='sel';V.arr=true;renderVopts();renderLight()}});
+  dr.querySelectorAll('.term').forEach(t=>t.onclick=()=>openGloss(+t.dataset.g))}
+/* "show in model": select it, show its view range and facing arrow, and make sure a 3D view is on screen */
+function showInModel(){const c=cfg(),it=c.items.find(i=>i.cid===CD.cid);if(!it)return;sel=it.id;V.rng='sel';V.arr=true;if(V.mode!=='3d'&&V.mode!=='win')setMode('win');saveUI();renderVopts();renderLight();render2D(true);build3D()}
+function openGloss(i){const cur=(typeof i==='number')?i:-1;$('#mcard').innerHTML='<h2>מונחון</h2><div class="m" style="margin-bottom:8px">'+esc((DEF.glossary||{})._note||'')+'</div><dl class="gl">'+GL.map((g,j)=>'<dt'+(j===cur?' class="hit"':'')+'>'+esc(g.term)+'</dt><dd>'+esc(g.text)+'</dd>').join('')+'</dl><div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
+  $('#modal').classList.add('on');$('#mc').onclick=()=>$('#modal').classList.remove('on');const h=$('#mcard .hit');if(h)h.scrollIntoView({block:'center'})}
+/* 1:1: flat views at true size. Screens differ, so the scale is set once against a bank card (85.6 x 54 mm) and remembered */
+function pxmm(){try{const v=parseFloat(localStorage.getItem('dash-pxmm'));if(v>1&&v<20)return v}catch(e){}return 96/25.4}
+function openTrue(cid){const k=cat[cid];if(!k)return;const s0=pxmm();
+  const draw=s=>{const d=k.dims,r=(w,h,l)=>'<div class="tv"><div class="tr" style="width:'+w*s+'px;height:'+h*s+'px"></div><div class="tl">'+l+'</div></div>',ci=(dd,l)=>'<div class="tv"><div class="tr" style="width:'+dd*s+'px;height:'+dd*s+'px;border-radius:50%"></div><div class="tl">'+l+'</div></div>',f=v=>Math.round(v*10)/10;
+    return(k.shape==='cyl'?ci(d[0],'מלמעלה: קוטר '+f(d[0])+' מ"מ')+r(d[0],d[1],'מהצד: '+f(d[0])+' × '+f(d[1])+' מ"מ'):r(d[0],d[2],'מלמעלה: '+f(d[0])+' × '+f(d[2])+' מ"מ')+r(d[0],d[1],'מהצד: '+f(d[0])+' × '+f(d[1])+' מ"מ')+r(d[2],d[1],'מלפנים: '+f(d[2])+' × '+f(d[1])+' מ"מ'))+'<div class="tv"><div class="tr ref" style="width:'+85.6*s+'px;height:'+54*s+'px"></div><div class="tl">כרטיס אשראי, להשוואה: 85.6 × 54 מ"מ</div></div>'};
+  $('#mcard').innerHTML='<h2>'+esc(k.name)+': בגודל 1:1</h2><div class="m" style="margin-bottom:8px">צורה פשוטה לפי המידות בנתונים'+((k.estimate||[]).includes('dims')?' (המידות הן הערכה)':'')+'. כיול: הצמידי כרטיס אשראי למסך וכווני עד שהמלבן האפור באותו גודל. הכיול נשמר. שינוי זום בדפדפן משנה את הגודל.</div><div class="ctl" style="margin-bottom:10px"><input type="range" id="pxs" min="2.5" max="7" step="0.01" value="'+s0+'" style="flex:1" aria-label="כיול גודל"></div><div class="trow" id="trow">'+draw(s0)+'</div><div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
+  $('#modal').classList.add('on');$('#mc').onclick=()=>$('#modal').classList.remove('on');
+  $('#pxs').oninput=e=>{const s=parseFloat(e.target.value);try{localStorage.setItem('dash-pxmm',s)}catch(x){}$('#trow').innerHTML=draw(s)}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CD.open&&!$('#modal').classList.contains('on')&&!(e.target&&/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))){closeCard()}});
 resize3();refresh(true);
 })();
 </script>
