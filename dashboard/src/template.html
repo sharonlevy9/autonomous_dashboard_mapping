@@ -56,7 +56,7 @@ main{display:grid;grid-template-columns:210px minmax(0,1fr) 330px;gap:12px;min-h
 /* editor */
 .editor{display:flex;flex-direction:column;overflow:hidden}
 .stats{display:flex;gap:6px;padding:14px 22px 0;align-items:flex-end}
-.checks{display:flex;flex-wrap:wrap;gap:6px;padding:10px 22px 0}
+.checks{display:flex;flex-wrap:wrap;gap:6px;padding:10px 22px 0}.chip small{font-size:11px;opacity:.75}.info6{background:#fff;border-radius:12px;padding:10px 12px;margin:6px 0 10px}.info6 table.it{width:100%;border-collapse:collapse;margin:6px 0}.info6 table.it td{padding:4px 2px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}.info6 details{margin:6px 0}.info6 summary{cursor:pointer}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px}
 .chip i{font-style:normal;width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;color:#fff;background:var(--ok)}
 .chip b{font-weight:600}
@@ -472,7 +472,7 @@ function legWarnings(c){const W=[];if(!c.legs.count)return W;const h0=hipItem(c,
   legClash(c).forEach(x=>{const A=hipItem(c,x.i),B=hipItem(c,x.j);W.push({t:'legclash',a:B.id,b:A.id,st:x.st,text:'רגל '+(x.i+1)+' ורגל '+(x.j+1)+' מתנגשות '+(x.st==='fold'?'כשהן מקופלות':'בעמידה')})});
   return W}
 /* ---------- engineering rules (soft warnings, trial values, not sources) ---------- */
-const RULE_DEF=()=>({joint:{on:true},legs:{on:true},stab:{on:true},lidar:{on:true,fov:'front'},heat:{on:true,d:30},cog:{on:true,x:10,h:60},service:{on:true},wall:{on:true,tol:3},imu:{on:true},vent:{on:true,d:10}});
+const RULE_DEF=()=>({joint:{on:true},legs:{on:true},stab:{on:true},lidar:{on:true,fov:'front'},heat:{on:true,d:30},cog:{on:true,x:10,h:60},service:{on:true},wall:{on:true,tol:3},imu:{on:true},vent:{on:true,d:10},batt:{on:true,v:0.15,share:75,hours:4,res:25},sees:{on:true},shell:{g:0.389}});
 const RU=()=>S.rules;
 function segAt(segs,x){let b=segs[0],bd=Infinity;segs.forEach(s=>{const d=Math.max(0,Math.abs(x-s.cx)-s.len/2);if(d<bd){bd=d;b=s}});return b}
 function gapDist(a,b){let s=0;for(let k=0;k<3;k++){const g=Math.max(0,a.min[k]-b.max[k],b.min[k]-a.max[k]);s+=g*g}return Math.sqrt(s)}
@@ -532,6 +532,8 @@ function ruleWarnings(c){
     if(q.walk>q.rated)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הברך חלש מדי להליכה: צריך בערך '+fmt(q.walk,1)+' ניוטון-מטר, המנוע נותן '+q.rated+' ברציפות',amt:'חסרים כ-'+fmt(q.walk-q.rated,1)+' Nm'});
     if(q.rise>q.peak)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הירך חלש מדי כדי לקום מהבטן: צריך בערך '+fmt(q.rise,1)+' ניוטון-מטר, המנוע נותן עד '+q.peak+' לרגע',amt:'חסרים כ-'+fmt(q.rise-q.peak,1)+' Nm'})}}
   if(R.stab&&R.stab.on&&c.legs.count>0&&c.legs.count<4){const h=hipItem(c,0);if(h)W.push({t:'rule',r:'stab',a:h.id,text:'עם '+c.legs.count+' רגליים הכלי לא יכול להרים רגל בלי ליפול. בהליכה צריך לפחות 3 רגליים על הקרקע בכל רגע'})}
+  if(R.sees&&R.sees.on)items.filter(i=>SEE_IDS.includes(i.cid)).forEach(it=>{const b=sensorBlockers(c,it);if(b.length){const fv=cat[it.cid].fov||{};W.push({t:'rule',r:'sees',a:it.id,text:name(c,it)+': '+b.join(', ')+' בתוך שדה הראייה',amt:'שדה הראייה: '+fv.h_deg+'° לרוחב'+(fv.v_deg?', '+fv.v_deg+'° לגובה':', לגובה לא יודע (נבדק רק בגובה החיישן)')})}});
+  if(R.batt&&R.batt.on){const q=powerOf(c),bat=items.filter(i=>i.cid==='battery').sort((a,b)=>b.frac-a.frac)[0];if(bat&&q.hours!==null&&q.hours<R.batt.hours)W.push({t:'rule',r:'batt',a:bat.id,text:'הסוללה מספיקה ל-'+fmt(q.hours,1)+' שעות עם מילואים, פחות מ-'+R.batt.hours+' השעות הנדרשות',amt:'צריך כ-'+Math.round(q.need)+' Wh, יש '+Math.round(q.cap)+' Wh (חסרים כ-'+Math.round(q.need-q.cap)+')'})}
   ventWarnings(c).forEach(x=>W.push(x));
   return W;
 }
@@ -543,14 +545,63 @@ function ruleWarnings(c){
    Shell = 0.389 g per cm2 of outer surface (card: carbon 2 mm, 1,800 cm2, about 0.7 kg incl. seals), cables+connectors 300 g,
    leg links 22 g per 75 mm link (20x20 aluminium, wall 1.5) plus 20 g of hardware per leg. */
 function extraWeight(c){const E=LG.est||{shell_g_cm2:.389,cables_g:300,link_g_75:22,hardware_g_leg:20};
-  const area=shellOf(c).reduce((a,s)=>a+2*(s.len*s.wid+s.len*s.hei+s.wid*s.hei),0)/100,sh=area*E.shell_g_cm2,n=c.legs.count||0,
-  lk=n*(E.link_g_75*(c.legs.thigh+c.legs.shin)/75+E.hardware_g_leg);return{shell:sh,cables:E.cables_g,links:lk,total:sh+E.cables_g+lk}}
+  const area=shellOf(c).reduce((a,s)=>a+2*(s.len*s.wid+s.len*s.hei+s.wid*s.hei),0)/100,sg=(typeof S!=='undefined'&&S&&S.rules&&S.rules.shell)?S.rules.shell.g:E.shell_g_cm2,sh=area*sg,n=c.legs.count||0,
+  lk=n*(E.link_g_75*(c.legs.thigh+c.legs.shin)/75+E.hardware_g_leg);return{shell:sh,area,sg,cables:E.cables_g,links:lk,total:sh+E.cables_g+lk}}
 function legTorques(c){const n=c.legs.count;if(!n||!LM.torque_rated_nm)return null;const t=totals(c),X=extraWeight(c),F=(t.w+X.total)/1000*9.81;let kx=0;
   for(let i=0;i<n;i++){const g=legGeom(c,i,'stand');if(g)kx=Math.max(kx,Math.abs(g.knee[0]-g.foot[0]))}
   const h=hipItem(c,0);return{walk:F/Math.max(1,n-1)*kx/1000,rise:F/n*c.legs.thigh/1000,rated:LM.torque_rated_nm,peak:LM.torque_peak_nm,kx,F,unk:t.wu,extra:X.total,a:h?h.id:c.items[0].id}}
 function shortenLegs(c){const L=c.legs,ok=()=>{const q=legTorques(c);return!q||(q.walk<=q.rated&&q.rise<=q.peak)};
   for(let i=0;i<80&&!ok();i++){if(L.thigh<=LEGMIN&&L.shin<=LEGMIN)break;L.thigh=Math.max(LEGMIN,Math.round(L.thigh*.97));L.shin=Math.max(LEGMIN,Math.round(L.shin*.97))}return ok()}
 function eff(it,key){const k=cat[it.cid];if(key==='cap')return k.cap_wh?k.cap_wh*it.frac:0;const v=k[key];return v===null||v===undefined?null:v*it.frac}
+/* ---------- stage 6: total weight, battery time, field of view of every sensor ---------- */
+/* total weight = parts with a known weight + ESTIMATE for shell, cables and leg links (extraWeight, card 10). Parts with no weight: counted as "לא יודע". */
+function totalWeight(c){const t=totals(c),X=extraWeight(c);return{parts:t.w,unk:t.wu,unkNames:[...new Set(c.items.filter(i=>!i.unfit&&eff(i,'weight')===null).map(i=>cat[i.cid].name))],shell:X.shell,area:X.area,sg:X.sg,cables:X.cables,links:X.links,total:t.w+X.total}}
+/* power per mode (card 11 'why', my split): walking = sensors, navigation lights, computer, safety board, legs.
+   Photo stop = on the belly (legs about 0, card 11) + documentation lights and IR LED. Alarm parts (amber lamp, buzzer, e-stop) only when alerting: not counted.
+   Computer: maker does not publish, card 01 budget up to 30 W. Safety board: up to about 2.9 W with the backup cell (cards summary).
+   Legs walking: cost of transport 3.2 (Q8bot, Aug 2025, card 11) x total weight x g x speed. Speed and walking share = assumptions (card 11), editable. */
+const PW_WALK=new Set(['lidar','navcam','radar','doccam','thermal','gimbal','imu','cliff','o2','co2','drivelight','computer','safety','backup']);
+const PW_PHOTO_ONLY=new Set(['doclight','irled']),PW_ALARM=new Set(['amber','buzzer','estop']),COT=3.2;
+const PW_FIX={computer:{w:30,src:'עד 30 W, תקציב בכרטיס 01 (היצרן לא מפרסם)'},safety:{w:2.9,src:'עד כ-2.9 W יחד עם הגיבוי (סיכום הכרטיסים)'}};
+function powerOf(c){const R=RU().batt,tw=totalWeight(c),t=totals(c),M={walk:{p:0,rows:[],unk:[]},photo:{p:0,rows:[],unk:[]}},by={};
+  c.items.forEach(it=>{if(it.unfit||it.role)return;(by[it.cid]=by[it.cid]||[]).push(it)});
+  Object.keys(by).forEach(cid=>{if(cid==='battery'||PW_ALARM.has(cid))return;const k=cat[cid],its=by[cid];let w=0,unk=false;
+    its.forEach(i=>{const v=eff(i,'power');if(v===null)unk=true;else w+=v});let src=k.source||'';
+    if(unk&&PW_FIX[cid]){w=PW_FIX[cid].w;unk=false;src=PW_FIX[cid].src}
+    const lab=k.name+(its.length>1?' ×'+its.length:'');const modes=PW_PHOTO_ONLY.has(cid)?['photo']:['walk','photo'];
+    modes.forEach(m=>{if(unk)M[m].unk.push(lab);else{M[m].p+=w;M[m].rows.push([lab,w])}})});
+  const n=c.legs.count||0,legk=n?COT*tw.total/1000*9.81:0,legs=legk*R.v;
+  if(n){M.walk.p+=legs;M.walk.rows.push(['רגליים ('+n+', הערכה)',legs])}
+  const nj=c.items.filter(i=>i.auto==='joint').length;if(nj)M.walk.unk.push('מנועי החיבור בין החוליות ×'+nj);
+  const s=R.share/100,mix=s*M.walk.p+(1-s)*M.photo.p,cap=t.cap,f=1+R.res/100;
+  return{walk:M.walk,photo:M.photo,legs,legk,mix,cap,need:R.hours*mix*f,hours:mix>0?cap/(mix*f):null,empty:mix>0?cap/mix:null,hw:M.walk.p>0?cap/M.walk.p:null,hp:M.photo.p>0?cap/M.photo.p:null,R,tw}}
+/* field of view: angles from the cards (data.json fov). My check: points of the other parts of the tool that sit in front of the sensor
+   face and inside its angles (parts, other segments, steps, leg links in the current stance). Floor is not counted.
+   No vertical angle in the card: only the plane at the sensor height is checked, like the lidar. Documentation cameras turn with the gimbal: not checked. */
+const SEE_IDS=['radar','navcam','thermal','cliff'];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+function sensorBlockers(c,s,q){const old=s.pos;if(q)s.pos=q;try{
+  const clear=clearance(c),F=faceOf(c,s,clear),fv=cat[s.cid].fov||{};if(!F||!fv.h_deg)return[];
+  const d=F.d,up=Math.abs(d[1])>.9?[1,0,0]:[0,1,0],r=norm(cross(d,up)),u=cross(r,d),hh=fv.h_deg/2*Math.PI/180,hv=fv.v_deg?fv.v_deg/2*Math.PI/180:null,o=F.o;
+  const inside=pt=>{const v=[pt[0]-o[0],pt[1]-o[1],pt[2]-o[2]],tt=dot(v,d);if(tt<3)return false;if(Math.abs(Math.atan2(dot(v,r),tt))>hh)return false;return hv===null||Math.abs(Math.atan2(dot(v,u),tt))<=hv};
+  const boxIn=(mn,mx)=>{let any=false;for(let a=0;a<2&&!any;a++)for(let b=0;b<2&&!any;b++)for(let e=0;e<2&&!any;e++){const pt=[a?mx[0]:mn[0],b?mx[1]:mn[1],e?mx[2]:mn[2]];if(dot([pt[0]-o[0],pt[1]-o[1],pt[2]-o[2]],d)>=3)any=true}if(!any)return false;
+    const N=5,L=(k,i)=>mn[k]+(mx[k]-mn[k])*i/(N-1);
+    if(hv===null){if(Math.abs(u[1])<.9||mn[1]>o[1]||mx[1]<o[1])return false;for(let i=0;i<N;i++)for(let k=0;k<N;k++)if(inside([L(0,i),o[1],L(2,k)]))return true;return false}
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++)for(let k=0;k<N;k++)if(inside([L(0,i),L(1,j),L(2,k)]))return true;return false};
+  const out=new Set(),segs=shellOf(c),own=segAt(segs,P(c,s)[0]).i,sb=aabb(c,s);
+  c.items.forEach(x=>{if(x===s||x.unfit)return;const b=aabb(c,x);if(boxIn([b.min[0],b.min[1]+clear,b.min[2]],[b.max[0],b.max[1]+clear,b.max[2]]))out.add(isMounted(x)?'הגימבל':name(c,x))});
+  segs.forEach(g=>{if(g.i===own)return;if(boxIn([g.cx-g.len/2,clear,-g.wid/2],[g.cx+g.len/2,clear+g.hei,g.wid/2]))out.add('חוליה '+(g.i+1))});
+  stepsOf(c).forEach(st=>{if(st.x1>sb.min[0]-.5&&st.x0<sb.max[0]+.5&&st.z1>sb.min[2]-.5&&st.z0<sb.max[2]+.5)return;if(boxIn([st.x0,clear+st.y0,st.z0],[st.x1,clear+st.top,st.z1]))out.add('מדרגה בחוליה '+(st.i+1))});
+  for(let i=0;i<(c.legs.count||0);i++){const g=legGeom(c,i);if(!g)continue;let hitL=false;[[g.hip,g.knee],[g.knee,g.foot]].forEach(([a,b])=>{for(let k=0;k<=8&&!hitL;k++){const pt=a.map((v,m)=>v+(b[m]-v)*k/8);if(inside(pt)&&(hv!==null||Math.abs(pt[1]-o[1])<=legBand(c)/2))hitL=true}});if(hitL)out.add('רגל '+(i+1))}
+  return[...out]}finally{s.pos=old}}
+/* moving part i to q must not hide another sensor (or the lidar) */
+function seesOthersOK(c,i,q){const old=i.pos,nm=name(c,i);i.pos=q;try{const l=c.items.find(x=>x.cid==='lidar'&&!x.unfit);if(l&&l!==i&&lidarBlockers(c,l).some(b=>b.id===i.id))return false;
+  return!c.items.some(x=>x!==i&&!x.unfit&&SEE_IDS.includes(x.cid)&&sensorBlockers(c,x).includes(nm))}finally{i.pos=old}}
+function seeInfo(c){const rows=[];c.items.filter(i=>!i.unfit&&(SEE_IDS.includes(i.cid)||i.cid==='doccam'||i.cid==='lidar')).forEach(it=>{const fv=cat[it.cid].fov||{};let st,ang;
+  if(it.cid==='lidar'){ang='360° סביב הציר';st=lidarBlockers(c,it).length?'מוסתר':'פנוי'}
+  else if(it.cid==='doccam'){ang=fv.diag_deg?fv.diag_deg+'° (לא ידוע אם אלכסון או רוחב)':'לא יודע';st='לא נבדק: מסתובבת עם הגימבל'}
+  else{ang=(fv.h_deg?fv.h_deg+'° לרוחב':'רוחב: לא יודע')+', '+(fv.v_deg?fv.v_deg+'° לגובה':'לגובה: לא יודע (נבדק רק בגובה החיישן)');const b=sensorBlockers(c,it);st=b.length?'מוסתר: '+b.join(', '):'פנוי'}
+  rows.push([name(c,it),ang,st,fv.source||''])});return rows}
 function totals(c){
   let w=0,wu=0,p=0,pu=0,cap=0,vol=0;
   c.items.forEach(it=>{const a=eff(it,'weight');a===null?wu++:w+=a;const b=eff(it,'power');b===null?pu++:p+=b;cap+=eff(it,'cap');
@@ -808,6 +859,15 @@ function ruleFixes(c,w,it){
   else if(r==='cog')F.push({label:'הזזת הסוללה לכיוון המרכז',run:()=>fixCog(c)});
   else if(r==='joint')F.push({label:'קיצור חוליה '+(w.seg+1)+' עד שיעבור',run:()=>shortenForJoint(c,w.k,w.seg)});
   else if(r==='legs')F.push({label:'קיצור הרגליים עד שהמנוע מספיק',run:()=>shortenLegs(c)});
+  else if(r==='sees'){const ok=(c,i,q)=>!sensorBlockers(c,i,q).length&&wallOK(c,i,q)&&keepVent(c,i,q)&&(!RU().service.on||svcOK(c,i,q))&&seesOthersOK(c,i,q);
+    F.push({label:'הזזת '+name(c,it)+' למקום שרואה בלי הסתרה',run:()=>relocate(c,it,ok)});
+    /* no room: try a bigger segment (on a copy), 10 mm steps up to 100 mm */
+    const si=segAt(shellOf(c),P(c,it)[0]).i,grow=(cc,key,d)=>{const s=cc.shell;if(perOn(cc))s.segs[si][key]+=d;else s[key]+=d;syncTotal(cc);layout(cc);computeTops(cc)};
+    [['hei','הגבהת'],['wid','הרחבת']].forEach(([key,verb])=>{if(key==='hei'&&c.shell.dyn)return;for(let d=10;d<=100;d+=10){const cl=cloneCfg(c),j=cl.items.find(x=>x.id===it.id);grow(cl,key,d);if(!cl.items.some(x=>x.unfit)&&relocate(cl,j,ok)){
+      F.push({label:verb+' '+(perOn(c)?'חוליה '+(si+1):'הגוף')+' ב-'+d+' מ"מ והזזת '+name(c,it),run:()=>{grow(c,key,d);return relocate(c,it,ok)}});break}}});}
+  else if(r==='batt'){const q=powerOf(c),R=RU().batt,lim=q.cap/(1+R.res/100)/R.hours,s=R.share/100;
+    if(q.legk>0&&s>0){const v=Math.floor((lim-(1-s)*q.photo.p-s*(q.walk.p-q.legs))/(s*q.legk)*100)/100;if(v>=0.05&&v<R.v)F.push({label:'הליכה איטית יותר: '+v+' מ\' בשנייה (במקום '+R.v+')',run:()=>{RU().batt.v=v;return true}})}
+    if(q.walk.p>q.photo.p){const sh=Math.floor((lim-q.photo.p)/(q.walk.p-q.photo.p)*100);if(sh>=0&&sh<R.share)F.push({label:'פחות זמן הליכה: '+sh+'% מהזמן (במקום '+R.share+'%)',run:()=>{RU().batt.share=sh;return true}})}}
   else if(r==='stab')F.push({label:'4 רגליים (זוג נוסף)',run:()=>{const L=c.legs,n=c.shell.n;while(L.per.reduce((a,b)=>a+b,0)<2){const s=L.per[0]<=L.per[n-1]?0:n-1;L.per[s]++}return true}});
   return F;
 }
@@ -1402,14 +1462,14 @@ W3.addEventListener('pointerup',end3);W3.addEventListener('pointercancel',end3);
 /* ---------- panels ---------- */
 const fmt=(n,d=1)=>(Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toLocaleString('en');
 function renderStats(){
-  const c=cfg(),t=totals(c),w=warnings(c),wo=w.filter(x=>!isWaived(c,x)),h=t.p>0&&t.cap>0?t.cap/t.p:null;
+  const c=cfg(),t=totals(c),w=warnings(c),wo=w.filter(x=>!isWaived(c,x)),q=powerOf(c),h=q.hours;
   $('#stats').innerHTML=
-   '<div class="stat"><div class="k">משקל</div><div class="v">'+fmt(t.w/1000,2)+'<small>ק"ג</small></div>'+(t.wu?'<div class="s">חסר ב-'+t.wu+' רכיבים</div>':'')+'</div>'+
-   '<div class="stat"><div class="k">הספק</div><div class="v">'+fmt(t.p,0)+'<small>W</small></div>'+(t.pu?'<div class="s">חסר ב-'+t.pu+' רכיבים</div>':'')+'</div>'+
-   '<div class="stat"><div class="k">זמן עבודה</div><div class="v">'+(h?fmt(h,1):'—')+'<small>שעות</small></div>'+(h&&t.pu?'<div class="s">עד, חסרים נתונים</div>':'')+'</div>'+
+   '<button class="stat" id="wtbtn"><div class="k">משקל כולל</div><div class="v">'+fmt(q.tw.total/1000,2)+'<small>ק"ג</small></div><div class="s">עם מעטפת (הערכה)'+(t.wu?', חסר ב-'+t.wu+' רכיבים':'')+'</div></button>'+
+   '<button class="stat" id="pwbtn"><div class="k">הספק בהליכה</div><div class="v">'+fmt(q.walk.p,0)+'<small>W</small></div><div class="s">בצילום '+fmt(q.photo.p,0)+' W'+(q.walk.unk.length?', חסר ב-'+q.walk.unk.length:'')+'</div></button>'+
+   '<button class="stat" id="htbtn"><div class="k">זמן עבודה</div><div class="v">'+(h?fmt(h,1):'—')+'<small>שעות</small></div><div class="s">עם '+q.R.res+'% מילואים'+(q.walk.unk.length||q.photo.unk.length?', חסרים נתונים':'')+'</div></button>'+
    '<div class="stat"><div class="k">נפח רכיבים</div><div class="v">'+fmt(t.vol/t.sv*100,0)+'<small>% מהגוף</small></div></div>'+
    '<button class="stat '+(wo.length?'bad':'ok')+'" id="wbtn"><div class="k">אזהרות</div><div class="v">'+(wo.length||'אין')+'</div>'+(w.length>wo.length?'<div class="s" style="color:#7a5a00">'+(w.length-wo.length)+' הוחלט שבסדר</div>':'')+'</button>';
-  $('#wbtn').onclick=()=>{if(w.length)openWarnings()};renderChecks();
+  $('#wbtn').onclick=()=>{if(w.length)openWarnings()};$('#wtbtn').onclick=()=>openWarnings('weight');$('#pwbtn').onclick=$('#htbtn').onclick=()=>openWarnings('batt');renderChecks();
 }
 /* ---------- step 5: live checks bar, explanation window, "תקני" window with preview ---------- */
 const CHK_GROUPS=[
@@ -1417,7 +1477,9 @@ const CHK_GROUPS=[
  ['pass','מעבר צר','גובה ורוחב הכלי מול מעברי הזחילה במערות ('+PASS+' מ"מ גובה, '+PASSW+' מ"מ רוחב)',w=>['tall','wide'].includes(w.t)],
  ['legs','רגליים','הרגליים לא מתנגשות, לא נוגעות ברצפה והמנועים מספיק חזקים',w=>['legshort','kneefloor','legclash'].includes(w.t)||['legs','stab'].includes(w.r)],
  ['joint','חיבורי חוליות','מנוע החיבור נכנס בחוליות ומסוגל להרים חוליה',w=>w.t==='joint'||w.r==='joint'],
- ['sens','חיישנים ושירות','ליידאר לא מוסתר, חום, דופן, פתח אוויר וגישה להוצאת רכיבים',w=>['lidar','imu','heat','wall','service','vent','ventblock'].includes(w.r)],
+ ['sens','חיישנים ושירות','שום חלק לא מסתיר את הליידאר ושאר החיישנים, חום, דופן, פתח אוויר וגישה להוצאת רכיבים',w=>['lidar','sees','imu','heat','wall','service','vent','ventblock'].includes(w.r)],
+ ['batt','סוללה','4 שעות עבודה ועוד מילואים, לפי הצריכה בהליכה ובעצירה לצילום',w=>w.r==='batt'],
+ ['weight','משקל','משקל כולל עם מעטפת, חיווט וחלקי רגליים. בלי אזהרה: את המשקל המקסימלי תחליטו בהמשך',w=>false],
  ['cog','מרכז כובד','הכלי לא נוטה ליפול (מרכז הכובד קרוב לאמצע ונמוך)',w=>w.r==='cog']];
 /* [what the problem means in plain words, why it matters] */
 const WHY={
@@ -1442,37 +1504,53 @@ const WHY={
  r_legs:['מנוע ברגל חלש מדי לעומס שהוא נושא.','הרגל לא תצליח ללכת או להרים את הכלי מהבטן. החישוב הוא הערכה שלי.'],
  r_stab:['עם מעט רגליים אי אפשר להרים רגל ולהישאר יציבים.','בהליכה צריך לפחות 3 רגליים על הקרקע בכל רגע, אחרת הכלי נופל.'],
  r_vent:['חיישן האוויר לא יושב מול פתח האוויר.','הוא ימדוד אוויר מתוך הכלי ולא מבחוץ (כרטיס 13).'],
+ r_sees:['חלק אחר של הכלי עומד בשדה הראייה של החיישן.','החיישן לא יראה את מה שמאחורי החלק הזה, ויהיה לו "כתם עיוור".'],
+ r_batt:['הסוללה לא מספיקה ל-4 שעות עבודה עם מילואים, לפי הצריכה המחושבת.','הכלי יצטרך לחזור לטעינה לפני שהעבודה במערה נגמרת, או לא יחזור בזמן אם הכבל נקרע (כרטיס 11).'],
  r_ventblock:['משהו קרוב לפתח האוויר.','הוא יחסום או יחמם את האוויר שנכנס (כרטיס 13).']};
 const whyKey=w=>w.t==='rule'?'r_'+w.r:w.t;
 const wkey=w=>[w.t,w.r||'',w.a,w.b||'',w.k===undefined?'':w.k,w.g===undefined?'':w.g].join('|');
 const isWaived=(c,w)=>!!(c.waive&&c.waive[wkey(w)]!==undefined);
 function chipsData(c){const rows=CHK_GROUPS.map(g=>({id:g[0],name:g[1],help:g[2],ws:[]})),oth={id:'other',name:'אחר',help:'',ws:[]};
   warnings(c).forEach(w=>{const g=CHK_GROUPS.find(x=>x[3](w));(g?rows.find(r=>r.id===g[0]):oth).ws.push(w)});if(oth.ws.length)rows.push(oth);return rows}
+function chkVal(c,id){if(id==='weight')return fmt(totalWeight(c).total/1000,1)+' ק"ג';if(id==='batt'){const q=powerOf(c);return q.hours===null?'':fmt(q.hours,1)+' שע\''}if(id==='pass')return outerWidth(c)+' מ"מ';return ''}
+function stanceWidth(c,st){const o=c.legs.stance;c.legs.stance=st;const w=outerWidth(c);c.legs.stance=o;return w}
+const tbl=(rows)=>'<table class="it">'+rows.map(r=>'<tr>'+r.map((x,i)=>'<td'+(i?' style="text-align:end;white-space:nowrap"':'')+'>'+x+'</td>').join('')+'</tr>').join('')+'</table>';
+function infoOf(c,id){
+ if(id==='weight'){const q=totalWeight(c);return '<div class="live"><b>משקל כולל: '+fmt(q.total/1000,2)+' ק"ג</b></div>'+tbl([['רכיבים ומנועים עם משקל ידוע',fmt(q.parts,0)+' ג\''],['מעטפת: '+fmt(q.area,0)+' סמ"ר כפול '+q.sg+' ג\' לסמ"ר (הערכה)',fmt(q.shell,0)+' ג\''],['חיווט ומחברים (הערכה)',fmt(q.cables,0)+' ג\''],['מקטעי רגליים וברגים (הערכה)',fmt(q.links,0)+' ג\'']])+(q.unk?'<div class="bx">לא יודע: אין משקל ל-'+q.unk+' רכיבים ('+q.unkNames.join(', ')+'). הם לא בחישוב.</div>':'')+'<div class="m">המעטפת לפי כרטיס 10: סיבי פחמן בעובי 2 מ"מ, כ-0.389 גרם לסמ"ר כולל אטמים. זו הערכה ולא מדידה. אפשר לשנות ב"כללי הנדסה". אין אזהרה על משקל, כי המשקל המקסימלי עוד לא נקבע.</div>'}
+ if(id==='batt'){const q=powerOf(c),R=q.R,lst=m=>tbl(m.rows.map(r=>[r[0],fmt(r[1],1)+' W']))+(m.unk.length?'<div class="m">לא יודע (לא בחישוב): '+m.unk.join(', ')+'</div>':'');
+   return '<div class="live"><b>'+(q.hours===null?'אין נתונים':'מספיקה ל-'+fmt(q.hours,1)+' שעות עם מילואים')+'</b> (נדרש: '+R.hours+' שעות, מילואים '+R.res+'%, הליכה '+R.share+'% מהזמן)</div>'+
+   tbl([['סוללה',Math.round(q.cap)+' Wh'],['רק הליכה, עד שהסוללה ריקה',q.hw?fmt(q.hw,1)+' שעות':'—'],['רק עצירה לצילום, עד שהסוללה ריקה',q.hp?fmt(q.hp,1)+' שעות':'—'],['שילוב ('+R.share+'% הליכה), עד שהסוללה ריקה',q.empty?fmt(q.empty,1)+' שעות':'—']])+
+   '<details><summary><b>הליכה: '+fmt(q.walk.p,0)+' W</b></summary>'+lst(q.walk)+'<div class="m">רגליים: עלות תנועה 3.2 (Q8bot, 2025, כרטיס 11) × '+fmt(q.tw.total/1000,2)+' ק"ג × 9.81 × '+R.v+' מ\' בשנייה. המהירות היא הנחה.</div></details>'+
+   '<details><summary><b>עצירה לצילום: '+fmt(q.photo.p,0)+' W</b></summary>'+lst(q.photo)+'<div class="m">הכלי נשען על הבטן, והרגליים כמעט לא צורכות (כרטיס 11). נורות התיעוד והאינפרה אדום דולקות.</div></details>'+
+   '<div class="m">נורת ההתראה, הזמזם וכפתור החירום פועלים רק בהתראה ולכן לא בחישוב. המחשב: עד 30 W לפי כרטיס 01, היצרן לא מפרסם.</div>'}
+ if(id==='pass'){const ws=stanceWidth(c,'stand'),wf=stanceWidth(c,'fold');return '<div class="live"><b>רוחב כולל עם הרגליים: '+ws+' מ"מ</b></div>'+tbl([['בעמידה',ws+' מ"מ'],['בקיפול',wf+' מ"מ'],['המעבר הצר ביותר במערות',PASSW+' מ"מ'],[ws<=PASSW?'נשאר מקום':'רחב מדי ב-',Math.abs(PASSW-ws)+' מ"מ']])+'<div class="m">'+(ws===wf?'הרוחב זהה בעמידה ובקיפול, כי הרגליים זזות רק קדימה ואחורה. ':'')+'מעברי הזחילה במערות ברוחב 0.5 עד 0.8 מ\' (מסמך המערות של הפרויקט). הבדיקה מול הצר ביותר.</div>'}
+ if(id==='sens'){return '<div class="live"><b>שדה הראייה של החיישנים</b></div>'+tbl(seeInfo(c).map(r=>[r[0]+'<div class="m">'+r[1]+'</div>',r[2]]))}
+ return ''}
 function renderChecks(){const e=$('#checks');if(!e)return;const c=cfg(),rows=chipsData(c);
   e.innerHTML=rows.map(r=>{const o=r.ws.filter(w=>!isWaived(c,w)).length,v=r.ws.length-o,st=o?'bad':v?'wv':'ok';
-    return '<button class="chip '+st+'" data-g="'+r.id+'" title="'+esc(r.help)+'" aria-label="'+esc(r.name+': '+(o?o+' אזהרות':v?v+' הוחלט שבסדר':'תקין'))+'"><i aria-hidden="true">'+(o?'!':v?'~':'✓')+'</i>'+r.name+(o?' <b>'+o+'</b>':v?' <b>'+v+'</b>':'')+'</button>'}).join('');
-  e.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const r=rows.find(x=>x.id===b.dataset.g);if(r.ws.length)openWarnings(r.id);else toast(r.name+': תקין')})}
+    return '<button class="chip '+st+'" data-g="'+r.id+'" title="'+esc(r.help)+'" aria-label="'+esc(r.name+': '+(o?o+' אזהרות':v?v+' הוחלט שבסדר':'תקין'))+'"><i aria-hidden="true">'+(o?'!':v?'~':'✓')+'</i>'+r.name+(o?' <b>'+o+'</b>':v?' <b>'+v+'</b>':'')+(chkVal(c,r.id)?' <small>'+chkVal(c,r.id)+'</small>':'')+'</button>'}).join('');
+  e.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const r=rows.find(x=>x.id===b.dataset.g);if(r.ws.length||infoOf(c,r.id))openWarnings(r.id);else toast(r.name+': תקין')})}
 const cloneCfg=c=>JSON.parse(JSON.stringify(c));
-function metricsOf(c){const t=totals(c);return{len:shellLen(c),wid:outerWidth(c),w:t.w,h:t.p>0&&t.cap>0?t.cap/t.p:null,pu:t.pu}}
+function metricsOf(c){const q=powerOf(c);return{len:shellLen(c),wid:outerWidth(c),w:q.tw.total,h:q.hours,pu:q.walk.unk.length+q.photo.unk.length}}
 /* trial on a copy: the real configuration does not change until the fix is chosen */
-function previewFix(c,w,j,k0,m0){const cl=cloneCfg(c);let ok;
-  try{const f=fixesFor(cl,w)[j];ok=f.run();layout(cl);computeTops(cl)}catch(e){return{ok:false}}
-  const ka=warnings(cl).map(wkey);return{ok,solved:!ka.includes(wkey(w)),neu:ka.filter(x=>!k0.includes(x)).length,m:metricsOf(cl),m0}}
+function previewFix(c,w,j,k0,m0){const cl=cloneCfg(c),rs=JSON.stringify(S.rules),back=()=>{const o=JSON.parse(rs);Object.keys(o).forEach(k=>S.rules[k]=o[k])};let ok,ka,m;
+  try{const f=fixesFor(cl,w)[j];ok=f.run();layout(cl);computeTops(cl);ka=warnings(cl).map(wkey);m=metricsOf(cl)}catch(e){back();return{ok:false}}
+  back();return{ok,solved:!ka.includes(wkey(w)),neu:ka.filter(x=>!k0.includes(x)).length,m,m0}}
 function previewLines(p){if(p.ok===false)return[];const L=[],m=p.m,m0=p.m0,d=(a,b)=>Math.round(a-b);
   L.push('<b>'+(p.solved?'הבעיה נפתרת':'הבעיה לא נפתרת')+'</b>');L.push(p.neu?'נוצרות '+p.neu+' אזהרות חדשות':'לא נוצרות אזהרות חדשות');
   const ch=[];if(Math.abs(d(m.len,m0.len))>=1)ch.push('הכלי נעשה '+(m.len>m0.len?'ארוך':'קצר')+' ב-'+Math.abs(d(m.len,m0.len))+' מ"מ');
   if(Math.abs(d(m.wid,m0.wid))>=1)ch.push('הכלי נעשה '+(m.wid>m0.wid?'רחב':'צר')+' ב-'+Math.abs(d(m.wid,m0.wid))+' מ"מ');
   if(Math.abs(d(m.w,m0.w))>=1)ch.push('המשקל '+(m.w>m0.w?'עולה':'יורד')+' ב-'+Math.abs(d(m.w,m0.w))+' גרם');
-  if(m.h!==null&&m0.h!==null){const mn=(m.h-m0.h)*60;if(Math.abs(mn)>=1)ch.push('זמן העבודה '+(mn>0?'ארוך':'קצר')+' ב-'+Math.round(Math.abs(mn))+' דקות'+(m.pu?' (חסרים נתוני הספק)':''))}
+  if(m.h!==null&&m0.h!==null){const mn=(m.h-m0.h)*60;if(Math.abs(mn)>=1)ch.push('זמן העבודה '+(mn>0?'ארוך':'קצר')+' ב-'+Math.round(Math.abs(mn))+' דקות'+(m.pu?' (חלק מהרכיבים בלי נתוני הספק)':''))}
   L.push(ch.length?ch.join('. '):'שאר המידות לא משתנות');return L}
-function srcOf(w){return w.t==='rule'?'הכלל הוא ערך ניסיון שלי (אפשר לשנות ב"כללי הנדסה"), לא בדיקה של יצרן.':(w.t==='tall'||w.t==='wide')?'הסף מגיע ממסמך המערות של הפרויקט (מעברי זחילה, רוחב 0.5-0.8 מ\' וגובה 0.6-0.9 מ\').':'חישוב מהמידות שבקובץ.'}
+function srcOf(w){if(w.r==='batt')return 'הצריכה של הרכיבים מהכרטיסים ומכרטיס הסוללה (11). צריכת הרגליים היא חישוב שלי: עלות תנועה 3.2 (Q8bot, 2025) כפול המשקל והמהירות. המהירות ואחוז ההליכה הם הנחות, ואפשר לשנות אותם ב"כללי הנדסה".';if(w.r==='sees')return 'הזוויות מכרטיס החיישן. הבדיקה היא שלי: נקודות של חלקי הכלי שנמצאות מול החיישן ובתוך הזוויות שלו.';return w.t==='rule'?'הכלל הוא ערך ניסיון שלי (אפשר לשנות ב"כללי הנדסה"), לא בדיקה של יצרן.':(w.t==='tall'||w.t==='wide')?'הסף מגיע ממסמך המערות של הפרויקט (מעברי זחילה, רוחב 0.5-0.8 מ\' וגובה 0.6-0.9 מ\').':'חישוב מהמידות שבקובץ.'}
 function closeModal(){$('#modal').classList.remove('on')}
 function openWarnings(g){
-  const c=cfg(),all=warnings(c);
-  if(!all.length){closeModal();return}
-  let grp=g&&g!=='all'?chipsData(c).find(r=>r.id===g):null;if(grp&&!grp.ws.length)grp=null;
+  const c=cfg(),all=warnings(c),inf=g&&g!=='all'?infoOf(c,g):'';
+  if(!all.length&&!inf){closeModal();return}
+  let grp=g&&g!=='all'?chipsData(c).find(r=>r.id===g):null;if(grp&&!grp.ws.length&&!inf)grp=null;
   const ws=grp?grp.ws:all,open=ws.length<=3;
-  $('#mcard').innerHTML='<h2>'+(grp?grp.name:'כל האזהרות')+'</h2>'+(grp&&grp.help?'<div class="m" style="margin-bottom:8px">'+esc(grp.help)+'</div>':'')+
+  $('#mcard').innerHTML='<h2>'+(grp?grp.name:'כל האזהרות')+'</h2>'+(grp&&grp.help?'<div class="m" style="margin-bottom:8px">'+esc(grp.help)+'</div>':'')+(inf?'<div class="info6">'+inf+'</div>':'')+(grp&&!grp.ws.length?'<div class="m" style="margin:8px 0">אין אזהרות בבדיקה הזו.</div>':'')+
    '<div class="btns" style="margin-bottom:6px">'+(grp?'<button class="pill" id="wall">כל האזהרות</button>':'<button class="pill edit" id="fixall">תקני הכול</button>')+'</div>'+
    '<ul class="wl2">'+ws.map((x,i)=>{const wv=isWaived(c,x),k=WHY[whyKey(x)]||['',''];
      return '<li><details'+(open||i===0?' open':'')+'><summary><span class="st'+(wv?' wv':'')+'"></span><span>'+x.text+(wv?' <small style="color:#7a5a00">(הוחלט שבסדר)</small>':'')+'</span></summary>'+
@@ -1698,13 +1776,16 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 
 function openRules(){
   const R=RU(),c=cfg(),g=cogOf(c),b=g&&cogBad(c,g),lq=legTorques(c);
-  const num=(id,p,v,lab)=>'<span>'+lab+'</span><input type="number" data-r="'+id+'" data-p="'+p+'" value="'+v+'">';
+  const num=(id,p,v,lab)=>'<span>'+lab+'</span><input type="number" step="any" data-r="'+id+'" data-p="'+p+'" value="'+v+'">';
   const row=(id,title,desc,extra)=>'<div class="rl"><label class="rh"><input type="checkbox" data-r="'+id+'"'+(R[id].on?' checked':'')+'><b>'+title+'</b></label><div class="m">'+desc+'</div>'+(extra?'<div class="pf">'+extra+'</div>':'')+'</div>';
   $('#mcard').innerHTML='<h2>כללי הנדסה</h2><div class="m" style="margin-bottom:6px">כל הכללים הם אזהרות עם תיקון, ולא חוסמים. כל המספרים הם ערכי ניסיון שלנו, לא מקור.</div>'+
    row('lidar','הליידאר לא מוסתר','משטח הסריקה הוא גובה מרכז הליידאר (הזווית האנכית שלו לא ידועה). חוליה גבוהה או הגימבל לפניו מסתירים.','<span>כיוון</span><select data-r="lidar" data-p="fov"><option value="front"'+(R.lidar.fov==='front'?' selected':'')+'>קדימה בלבד (צד B)</option><option value="360"'+(R.lidar.fov==='360'?' selected':'')+'>סביב</option></select>')+
    (DEF.motors&&DEF.motors.joint?row('joint','כוח במפרק בין חוליות','מנוע החיבור צריך להרים את החוליה שלידו, למשל כדי לטפס על מדרגה. החישוב שלי: משקל כל רכיב בחוליה כפול המרחק שלו מהמפרק, כשהחוליה באוויר. ההשוואה היא למנוע '+DEF.motors.joint.model+': '+DEF.motors.joint.torque_rated_nm+' Nm ברציפות, '+DEF.motors.joint.torque_peak_nm+' Nm בשיא. לקליפה, לשלד ולכבלים עוד אין משקל, לכן המספר האמיתי יהיה גבוה יותר.')+'<div class="rl" style="border:0;padding-top:0"><div class="live">'+(jointLoads(c).map(L=>'מפרק '+(L.k+1)+'-'+(L.k+2)+', הרמת חוליה '+(L.seg+1)+': '+fmt(L.nm,1)+' Nm').join(' · ')||'אין חיבורים (חוליה אחת)')+'</div></div>':'')+
    row('legs','כוח במנועי הרגליים','החישוב שלי, רק עם המשקלים הידועים (בלי קליפה, כבלים ומקטעי הרגל). הליכה איטית, רגל אחת באוויר: המשקל מתחלק בין שאר הרגליים, ומנוע הברך מחזיק אותו כפול המרחק האופקי מהברך לכף הרגל. קימה מהבטן: מנוע הירך מרים כשהירך אופקית. ההשוואה היא ל-'+LM.model+': '+LM.torque_rated_nm+' ניוטון-מטר ברציפות, '+LM.torque_peak_nm+' לרגע.')+
    '<div class="rl" style="border:0;padding-top:0"><div class="live">'+(lq?'עכשיו: הליכה '+fmt(lq.walk,2)+', קימה '+fmt(lq.rise,2)+' ניוטון-מטר'+(lq.unk?'. חסר משקל ב-'+lq.unk+' רכיבים':''):'אין רגליים')+'</div></div>'+
+   row('sees','שדה הראייה של החיישנים','המכ"ם, מצלמות הניווט, המצלמות התרמיות וחיישני המצוק: שום חלק של הכלי לא עומד מולם בתוך הזווית שבכרטיס. בלי זווית לגובה בכרטיס: בודק רק בגובה החיישן. מצלמות התיעוד על הגימבל לא נבדקות.')+
+   row('batt','זמן סוללה','הצריכה בהליכה ובעצירה לצילום (כרטיס 11). הרגליים: עלות תנועה 3.2 (Q8bot, 2025) כפול המשקל והמהירות. כל המספרים כאן הם הנחות מכרטיס הסוללה.',num('batt','v',R.batt.v,'מהירות הליכה (מ\' בשנייה)')+num('batt','share',R.batt.share,'הליכה (% מהזמן)')+num('batt','hours',R.batt.hours,'שעות עבודה נדרשות')+num('batt','res',R.batt.res,'מילואים (%)'))+
+   '<div class="rl"><div class="rh"><b>משקל המעטפת</b></div><div class="m">כרטיס 10: סיבי פחמן 2 מ"מ, כ-0.389 גרם לסמ"ר כולל אטמים (הערכה). משמש למשקל הכולל, לכוח במנועים ולזמן הסוללה.</div><div class="pf">'+num('shell','g',R.shell.g,'גרם לסמ"ר')+'</div></div>'+
    row('stab','יציבות בהליכה','כדי להרים רגל בלי ליפול צריך לפחות 3 רגליים על הקרקע, כלומר לפחות 4 רגליים.')+
    row('heat','חום','סוללה וחיישני אוויר רחוקים ממחשב, מנועים ופנסים.',num('heat','d',R.heat.d,'מרחק מינימלי (מ"מ)'))+
    row('cog','מרכז כובד','נמוך ובאמצע, לפי הרכיבים שיש להם משקל ידוע. מנועי הרגליים נספרים, מקטעי הרגל עוד בלי משקל.',num('cog','x',R.cog.x,'סטייה מקסימלית (% מהאורך/רוחב)')+num('cog','h',R.cog.h,'גובה מקסימלי (% מהגובה)'))+
@@ -1721,9 +1802,9 @@ function openRules(){
 }
 $('#rulesbtn').onclick=openRules;
 $('#compare').onclick=()=>{
-  const rows=S.configs.map(c=>{const t=totals(c),w=warnings(c);return{n:c.name,segs:c.shell.n,legs:c.legs.count,len:Math.round(shellLen(c)),w:t.w,wu:t.wu,p:t.p,pu:t.pu,cap:t.cap,wr:w.length,fit:t.vol/t.sv}});
+  const rows=S.configs.map(c=>{const t=totals(c),w=warnings(c),q=powerOf(c);return{tw:q.tw.total,pw:q.walk.p,pp:q.photo.p,hr:q.hours,n:c.name,segs:c.shell.n,legs:c.legs.count,len:Math.round(shellLen(c)),w:t.w,wu:t.wu,p:t.p,pu:t.pu,cap:t.cap,wr:w.length,fit:t.vol/t.sv}});
   $('#mcard').innerHTML='<h2>השוואה</h2><table><tr><th></th>'+rows.map(r=>'<th>'+r.n+'</th>').join('')+'</tr>'+
-   [['חוליות',r=>r.segs],['רגליים',r=>r.legs],['אורך כולל (מ"מ)',r=>r.len],['משקל ידוע (ק"ג)',r=>fmt(r.w/1000,2)+(r.wu?' (חסר '+r.wu+')':'')],['הספק ידוע (W)',r=>fmt(r.p,0)+(r.pu?' (חסר '+r.pu+')':'')],['נפח רכיבים מהגוף',r=>fmt(r.fit*100,0)+'%'],['אזהרות',r=>r.wr]].map(([k,f])=>'<tr><td><b>'+k+'</b></td>'+rows.map(r=>'<td>'+f(r)+'</td>').join('')+'</tr>').join('')+'</table><div class="btns"><button class="pill" id="mc">סגירה</button></div>';
+   [['חוליות',r=>r.segs],['רגליים',r=>r.legs],['אורך כולל (מ"מ)',r=>r.len],['משקל כולל עם מעטפת (ק"ג)',r=>fmt(r.tw/1000,2)+(r.wu?' (חסר '+r.wu+')':'')],['הספק בהליכה / בצילום (W)',r=>fmt(r.pw,0)+' / '+fmt(r.pp,0)],['זמן עבודה עם מילואים (שעות)',r=>r.hr===null?'—':fmt(r.hr,1)],['נפח רכיבים מהגוף',r=>fmt(r.fit*100,0)+'%'],['אזהרות',r=>r.wr]].map(([k,f])=>'<tr><td><b>'+k+'</b></td>'+rows.map(r=>'<td>'+f(r)+'</td>').join('')+'</tr>').join('')+'</table><div class="btns"><button class="pill" id="mc">סגירה</button></div>';
   $('#modal').classList.add('on');$('#mc').onclick=()=>$('#modal').classList.remove('on');
 };
 $('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('on')};
