@@ -2043,8 +2043,11 @@ function syncTotal(c){const s=c.shell;if(!perOn(c))return;s.total=Math.round(she
 function setPer(c,on){const s=c.shell;if(on){s.segs=segSpec(c).map(q=>({len:Math.round(q.len),wid:q.wid,hei:q.hei}));s.per=true;syncTotal(c)}else{const T=Math.round(shellLen(c)),W=shellWid(c),H=shellHei(c);s.per=false;s.total=T;s.wid=W;s.hei=H}}
 function resizeSegs(c,n){const s=c.shell;if(!s.per||!Array.isArray(s.segs))return;while(s.segs.length<n)s.segs.push({...s.segs[s.segs.length-1]});s.segs.length=n}
 /* lidar may stick out of the front end by s.lOut mm (0-30, set by the user, default 0); only the inside part is fit-checked */
-/* gimbal on top may sink into the body by s.gSink mm (0-30, set by the user, default 0): its lower part is then inside, the rest sticks up */
-const gimbalSink=c=>c.shell.gAt&&c.shell.gAt!=='top'?0:(c.shell.gSink||0);
+/* gimbal on top: only its mounting footprint (s.gFoot mm square, an ESTIMATE, user editable) must sit on the body; the rest may overhang */
+const gimbalFoot=(c,e)=>[Math.min(e[0],c.shell.gFoot||50),Math.min(e[2],c.shell.gFoot||50)];
+/* lidar: its exposed window end (the card says the end faces outwards) may stick out of the body along its own axis by s.lOut mm (0-30, user set, default 0) */
+function lidarX(c,it,s,segs){const o={xl:0,xh:0,yl:0,yh:0,zl:0,zh:0},n=it.cid==='lidar'?(c.shell.lOut||0):0;if(!n)return o;const a=axisOf(it);
+  if(a.x>.5&&s.i===segs.length-1)o.xh=n;if(a.x<-.5&&s.i===0)o.xl=n;if(a.y>.5)o.yh=n;if(a.y<-.5)o.yl=n;if(a.z>.5)o.zh=n;if(a.z<-.5)o.zl=n;return o}
 const lidarOut=(c,it)=>it.cid==='lidar'?(c.shell.lOut||0):0;
 const allowUp=(c,it)=>c.shell.steps?MAST:(it.cid==='lidar'&&c.shell.dyn?MAST:0);
 /* rounded corners: does box b (inside segment sg) stay inside the rounded outline? */
@@ -2154,13 +2157,13 @@ function hit(a,b){const q=.01;for(let k=0;k<3;k++)if(a.max[k]<=b.min[k]+q||b.max
 const isMounted=it=>cat[it.cid].mount==='gimbal';
 const isExternal=it=>cat[it.cid].external||isMounted(it);
 function name(c,it){const k=cat[it.cid],same=c.items.filter(x=>x.cid===it.cid);let n=k.name;if(it.role==='hip')n+=' (ירך, רגל '+(it.leg+1)+')';if(it.role==='knee')n+=' (ברך, רגל '+(it.leg+1)+')';if(it.role==='joint')n+=' (בין חוליות)';return n+(same.length>1&&!it.role?' '+(same.indexOf(it)+1):'')}
-function overshoot(c,b,segs,it){let best=1e9;segs.forEach(s=>{const o=Math.max(0,s.cx-s.len/2-b.min[0],b.max[0]-(s.cx+s.len/2)-(s.i===segs.length-1?lidarOut(c,it):0),-s.wid/2-b.min[2],b.max[2]-s.wid/2,-b.min[1],b.max[1]-(s.hmax+allowUp(c,it)));best=Math.min(best,o)});return best}
+function overshoot(c,b,segs,it){let best=1e9;segs.forEach(s=>{const o=Math.max(0,s.cx-s.len/2-b.min[0],b.max[0]-(s.cx+s.len/2)-lidarX(c,it,s,segs).xh,-s.wid/2-b.min[2]-lidarX(c,it,s,segs).zl,b.max[2]-s.wid/2-lidarX(c,it,s,segs).zh,-b.min[1]-lidarX(c,it,s,segs).yl,b.max[1]-(s.hmax+allowUp(c,it))-lidarX(c,it,s,segs).yh);best=Math.min(best,o)});return best}
 function warnings(c){
   const W=[],segs=shellOf(c),clear=clearance(c),items=c.items.filter(i=>!i.auto),bb=new Map(items.map(i=>[i.id,aabb(c,i)]));
   items.forEach(it=>{
     const b=bb.get(it.id);
     if(it.unfit){W.push({t:'nofit',a:it.id,text:name(c,it)+': לא נכנס בגוף במידות האלה'});return}
-    if(!isExternal(it)&&!segs.some(s=>b.min[0]>=s.cx-s.len/2-.2&&b.max[0]<=s.cx+s.len/2+.2+(s.i===segs.length-1?lidarOut(c,it):0)&&b.min[2]>=-s.wid/2-.2&&b.max[2]<=s.wid/2+.2&&b.min[1]>=-.2&&b.max[1]<=s.hmax+allowUp(c,it)+.2))W.push({t:'out',a:it.id,text:name(c,it)+': חורג מהחוליה',amt:'חורג בכ-'+Math.max(1,Math.ceil(overshoot(c,b,segs,it)))+' מ"מ'});
+    if(!isExternal(it)&&!segs.some(s=>b.min[0]>=s.cx-s.len/2-.2&&b.max[0]<=s.cx+s.len/2+.2+lidarX(c,it,s,segs).xh&&b.min[0]>=s.cx-s.len/2-.2-lidarX(c,it,s,segs).xl&&b.min[2]>=-s.wid/2-.2-lidarX(c,it,s,segs).zl&&b.max[2]<=s.wid/2+.2+lidarX(c,it,s,segs).zh&&b.min[1]>=-.2-lidarX(c,it,s,segs).yl&&b.max[1]<=s.hmax+allowUp(c,it)+.2+lidarX(c,it,s,segs).yh))W.push({t:'out',a:it.id,text:name(c,it)+': חורג מהחוליה',amt:'חורג בכ-'+Math.max(1,Math.ceil(overshoot(c,b,segs,it)))+' מ"מ'});
     else if(!isExternal(it)&&!lidarOut(c,it)&&!roundOK(c,segAt(segs,P(c,it)[0]),b))W.push({t:'round',a:it.id,text:name(c,it)+': בולט מהפינה המעוגלת'});
     if(b.min[1]+clear<-.01)W.push({t:'floor',a:it.id,text:name(c,it)+': מתחת לרצפה',amt:'מתחת לרצפה ב-'+Math.max(1,Math.round(-(b.min[1]+clear)))+' מ"מ'});
   });
@@ -2386,18 +2389,17 @@ function zonesFor(c,it,e){
   if(it.role==='hip'){const s=segs[segIdx(c,it.seg)],z=it.side*(s.wid/2-e[2]/2),lo=[s.cx-s.len/2+e[0]/2,e[1]/2,z],hi=[s.cx+s.len/2-e[0]/2,s.hmax-e[1]/2,z];return lo[0]<=hi[0]+.01&&lo[1]<=hi[1]+.01?[{lo,hi}]:[]}
   if(it.cid==='gimbal'){const m=c.shell.gAt||'top';
     if(m!=='top'){const s=m==='front'?segs[segs.length-1]:segs[0],x=s.cx+(m==='front'?1:-1)*(s.len/2+e[0]/2);return[{lo:[x,e[1]/2,-h(s.wid/2-e[2]/2)],hi:[x,Math.max(e[1]/2,s.hmax-e[1]/2),h(s.wid/2-e[2]/2)]}]}
-    const sk=gimbalSink(c);return segs.map(s=>({lo:[s.cx-h(s.len/2-e[0]/2),s.hei+e[1]/2-sk,-h(s.wid/2-e[2]/2)],hi:[s.cx+h(s.len/2-e[0]/2),s.hei+e[1]/2-sk,h(s.wid/2-e[2]/2)]}))}
+    const gf=gimbalFoot(c,e);return segs.map(s=>({lo:[s.cx-h(s.len/2-gf[0]/2),s.hei+e[1]/2,-h(s.wid/2-gf[1]/2)],hi:[s.cx+h(s.len/2-gf[0]/2),s.hei+e[1]/2,h(s.wid/2-gf[1]/2)]}))}
   if(isMounted(it)){const g=c.items.find(i=>i.cid==='gimbal');if(!g)return[];const ge=ext(g),gp=g.pos;
     const lo=[0,1,2].map(k=>gp[k]-ge[k]/2+e[k]/2),hi=[0,1,2].map(k=>gp[k]+ge[k]/2-e[k]/2);return lo.every((v,k)=>v<=hi[k]+.01)?[{lo,hi}]:[]}
-  return segs.map(s=>{const hm=s.hmax+allowUp(c,it);return{lo:[s.cx-s.len/2+e[0]/2,e[1]/2,-s.wid/2+e[2]/2],hi:[s.cx+s.len/2-e[0]/2+(s.i===segs.length-1?lidarOut(c,it):0),hm-e[1]/2,s.wid/2-e[2]/2]}}).filter(z=>z.lo.every((v,k)=>v<=z.hi[k]+.01));
+  return segs.map(s=>{const hm=s.hmax+allowUp(c,it),X=lidarX(c,it,s,segs);return{lo:[s.cx-s.len/2+e[0]/2-X.xl,e[1]/2-X.yl,-s.wid/2+e[2]/2-X.zl],hi:[s.cx+s.len/2-e[0]/2+X.xh,hm-e[1]/2+X.yh,s.wid/2-e[2]/2+X.zh]}}).filter(z=>z.lo.every((v,k)=>v<=z.hi[k]+.01));
 }
 let OBS_POOL=null,EXCL=null;
 function obstaclesFor(c,it){
   if(it.cid==='gimbal')return[];
-  const gs=gimbalSink(c),gb=gs>0?c.items.filter(x=>x.cid==='gimbal'&&!x.unfit).map(g=>{const b=aabb(c,g);return{min:[b.min[0],b.min[1],b.min[2]],max:[b.max[0],b.min[1]+gs,b.max[2]]}}):[];
   const o=(OBS_POOL||c.items).filter(x=>x!==it&&!x.auto&&!x.unfit&&!(EXCL&&EXCL.has(x)));
   if(isMounted(it))return o.filter(isMounted).map(x=>aabb(c,x));
-  return o.filter(x=>!isMounted(x)&&x.cid!=='gimbal').map(x=>aabb(c,x)).concat(gb);
+  return o.filter(x=>!isMounted(x)&&x.cid!=='gimbal').map(x=>aabb(c,x));
 }
 function inZone(z,p){return[0,1,2].every(k=>p[k]>=z.lo[k]-.2&&p[k]<=z.hi[k]+.2)}
 function isLegal(c,it){
@@ -2443,7 +2445,7 @@ function placeGimbals(c){
   const segs=shellOf(c);
   if((c.shell.gAt||'top')!=='top')return;
   c.items.filter(i=>i.cid==='gimbal'&&!i.unfit).forEach(g=>{
-    const e=ext(g),gb=aabb(c,g);let base=segAt(segs,g.pos[0]).hei;stepsOf(c).forEach(st=>{if(st.x1>gb.min[0]&&st.x0<gb.max[0]&&st.z1>gb.min[2]&&st.z0<gb.max[2])base=Math.max(base,st.top)});const y=base+e[1]/2-gimbalSink(c),dy=y-g.pos[1];
+    const e=ext(g),gb=aabb(c,g);let base=segAt(segs,g.pos[0]).hei;stepsOf(c).forEach(st=>{if(st.x1>gb.min[0]&&st.x0<gb.max[0]&&st.z1>gb.min[2]&&st.z0<gb.max[2])base=Math.max(base,st.top)});const y=base+e[1]/2,dy=y-g.pos[1];
     if(Math.abs(dy)<.01)return;g.pos[1]=y;
     c.items.filter(isMounted).forEach(m=>{m.pos[1]+=dy});
   });
@@ -2474,7 +2476,7 @@ function layout(c){
     const r=tgtFor(c,it);it.rot=(r.rot||[0,0,0]).slice();const e=ext(it),pref=segIdx(c,r.s);
     if(it.cid==='gimbal'){const m=c.shell.gAt||'top';
       if(m!=='top'){const s2=m==='front'?segs[segs.length-1]:segs[0];it.pos=[s2.cx+(m==='front'?1:-1)*(s2.len/2+e[0]/2),Math.max(e[1]/2,s2.hei/2),0]}
-      else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2-gimbalSink(c),0]}
+      else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2,0]}
       return}
     if(isMounted(it)){const g=gim();if(g){const gp=g.pos,gi=c.items.filter(x=>x.cid===it.cid&&isMounted(x)).indexOf(it);
       const off=ext(it)[0]/2+1;it.pos=[gp[0]+(gi?off:-off),gp[1],gp[2]]  /* side by side, touching (was fixed 17 mm for the 32 mm body; 16.11 the size with enclosure is 38) */;it.rot=[0,0,0];return}}
@@ -3430,8 +3432,10 @@ function renderCtrl(){
   if(s.dyn)el.insertAdjacentHTML('beforeend','<div class="note">כל חוליה גבוהה כמו מה שבתוכה, והגימבל יושב על הגובה שלה. אפשר להגביה את הליידאר (גרירה למעלה) והקליפה סביבו תעלה. הליידאר יכול לעלות עד '+MAST+' מ"מ מעל הגובה המקסימלי.</div>');
   if(c.items.some(i=>i.cid==='lidar')){slider('הליידאר בולט מהקצה הקדמי',s.lOut||0,0,30,1,(v,fin)=>{s.lOut=v;clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'lOut'});
     el.insertAdjacentHTML('beforeend','<div class="note">כמה מותר לליידאר לצאת מהקצה הקדמי של הגוף. 0 = כולו בפנים. המספר נקבע על ידך, אין לו מקור בכרטיס. בדיקת ההכלה סופרת רק את החלק שבפנים, והמודל מצייר את החלק שבחוץ.</div>')}
-  if(c.items.some(i=>i.cid==='gimbal')&&(s.gAt||'top')==='top'){slider('הגימבל שקוע בגוף',s.gSink||0,0,30,1,(v,fin)=>{s.gSink=v;c.items.filter(i=>i.cid==='gimbal'||isMounted(i)).forEach(i=>i.manual=false);clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'gSink'});
-    el.insertAdjacentHTML('beforeend','<div class="note">כמה מהחלק התחתון של הגימבל נכנס לתוך הגוף (השאר בולט למעלה). 0 = כולו מעל הגוף. המספר נקבע על ידך. המידות של בסיס ההרכבה שלו עוד לא ידועות, לכן החלק השקוע נחשב כרוחב הגימבל כולו.</div>')}
+  if(c.items.some(i=>i.cid==='gimbal')&&(s.gAt||'top')==='top'){slider('נקודת ההשקה של הגימבל (ריבוע)',s.gFoot||50,20,80,1,(v,fin)=>{s.gFoot=v;c.items.filter(i=>i.cid==='gimbal'||isMounted(i)).forEach(i=>i.manual=false);clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'gFoot'});
+    el.insertAdjacentHTML('beforeend','<div class="note">רק נקודת ההשקה של הגימבל חייבת לשבת על הגוף. שאר הגימבל יכול לבלוט מעבר לקצה. המספר הוא הערכה שלי מקובץ ה-3D של היצרן, לא מידה רשמית (ברירת מחדל 50 מ"מ), ואפשר לשנות אותו.</div>')}
+  if(c.items.some(i=>i.cid==='lidar')){slider('בליטת הליידאר מהגוף',s.lOut||0,0,30,1,(v,fin)=>{s.lOut=v;c.items.filter(i=>i.cid==='lidar').forEach(i=>{});clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'lOut'});
+    el.insertAdjacentHTML('beforeend','<div class="note">כמה מותר לקצה החשוף של הליידאר (הצד שאליו הוא פונה, 23.8 מ"מ חשופים לפי הכרטיס) לבלוט מהגוף. 0 = כולו בפנים. אפשר לגרור אותו לכל דופן ולסובב. המספר נקבע על ידך. בדיקת ההכלה סופרת רק את החלק שבפנים.</div>')}
   const segs=shellOf(c),mS=Math.floor(Math.min(...segs.map(x=>Math.min(x.len,x.hmax)/2))),mT=Math.floor(Math.min(...segs.map(x=>Math.min(x.len,x.wid)/2)));
   const applyR=key=>(v,fin)=>{s[key]=v;clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh()};
   slider('עיגול פינות מהצד',s.rS||0,0,mS,1,applyR('rS'),{k:'rS'});
