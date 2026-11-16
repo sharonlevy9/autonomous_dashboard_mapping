@@ -40,9 +40,9 @@
    "group": "computing",
    "shape": "box",
    "dims": [
-    50,
-    12,
-    40
+    56,
+    18,
+    46
    ],
    "qty": 1,
    "weight": 20,
@@ -51,7 +51,7 @@
     "dims",
     "weight"
    ],
-   "note": "לוח 50×40×12 ו-20 ג': הערכות. החשמל עד כ-2.9 W יחד עם הגיבוי (טבלת סיכום).",
+   "note": "לוח 50×40×12 ו-20 ג': הערכות. החשמל עד כ-2.9 W יחד עם הגיבוי (טבלת סיכום). | 16.11: עם מארז 56×46×18 (מארז: 3 מ\"מ מכל צד ו-6 בגובה, הערכה שלי; סיכום הכרטיסים).",
    "source": "כרטיסים, טבלת סיכום (14.11); טאב 01",
    "why": null
   },
@@ -194,9 +194,9 @@
    "group": "sensing",
    "shape": "box",
    "dims": [
-    20,
-    8,
-    14
+    26,
+    14,
+    20
    ],
    "qty": 4,
    "weight": 2,
@@ -206,7 +206,7 @@
     "weight",
     "power"
    ],
-   "note": "החיישן לבדו 12.8×6.1×4.6. עם לוח ומחבר: הערכה 20×14×8. הספק מדף מוצר (150 mW).",
+   "note": "החיישן לבדו 12.8×6.1×4.6. עם לוח ומחבר: הערכה 20×14×8. הספק מדף מוצר (150 mW). | 16.11: עם מארז 26×20×14 (הערכה שלי; סיכום הכרטיסים).",
    "source": "כרטיסים, טבלת סיכום (14.11); טאב 05",
    "why": "שניים בכל קצה, בפינות התחתונות (כרטיס חיישני תהום)",
    "wall": "bottom",
@@ -268,19 +268,20 @@
    "group": "imaging",
    "shape": "box",
    "dims": [
-    32,
-    32,
-    39.4
+    38,
+    38,
+    45.4
    ],
    "qty": 2,
    "weight": 74,
    "power": 1.455,
-   "note": "גוף 32×32×10 ועדשה L81A קוטר 28 × 29.4 = 39.4 באורך. משקל: גבול עליון מחישוב (עד 74 ג'). אחת צבע ואחת אינפרה אדום.",
+   "note": "גוף 32×32×10 ועדשה L81A קוטר 28 × 29.4 = 39.4 באורך. משקל: גבול עליון מחישוב (עד 74 ג'). אחת צבע ואחת אינפרה אדום. | 16.11: קופסה סביב הגוף והעדשה 38×38×45.4 (מארז: הערכה שלי; סיכום הכרטיסים).",
    "source": "כרטיסים, טבלת סיכום (14.11); טאב 07",
    "why": "על הגימבל, צמודות זו לזו (כרטיס מצלמות תיעוד)",
    "mount": "gimbal",
    "estimate": [
-    "weight"
+    "weight",
+    "dims"
    ],
    "parts": [
     {
@@ -315,14 +316,14 @@
    "group": "sensing",
    "shape": "box",
    "dims": [
-    21,
-    21,
-    34
+    27,
+    27,
+    40
    ],
    "qty": 2,
    "weight": 23,
    "power": 1.55,
-   "note": "ליבה ועדשה 21×21×28 ועוד לוח ממשק (עובי 6: הערכה). 46 ג' לשתיים. מאחורי חלון שמעביר אינפרה אדום רחוק.",
+   "note": "ליבה ועדשה 21×21×28 ועוד לוח ממשק (עובי 6: הערכה). 46 ג' לשתיים. מאחורי חלון שמעביר אינפרה אדום רחוק. | 16.11: עם מארז 27×27×40 (הערכה שלי; סיכום הכרטיסים).",
    "source": "כרטיסים, טבלת סיכום (14.11); טאב 08",
    "why": "אחת בכל קצה, מאחורי חלון (כרטיס מצלמה תרמית)",
    "wall": 1,
@@ -768,9 +769,9 @@
    "group": "air",
    "shape": "box",
    "dims": [
-    30,
-    8,
-    20
+    36,
+    14,
+    26
    ],
    "qty": 1,
    "weight": null,
@@ -778,7 +779,7 @@
    "estimate": [
     "dims"
    ],
-   "note": "לא נבחר דגם. מידות הערכה 30×20×8.",
+   "note": "לא נבחר דגם. מידות הערכה 30×20×8. | 16.11: עם מארז 36×26×14 (הערכה שלי; סיכום הכרטיסים).",
    "source": "כרטיסים, טבלת סיכום (14.11); טאב 13",
    "why": null
   }
@@ -3412,5 +3413,563 @@
     "text": "סוג חומר שבו משתמשים בסוללות נטענות קטנות וחזקות."
    }
   ]
+ },
+ "links": {
+  "_note": "קישורים לרכיב עצמו (דגם/יצרן), נבחרו מרשימת המקורות בכרטיסים, בלי קישורים חדשים. אין קישור לרכיב שאין לו דגם (backup, leddriver, airboard). מכ\"ם: לא נוסף, כי שרון מעדכנת אותו.",
+  "by_id": {
+   "computer": [
+    {
+     "t": "Radxa VMARC-Q9075 (מודול)",
+     "u": "https://dl.radxa.com/vmarc/vmarc-q9075/docs/radxa_vmarc_q9075_product_brief.pdf"
+    },
+    {
+     "t": "Qualcomm IQ-9075 Product Brief",
+     "u": "https://docs.qualcomm.com/doc/87-97354-1/87-97354-1_REV_C_Qualcomm_Dragonwing_IQ-9075_Module_Product_Brief.pdf"
+    }
+   ],
+   "safety": [
+    {
+     "t": "TI AM2612 דף נתונים",
+     "u": "https://www.ti.com/lit/ds/symlink/am2612.pdf"
+    }
+   ],
+   "lidar": [
+    {
+     "t": "Hesai JT128 דף מוצר",
+     "u": "https://www.hesaitech.com/product/jt/"
+    },
+    {
+     "t": "מדריך JT128",
+     "u": "https://www.hesaitech.com/wp-content/uploads/2026/07/JT128_User_Manual_J01-en-260710.pdf"
+    }
+   ],
+   "navcam": [
+    {
+     "t": "Orbbec Gemini 345Lg דף מוצר",
+     "u": "https://www.orbbec.com/345lg/"
+    },
+    {
+     "t": "Datasheet",
+     "u": "https://new-orbbec3d-s3.s3.amazonaws.com/wp-content/uploads/2026/01/05091746/Gemini-345Lg-Datasheet-V2.0.pdf"
+    }
+   ],
+   "cliff": [
+    {
+     "t": "ST VL53L9CX דף מוצר",
+     "u": "https://www.st.com/en/imaging-and-photonics-solutions/vl53l9cx.html"
+    }
+   ],
+   "imu": [
+    {
+     "t": "SBG Pulse-40 OEM",
+     "u": "https://www.sbg-systems.com/imu/pulse-40-oem/"
+    },
+    {
+     "t": "שרטוט SBG",
+     "u": "https://support.sbg-systems.com/sc/imu/files/latest/160303007/160302982/1/1793269215346/PULSE40-OEM-Customer-Drawing_drw-SBG-00001799_B.pdf"
+    }
+   ],
+   "doccam": [
+    {
+     "t": "FRAMOS FSM:GO IMX06A",
+     "u": "https://docs.framos.com/en/latest/FSMEcosystem/ProductDocumentation/FSMGO/IMX06A.html"
+    }
+   ],
+   "thermal": [
+    {
+     "t": "FLIR Boson+ Datasheet",
+     "u": "https://www.acalbfi.com/nl/file/16133/Boson-Plus-Product-Datasheet-Rev-114.pdf"
+    }
+   ],
+   "gimbal": [
+    {
+     "t": "AllXF C-200T דף מוצר",
+     "u": "https://allxf.com/product/c-200t-3-axis-gimbal/"
+    },
+    {
+     "t": "מפרט C-200T",
+     "u": "https://allxf.com/wp-content/uploads/2026/04/C-200T-3-Axis-Gimbal-Specifications.pdf"
+    },
+    {
+     "t": "מודל STEP מהיצרן",
+     "u": "https://allxf.com/wp-content/uploads/2026/04/C-200T_Simplified-Model.STEP.step"
+    }
+   ],
+   "battery": [
+    {
+     "t": "ProLogium (בסיס הנתונים)",
+     "u": "https://prologium.com/prologium-begins-mass-production-of-high-energy-density-all-solid-state-battery-reaching-381-wh-kg-and-903-wh-l/"
+    }
+   ],
+   "drivelight": [
+    {
+     "t": "Luminus SFT-70X",
+     "u": "https://download.luminus.com/datasheets/Luminus_SFT-70X-W_High%20CRI_Datasheet.pdf"
+    }
+   ],
+   "doclight": [
+    {
+     "t": "Luminus SFT-70X High CRI",
+     "u": "https://download.luminus.com/datasheets/Luminus_SFT-70X-W_High%20CRI_Datasheet.pdf"
+    }
+   ],
+   "irled": [
+    {
+     "t": "ams OSRAM SFH 4258BS",
+     "u": "https://look.ams-osram.com/asset/fc6cf9f0-5dc0-42fc-9da9-3483efb6c0f7/SFH-4258BS.pdf"
+    }
+   ],
+   "amber": [
+    {
+     "t": "Lumileds LUXEON FX2-L",
+     "u": "https://lumileds.com/?p=24866"
+    }
+   ],
+   "o2": [
+    {
+     "t": "FaradaIC Faraday-Ox",
+     "u": "https://www.sensor-test.de/assets/Fairs/2026/ProductNews/PDFs/Faraday-Ox.pdf"
+    }
+   ],
+   "co2": [
+    {
+     "t": "MGS MIPEX-05",
+     "u": "https://mipex-tech.com/ndir-gas-sensor/mipex-05/"
+    }
+   ],
+   "estop": [
+    {
+     "t": "IDEC XA/XW (DigiKey)",
+     "u": "https://www.digikey.my/en/product-highlight/i/idec/xa-and-xw-series-short-body-emergency-stop-switches"
+    }
+   ],
+   "buzzer": [
+    {
+     "t": "Same Sky CPE-244",
+     "u": "https://www.sameskydevices.com/product/resource/futurepdf/cpe-244.pdf"
+    }
+   ],
+   "legmotor": [
+    {
+     "t": "CubeMars AKE40-6",
+     "u": "https://www.cubemars.com/fr/product/ake40-6-kv90-quasi-direct-drive-actuator.html"
+    }
+   ],
+   "jmotor": [
+    {
+     "t": "CubeMars AKE60-8 דף נתונים",
+     "u": "https://img.cubemars.com/products/cubemars-product-parameter/AKE60-8-KV80.pdf"
+    }
+   ]
+  }
+ },
+ "shapes": {
+  "_note": "צורה לכל רכיב בכרטיס. mesh = מודל של היצרן. parts = צורות פשוטות לפי שרטוט או מידות בכרטיס. ghost = מארז או חלק שהוא הערכה (שקוף). רכיב שאין לו כאן רשומה מוצג כקופסה או גליל לפי המידות.",
+  "gimbal": {
+   "mesh": "gimbal",
+   "label": "מודל מפושט מקובץ STEP של היצרן AllXF.",
+   "parts": [
+    {
+     "t": "box",
+     "d": [
+      32,
+      32,
+      10
+     ],
+     "p": [
+      -3,
+      29,
+      10
+     ]
+    },
+    {
+     "t": "cyl",
+     "r": 14,
+     "h": 29.4,
+     "p": [
+      -3,
+      29,
+      29.7
+     ],
+     "ax": "z"
+    },
+    {
+     "t": "box",
+     "d": [
+      32,
+      32,
+      10
+     ],
+     "p": [
+      -36,
+      29,
+      10
+     ]
+    },
+    {
+     "t": "cyl",
+     "r": 14,
+     "h": 29.4,
+     "p": [
+      -36,
+      29,
+      29.7
+     ],
+     "ax": "z"
+    },
+    {
+     "t": "box",
+     "d": [
+      66,
+      2,
+      10
+     ],
+     "p": [
+      -19.5,
+      46,
+      10
+     ],
+     "ghost": true
+    }
+   ],
+   "extra": "שתי מצלמות התיעוד (גוף ועדשה לפי FRAMOS) על תושבת המצלמה של הגימבל. המיקום על התושבת והמחזיק המשותף (שקוף) הם המחשה שלי: הגימבל בנוי למטען אחד, ומחזיק לשתי מצלמות עוד לא תוכנן."
+  },
+  "lidar": {
+   "mesh": "lidar",
+   "label": "מודל מפושט מקובץ STEP של היצרן Hesai (JT128)."
+  },
+  "doccam": {
+   "parts": [
+    {
+     "t": "box",
+     "d": [
+      32,
+      32,
+      10
+     ],
+     "p": [
+      0,
+      0,
+      5
+     ]
+    },
+    {
+     "t": "cyl",
+     "r": 14,
+     "h": 29.4,
+     "p": [
+      0,
+      0,
+      24.7
+     ],
+     "ax": "z"
+    },
+    {
+     "t": "box",
+     "d": [
+      38,
+      38,
+      45.4
+     ],
+     "p": [
+      0,
+      0,
+      19.7
+     ],
+     "ghost": true
+    }
+   ],
+   "label": "גוף 32×32×10 ועדשה קוטר 28 × 29.4 לפי שרטוט FRAMOS. השקוף: מארז, הערכה שלי."
+  },
+  "thermal": {
+   "parts": [
+    {
+     "t": "box",
+     "d": [
+      21,
+      21,
+      28
+     ],
+     "p": [
+      0,
+      0,
+      14
+     ]
+    },
+    {
+     "t": "box",
+     "d": [
+      21,
+      21,
+      6
+     ],
+     "p": [
+      0,
+      0,
+      -3
+     ]
+    },
+    {
+     "t": "box",
+     "d": [
+      27,
+      27,
+      40
+     ],
+     "p": [
+      0,
+      0,
+      11
+     ],
+     "ghost": true
+    }
+   ],
+   "label": "ליבה ועדשה 21×21×28 ולוח ממשק (עובי 6, הערכה) לפי הכרטיס. צורת העדשה עצמה לא ידועה לי. השקוף: מארז, הערכה."
+  },
+  "estop": {
+   "parts": [
+    {
+     "t": "cyl",
+     "r": 15,
+     "h": 21.5,
+     "p": [
+      0,
+      10.75,
+      0
+     ],
+     "ax": "y"
+    },
+    {
+     "t": "cyl",
+     "r": 8,
+     "h": 12.6,
+     "p": [
+      0,
+      -6.3,
+      0
+     ],
+     "ax": "y"
+    },
+    {
+     "t": "box",
+     "d": [
+      44,
+      1.5,
+      44
+     ],
+     "p": [
+      0,
+      -0.75,
+      0
+     ],
+     "ghost": true
+    }
+   ],
+   "label": "ראש קוטר 30 × 21.5 בולט החוצה, גוף קוטר 16 × 12.6 בפנים (IDEC, לפי הכרטיס). השקוף: הדופן של הכלי, להמחשה."
+  },
+  "buzzer": {
+   "parts": [
+    {
+     "t": "cyl",
+     "r": 7,
+     "h": 10,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "ax": "y"
+    }
+   ],
+   "label": "קוטר 14 × 10 (Same Sky)."
+  },
+  "co2": {
+   "parts": [
+    {
+     "t": "cyl",
+     "r": 10.05,
+     "h": 16.6,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "ax": "y"
+    }
+   ],
+   "label": "קוטר 20.1 × 16.6 (MIPEX-05)."
+  },
+  "legmotor": {
+   "parts": [
+    {
+     "t": "cyl",
+     "r": 25.5,
+     "h": 24.5,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "ax": "z"
+    },
+    {
+     "t": "box",
+     "d": [
+      54,
+      54,
+      16
+     ],
+     "p": [
+      70,
+      0,
+      0
+     ],
+     "ghost": true
+    }
+   ],
+   "label": "מנוע קוטר 51 × 24.5 (CubeMars). השקוף: דרייבר בקופסה נפרדת 54×54×16, הערכה. המרחק ביניהם להמחשה."
+  },
+  "jmotor": {
+   "parts": [
+    {
+     "t": "cyl",
+     "r": 34.5,
+     "h": 25,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "ax": "z"
+    },
+    {
+     "t": "box",
+     "d": [
+      60,
+      60,
+      16
+     ],
+     "p": [
+      85,
+      0,
+      0
+     ],
+     "ghost": true
+    }
+   ],
+   "label": "מנוע קוטר 69 × 25 (CubeMars). השקוף: דרייבר בקופסה נפרדת 60×60×16, הערכה. המרחק ביניהם להמחשה."
+  },
+  "safety": {
+   "parts": [
+    {
+     "t": "box",
+     "d": [
+      50,
+      12,
+      40
+     ],
+     "p": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "t": "box",
+     "d": [
+      56,
+      18,
+      46
+     ],
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "ghost": true
+    }
+   ],
+   "label": "לוח 50×40×12 (הערכה). השקוף: מארז, הערכה."
+  },
+  "cliff": {
+   "parts": [
+    {
+     "t": "box",
+     "d": [
+      20,
+      8,
+      14
+     ],
+     "p": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "t": "box",
+     "d": [
+      26,
+      14,
+      20
+     ],
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "ghost": true
+    }
+   ],
+   "label": "לוח 20×14×8 (הערכה). השקוף: מארז, הערכה."
+  },
+  "airboard": {
+   "parts": [
+    {
+     "t": "box",
+     "d": [
+      30,
+      8,
+      20
+     ],
+     "p": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "t": "box",
+     "d": [
+      36,
+      14,
+      26
+     ],
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "ghost": true
+    }
+   ],
+   "label": "לוח ממשק 30×20×8 (הערכה). השקוף: מארז, הערכה."
+  },
+  "backup": {
+   "parts": [
+    {
+     "t": "cyl",
+     "r": 7.25,
+     "h": 49.3,
+     "p": [
+      0,
+      0,
+      0
+     ],
+     "ax": "x"
+    }
+   ],
+   "label": "תא 14500: קוטר 14.5 × 49.3."
+  }
  }
 }

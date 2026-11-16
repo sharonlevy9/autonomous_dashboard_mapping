@@ -206,6 +206,8 @@ header md-icon-button[disabled]{opacity:.35}
 dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:#fff3c4;padding:2px 6px;border-radius:6px}dl.gl dd{margin:2px 0 0;color:#333;line-height:1.5}
 .trow{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}.tv{display:flex;flex-direction:column;align-items:center;gap:6px}.tr{background:#cfd6e2;border:1px solid #16263f;box-sizing:border-box}.tr.ref{background:#e4e6ea;border-color:#8b919c}.tl{font-size:12px;color:var(--muted);text-align:center;max-width:200px}
 @media(max-width:900px){.cdrawer{top:auto;height:70vh;left:6px;right:6px;width:auto}}
+.clinks{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}.clinks a{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--md-sys-color-primary-container,#dbe4f1);color:var(--accent);text-decoration:none;direction:ltr}.clinks a:hover{background:var(--accent);color:#fff}
+.pvw{margin:10px 0 2px;background:#eef0f3;border-radius:14px;overflow:hidden}.pv3{width:100%;height:auto;aspect-ratio:5/3;display:block;cursor:grab;touch-action:none}.pvl{margin-bottom:6px}.row img.thumb{flex:none;border-radius:6px}
 </style>
 </head>
 <body>
@@ -266,6 +268,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
 <div class="toast" id="toast"></div>
 
 <script type="application/json" id="data-default">__DATA__</script>
+<script type="application/json" id="meshes">__MESHES__</script>
 <script>__THREE__</script>
 <script>__ORBIT__</script>
 <script>__MW__</script>
@@ -688,7 +691,7 @@ function layout(c){
       else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2,0]}
       return}
     if(isMounted(it)){const g=gim();if(g){const gp=g.pos,gi=c.items.filter(x=>x.cid===it.cid&&isMounted(x)).indexOf(it);
-      it.pos=[gp[0]+(gi?17:-17),gp[1],gp[2]];it.rot=[0,0,0];return}}
+      const off=ext(it)[0]/2+1;it.pos=[gp[0]+(gi?off:-off),gp[1],gp[2]]  /* side by side, touching (was fixed 17 mm for the 32 mm body; 16.11 the size with enclosure is 38) */;it.rot=[0,0,0];return}}
     // hip motors: both motors of a pair at the same spot (left and right walls), so the two legs are symmetric
     if(it.role==='hip'){const sg=segs[segIdx(c,it.seg)],zz=s=>s*(sg.wid/2-e[2]/2),mate=c.items.find(o=>o!==it&&o.role==='hip'&&o.seg===it.seg&&o.pair===it.pair),both=mate&&rest.includes(mate);
       const ax=[],ay=[],L0=sg.cx-sg.len/2+e[0]/2,L1=sg.cx+sg.len/2-e[0]/2,Y0=e[1]/2,Y1=sg.hei-e[1]/2;for(let v=L0;v<=L1+.01;v+=5)ax.push(v);ax.push(L1);for(let v=Y0;v<=Y1+.01;v+=5)ay.push(v);ay.push(Y1);
@@ -1405,7 +1408,7 @@ function renderRows(){
   DEF.catalog.forEach(k=>{
     const its=c.items.filter(i=>i.cid===k.id);if(!its.length)return;
     const on=its.some(i=>i.id===sel),b=document.createElement('button');b.className='row'+(on?' sel':'');
-    b.innerHTML=thumb(k,30)+'<span class="n">'+k.name+'</span>'+(its.some(i=>i.locked)?'<svg width="14" height="14" viewBox="-7 -7 14 14" aria-label="נעול">'+lockG(0,0,1).replace(' pointer-events="none"','')+'</svg>':'')+(its.some(i=>bad.has(i.id))?'<span class="w"></span>':'')+'<span class="c">'+(its.length>1?'×'+its.length:'')+'</span><span class="info" role="button" tabindex="0" title="כרטיס הרכיב" aria-label="כרטיס הרכיב: '+esc(k.name)+'">i</span>';
+    b.innerHTML=thumbImg(k,30)+'<span class="n">'+k.name+'</span>'+(its.some(i=>i.locked)?'<svg width="14" height="14" viewBox="-7 -7 14 14" aria-label="נעול">'+lockG(0,0,1).replace(' pointer-events="none"','')+'</svg>':'')+(its.some(i=>bad.has(i.id))?'<span class="w"></span>':'')+'<span class="c">'+(its.length>1?'×'+its.length:'')+'</span><span class="info" role="button" tabindex="0" title="כרטיס הרכיב" aria-label="כרטיס הרכיב: '+esc(k.name)+'">i</span>';
     b.querySelector('.info').onclick=e=>{e.stopPropagation();openCard(k.id)};
     b.onclick=()=>{const cur=its.findIndex(i=>i.id===sel);sel=its[(cur+1)%its.length].id;renderLight()};R.appendChild(b);
   });
@@ -1783,7 +1786,10 @@ function renderCard(){
   const top='<div class="chd"><md-icon-button id="cdx" aria-label="סגירת הכרטיס" title="סגירה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></md-icon-button><span class="cht">כרטיס רכיב</span><button class="pill" id="cdgl">מונחון</button></div>';
   if(!cd){dr.innerHTML=top+'<div class="cb2"><div class="m">בחרי רכיב ברשימה או במודל כדי לראות את הכרטיס שלו.</div></div>';wireCard(dr);return}
   const cov=COV[cid]||{},shared=cov.shared_with&&cov.shared_with.length,miss=(cov.missing||[]).filter(x=>x!=='problems').map(x=>CLAB[x]);
-  let h=top+'<div class="cb2"><div class="ctitle">'+(k?thumb(k,76):'')+'<div><h3>'+esc(k?k.name:cd.title)+'</h3>'+(k?'<div class="m">'+esc(k.model)+'</div>':'<div class="m">'+esc(cd.tab)+'</div>')+'<div class="m">כרטיס '+esc(cardId)+': '+esc(cd.title)+(shared&&k?' (משותף עם '+cov.shared_with.map(i=>esc(cat[i]?cat[i].name:i)).join(', ')+')':'')+'</div></div></div>';
+  let h=top+'<div class="cb2"><div class="ctitle"><div><h3>'+esc(k?k.name:cd.title)+'</h3>'+(k?'<div class="m">'+esc(k.model)+'</div>':'<div class="m">'+esc(cd.tab)+'</div>')+'<div class="m">כרטיס '+esc(cardId)+': '+esc(cd.title)+(shared&&k?' (משותף עם '+cov.shared_with.map(i=>esc(cat[i]?cat[i].name:i)).join(', ')+')':'')+'</div></div></div>';
+  if(k){const s=SH[cid];h+='<div class="pvw" id="pvw"></div><div class="cmeta pvl">'+esc(s&&s.label?s.label:'צורה פשוטה לפי המידות. אין לי מודל של היצרן לרכיב הזה.')+(s&&s.extra?' '+esc(s.extra):'')+' גררי כדי לסובב, גלגלת לזום.</div>'}
+  const lk=k&&DEF.links&&DEF.links.by_id&&DEF.links.by_id[cid];
+  if(lk&&lk.length)h+='<div class="clinks">'+lk.map(x=>'<a href="'+esc(x.u)+'" target="_blank" rel="noopener">'+esc(x.t)+' ↗</a>').join('')+'</div>';
   h+='<div class="cshort">'+gl(cd.short)+'</div>';
   const bt=[];if(k)bt.push('<button class="pill on" id="cdshow">הראי במודל</button><button class="pill" id="cd11">בגודל 1:1</button>');if(cardId==='10')bt.push('<button class="pill on" id="cdlegs">פתחי את חלון הרגליים</button>');
   if(bt.length)h+='<div class="btns" style="margin:8px 0">'+bt.join('')+'</div>';
@@ -1802,7 +1808,7 @@ function renderCard(){
   h+=csec('החלטות',ulc(cd.decided),false);h+=csec('למה (עם מקורות)',ulc(cd.why),false);h+=csec('חלופות שנבדקו',ulc(cd.alternatives),false);h+=csec('בעיות לפתור',ulc(cd.problems),false);h+=csec('הערות',ulc(cd.notes),false);
   h+=csec('מקורות',cd.sources&&cd.sources.length?'<ul>'+cd.sources.map(s=>'<li><a href="'+esc(s.u)+'" target="_blank" rel="noopener">'+esc(s.t)+'</a></li>').join('')+'</ul>':'',false);
   if(miss.length)h+='<p class="cmeta">חסר בכרטיס: '+miss.join(', ')+'.</p>';
-  dr.innerHTML=h+'</div>';wireCard(dr);
+  dr.innerHTML=h+'</div>';const pw=dr.querySelector('#pvw');if(pw&&k)pw.appendChild(cardView(cid));wireCard(dr);
 }
 function wireCard(dr){
   const g=(s,f)=>{const e=dr.querySelector(s);if(e)e.onclick=f};g('#cdx',closeCard);g('#cdgl',openGloss);g('#cdshow',showInModel);g('#cd11',()=>openTrue(CD.cid));g('#cdlegs',()=>{$('#legsbtn').click()});
@@ -1821,6 +1827,32 @@ function openTrue(cid){const k=cat[cid];if(!k)return;const s0=pxmm();
   $('#modal').classList.add('on');$('#mc').onclick=()=>$('#modal').classList.remove('on');
   $('#pxs').oninput=e=>{const s=parseFloat(e.target.value);try{localStorage.setItem('dash-pxmm',s)}catch(x){}$('#trow').innerHTML=draw(s)}}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CD.open&&!$('#modal').classList.contains('on')&&!(e.target&&/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))){closeCard()}});
+/* stage 4b: the component's real shape. Gimbal and lidar = manufacturer STEP models (simplified); others = simple parts from the card drawings */
+const MESH=(()=>{try{return JSON.parse($('#meshes').textContent)}catch(e){return{}}})();
+const SH=DEF.shapes||{};
+function shapeGroup(cid){const k=cat[cid],s=SH[cid],col=new THREE.Color((GROUPS[k.group]||GROUPS.motion)[0]),G=new THREE.Group();
+  const mat=new THREE.MeshStandardMaterial({color:col,roughness:.6,metalness:.1,flatShading:true,side:THREE.DoubleSide}),gm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.12,depthWrite:false}),edge=new THREE.LineBasicMaterial({color:col,transparent:true,opacity:.55});
+  const part=p=>{let geo;if(p.t==='box')geo=new THREE.BoxGeometry(p.d[0],p.d[1],p.d[2]);else{geo=new THREE.CylinderGeometry(p.r,p.r,p.h,40);if(p.ax==='z')geo.rotateX(Math.PI/2);if(p.ax==='x')geo.rotateZ(Math.PI/2)}
+    const m=new THREE.Mesh(geo,p.ghost?gm:mat);m.position.set(p.p[0],p.p[1],p.p[2]);G.add(m);
+    if(p.ghost){const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo),edge);e.position.copy(m.position);G.add(e)}};
+  if(s&&s.mesh&&MESH[s.mesh]){const M=MESH[s.mesh],geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(M.v,3));geo.setIndex(M.i);const ng=geo.toNonIndexed();ng.computeVertexNormals();G.add(new THREE.Mesh(ng,mat))}
+  if(s&&s.parts)s.parts.forEach(part);
+  if(!s||(!s.parts&&!(s.mesh&&MESH[s.mesh]))){const d=k.dims;part(k.shape==='cyl'?{t:'cyl',r:d[0]/2,h:d[1],p:[0,0,0]}:{t:'box',d:d,p:[0,0,0]})}
+  return G}
+function mkView(w,h,keep){const cv=document.createElement('canvas'),r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true,preserveDrawingBuffer:!!keep});r.setPixelRatio(Math.min(devicePixelRatio,2));r.setSize(w,h,false);
+  const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(0xffffff,0x8a93a3,1.05));const dl=new THREE.DirectionalLight(0xffffff,.55);dl.position.set(200,300,250);sc.add(dl);
+  const cam=new THREE.PerspectiveCamera(30,w/h,1,5000),g=new THREE.Group();sc.add(g);return{cv,r,sc,cam,g,w,h,cid:null}}
+function showIn(V_,cid){while(V_.g.children.length)V_.g.remove(V_.g.children[0]);const G=shapeGroup(cid);V_.g.add(G);
+  const b=new THREE.Box3().setFromObject(G),c=b.getCenter(new THREE.Vector3()),R=(b.getSize(new THREE.Vector3()).length()/2)||10,D=R/Math.sin(15*Math.PI/180);
+  V_.cam.position.copy(c).add(new THREE.Vector3(.8,.55,.95).normalize().multiplyScalar(D));V_.cam.near=D/50;V_.cam.far=D*10;V_.cam.updateProjectionMatrix();V_.cam.lookAt(c);
+  if(V_.oc){V_.oc.target.copy(c);V_.oc.update()}V_.cid=cid}
+let TV=null,PV=null;const TH={};
+/* small picture in the list: rendered once from the same shape */
+function thumbImg(k,w){if(!(k.id in TH)){try{if(!TV)TV=mkView(112,112,true);showIn(TV,k.id);TV.r.render(TV.sc,TV.cam);TH[k.id]=TV.cv.toDataURL()}catch(e){TH[k.id]=null}}
+  return TH[k.id]?'<img class="thumb" src="'+TH[k.id]+'" width="'+w+'" height="'+w+'" alt="">':thumb(k,w)}
+function cardView(cid){if(!PV){PV=mkView(400,240,false);PV.oc=new THREE.OrbitControls(PV.cam,PV.cv);PV.oc.enableDamping=true;PV.cv.className='pv3'}
+  if(PV.cid!==cid)showIn(PV,cid);return PV.cv}
+(function pvLoop(){if(PV&&CD.open&&PV.cv.isConnected){PV.oc.update();PV.r.render(PV.sc,PV.cam)}requestAnimationFrame(pvLoop)})();
 resize3();refresh(true);
 })();
 </script>
