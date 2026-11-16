@@ -305,7 +305,7 @@ const KNEE_NAMES={in:'פנימה',out:'החוצה',fwd:'קדימה',back:'אחו
 /* legs per segment come in pairs (one per side). My rule: a leg without a partner on the other side tips the tool over. */
 function legsOf(c){const L=c.legs,n=c.shell.n;
   if(!Array.isArray(L.per)||L.per.length!==n){const pairs=Math.ceil((L.count||0)/2),per=new Array(n).fill(0),seq=['A','B','M'];for(let j=0;j<pairs;j++)per[segIdx(c,seq[j%3])]++;L.per=per}
-  if(!(L.thigh>0)){const l=Math.round((L.clear||LG.stand_clearance)/LRAT/2);L.thigh=l;L.shin=l}
+  if(!(L.thigh>0)){const l=L.clear?Math.round(L.clear/LRAT/2):LEGMIN;L.thigh=l;L.shin=l}  /* default belly = the lowest the geometry allows: thigh = shin = motor diameter (card 10: low height matters most) */
   if(!(L.thick>0))L.thick=THICK0;if(!L.knee)L.knee='in';delete L.clear;
   L.count=2*L.per.reduce((a,b)=>a+b,0);return L}
 const reachOf=c=>Math.max(LRAT*(c.legs.thigh+c.legs.shin),Math.abs(c.legs.thigh-c.legs.shin)+1);
@@ -319,7 +319,16 @@ function setClear(c,v){const L=c.legs,r=L.thigh/(L.thigh+L.shin),tot=(v+maxHipY(
 function bodyTop(c){let t=Math.max(...shellOf(c).map(s=>s.hei));stepsOf(c).forEach(s=>t=Math.max(t,s.top));c.items.forEach(it=>{if(it.unfit||it.auto==='knee')return;const p=P(c,it),e=ext(it);t=Math.max(t,p[1]+e[1]/2)});return t}
 /* shell only (with steps), without the gimbal and other parts outside */
 function shellTop(c){let t=Math.max(...shellOf(c).map(s=>s.hei));stepsOf(c).forEach(s=>t=Math.max(t,s.top));if(c.shell.dyn)c.items.forEach(it=>{if(it.cid==='lidar'&&!it.unfit){const b=aabb(c,it);t=Math.max(t,b.max[1])}});return t}
-function clearRange(c){const mn=Math.max(0,Math.ceil(LRAT*2*LEGMIN-maxHipY(c))),mx=Math.floor(PASS-bodyTop(c));return[mn,mx]}
+/* belly range, computed from the geometry:
+   min = both links as short as the motor diameter allows; max = the smaller of (crawl passage - body top) and the longest leg whose motors still manage (binary search on legTorques). */
+function legsOk(c){const q=legTorques(c);return!q||(q.walk<=q.rated&&q.rise<=q.peak)}
+function clearInfo(c){const mn=Math.max(0,Math.ceil(LRAT*2*LEGMIN-maxHipY(c))),pass=Math.floor(PASS-bodyTop(c));
+  const L=c.legs,t0=L.thigh,s0=L.shin;let lo=mn,hi=Math.max(mn,pass),tq=hi;
+  if(L.count&&LM.torque_rated_nm){setClear(c,mn);if(!legsOk(c))tq=mn;else{while(lo<hi){const m=Math.ceil((lo+hi)/2);setClear(c,m);if(legsOk(c))lo=m;else hi=m-1}tq=lo}L.thigh=t0;L.shin=s0}
+  return{mn,pass,tq,mx:Math.min(pass,tq)}}
+function clearRange(c){const i=clearInfo(c);return[i.mn,i.mx]}
+/* shortest legs for a chosen belly height: thigh = shin. The motor torque limits only the MAXIMUM leg length, not the minimum. */
+function minLegsFor(c,v){const L=c.legs,tot=(v+maxHipY(c))/LRAT,l=Math.max(LEGMIN,Math.round(tot/2));L.thigh=l;L.shin=l}
 function baseDims(it){const k=cat[it.cid];if(it.dims)return it.dims;return k.dims?k.dims.slice():[10,10,10]}
 function ext(it){
   const d=baseDims(it),e=new THREE.Euler(it.rot[0]*Math.PI/2,it.rot[1]*Math.PI/2,it.rot[2]*Math.PI/2);
@@ -454,13 +463,19 @@ function ruleWarnings(c){
   ventWarnings(c).forEach(x=>W.push(x));
   return W;
 }
-/* leg motor load (my calculation, known weights only; leg links, shell and cables have no weight yet).
+/* leg motor load (my calculation, known weights plus an ESTIMATE for shell, cables and leg links, see extraWeight).
    Walking (slow crawl, one leg in the air): weight / (legs - 1) on each standing leg; knee torque = that force x horizontal knee-to-foot distance.
    Getting up from the belly: weight / legs, thigh horizontal, foot under the knee: hip torque = force x thigh length.
    Walking is compared with the rated (continuous) torque, getting up with the peak (short) torque. */
-function legTorques(c){const n=c.legs.count;if(!n||!LM.torque_rated_nm)return null;const t=totals(c),F=t.w/1000*9.81;let kx=0;
+/* ESTIMATE (card 10, 13-14.11, my numbers): shell, cables and leg links have no weight in the catalog, so they are added here for the torque only.
+   Shell = 0.389 g per cm2 of outer surface (card: carbon 2 mm, 1,800 cm2, about 0.7 kg incl. seals), cables+connectors 300 g,
+   leg links 22 g per 75 mm link (20x20 aluminium, wall 1.5) plus 20 g of hardware per leg. */
+function extraWeight(c){const E=LG.est||{shell_g_cm2:.389,cables_g:300,link_g_75:22,hardware_g_leg:20};
+  const area=shellOf(c).reduce((a,s)=>a+2*(s.len*s.wid+s.len*s.hei+s.wid*s.hei),0)/100,sh=area*E.shell_g_cm2,n=c.legs.count||0,
+  lk=n*(E.link_g_75*(c.legs.thigh+c.legs.shin)/75+E.hardware_g_leg);return{shell:sh,cables:E.cables_g,links:lk,total:sh+E.cables_g+lk}}
+function legTorques(c){const n=c.legs.count;if(!n||!LM.torque_rated_nm)return null;const t=totals(c),X=extraWeight(c),F=(t.w+X.total)/1000*9.81;let kx=0;
   for(let i=0;i<n;i++){const g=legGeom(c,i,'stand');if(g)kx=Math.max(kx,Math.abs(g.knee[0]-g.foot[0]))}
-  const h=hipItem(c,0);return{walk:F/Math.max(1,n-1)*kx/1000,rise:F/n*c.legs.thigh/1000,rated:LM.torque_rated_nm,peak:LM.torque_peak_nm,kx,F,unk:t.wu,a:h?h.id:c.items[0].id}}
+  const h=hipItem(c,0);return{walk:F/Math.max(1,n-1)*kx/1000,rise:F/n*c.legs.thigh/1000,rated:LM.torque_rated_nm,peak:LM.torque_peak_nm,kx,F,unk:t.wu,extra:X.total,a:h?h.id:c.items[0].id}}
 function shortenLegs(c){const L=c.legs,ok=()=>{const q=legTorques(c);return!q||(q.walk<=q.rated&&q.rise<=q.peak)};
   for(let i=0;i<80&&!ok();i++){if(L.thigh<=LEGMIN&&L.shin<=LEGMIN)break;L.thigh=Math.max(LEGMIN,Math.round(L.thigh*.97));L.shin=Math.max(LEGMIN,Math.round(L.shin*.97))}return ok()}
 function eff(it,key){const k=cat[it.cid];if(key==='cap')return k.cap_wh?k.cap_wh*it.frac:0;const v=k[key];return v===null||v===undefined?null:v*it.frac}
@@ -1475,8 +1490,10 @@ function renderCtrl(){
     const re=fin=>{if(!fin){schedule();return}save();refresh()};
     slider('ירך',LL.thigh,LEGMIN,300,1,(v,fin)=>{LL.thigh=v;re(fin)});
     slider('שוק',LL.shin,LEGMIN,300,1,(v,fin)=>{LL.shin=v;re(fin)});
-    const [mn,mx]=clearRange(c),cur=Math.round(clearance(c,'stand')),hi=Math.max(mn,mx,cur);
+    const CI=clearInfo(c),mn=CI.mn,mx=CI.mx,cur=Math.round(clearance(c,'stand')),hi=Math.max(mn,mx,cur);
     slider('גובה מהרצפה',cur,mn,hi,1,(v,fin)=>{setClear(c,v);re(fin)},{k:'clear'});
+    el.insertAdjacentHTML('beforeend','<div class="note">טווח גובה הבטן: מ-'+mn+' מ"מ (שני חלקי הרגל קצרים כקוטר המנוע, '+LEGMIN+' מ"מ) עד '+mx+' מ"מ. '+(CI.tq<CI.pass?'המגבלה היא כוח המנוע: רגל ארוכה יותר דורשת יותר מומנט (המשקל כולל הערכה שלי לקליפה, חיווט וחלקי הרגל, '+Math.round(extraWeight(c).total)+' גרם). ':'המגבלה היא מעבר הזחילה ('+PASS+' מ"מ פחות גובה הגוף). ')+'ברירת המחדל היא הנמוך ביותר שאפשרי. גובה מכשול שהכלי עובר: לא יודע (אין מקור בראיונות).</div>');
+    {const mb=document.createElement('div');mb.className='btns reset';mb.innerHTML='<button class="pill">רגליים קצרות ביותר לגובה הזה</button>';mb.onclick=()=>{snap();minLegsFor(c,Math.round(clearance(c,'stand')));save();refresh()};el.appendChild(mb)}
     slider('עובי הרגל',LL.thick,THICK0,KD,1,(v,fin)=>{LL.thick=v;re(fin)});
     segBtns('ברכיים',Object.entries(KNEE_NAMES),LL.knee,v=>{snap();LL.knee=v;save();refresh()}).classList.add('col');
     el.insertAdjacentHTML('beforeend','<div class="note">כרטיס 10: ירך 75 ושוק 75 מ"מ. מינימום '+LEGMIN+' מ"מ, קוטר מנוע הרגל, כדי שמנוע הירך ומנוע הברך לא ייגעו זה בזה. גובה מהרצפה משנה את הירך והשוק יחד, באותו יחס. עובי הרגל: מינימום '+THICK0+' מ"מ (פרופיל 20×20 בכרטיס 10, הנחה). בירך ובברך העובי הוא המנוע עצמו, קוטר '+KD+' מ"מ.<br>מנוע הירך יושב בתוך הגוף, צמוד לדופן, והרגל מחוברת אליו מבחוץ. אפשר לגרור אותו לאורך החוליה ולמעלה ולמטה, והרגל זזה איתו. מנוע גבוה יותר = בטן נמוכה יותר. מקופל: '+LG.fold_clearance+' מ"מ מהרצפה (כרטיס 10).<br>עם הרגליים: רוחב '+outerWidth(c)+' מ"מ, אורך '+outerLength(c,'stand')+' מ"מ בעמידה ו-'+outerLength(c,'fold')+' מ"מ מקופל.'+(mx<mn?' <b>הגוף גבוה מדי למעבר של '+PASS+' מ"מ.</b>':'')+'</div>');
@@ -1625,6 +1642,7 @@ function lab3D(c){clearRoot(lroot);const {segs,clear}=fillTool(lroot,c,LV.t,{fad
 function labNums(c){const n=$('#lnum');if(!n)return;const q=legTorques(c),cs=clearance(c,'stand'),bt=bodyTop(c),mm=v=>Math.round(v)+' מ"מ';
   const rows=[['רגליים',c.legs.count],['ירך : שוק',c.legs.thigh+' : '+c.legs.shin],['מהרצפה לבטן, עומד',mm(cs)],['מהרצפה לבטן, מקופל',mm(LG.fold_clearance)],['גובה כולל, עומד',mm(cs+bt)],['רוחב עם הרגליים',mm(outerWidth(c))],['אורך עם הרגליים, עומד',mm(outerLength(c,'stand'))],['אורך עם הרגליים, מקופל',mm(outerLength(c,'fold'))]];
   if(q)rows.push(['ברך בהליכה (ניוטון-מטר)',fmt(q.walk,2)+' מתוך '+q.rated,q.walk>q.rated],['ירך בקימה (ניוטון-מטר)',fmt(q.rise,2)+' מתוך '+q.peak,q.rise>q.peak]);
+  if(q)rows.push(['משקל בחישוב המומנט (כולל הערכה: '+Math.round(q.extra)+' ג\')',fmt(q.F/9.81,2)+' ק"ג']);
   rows.push(['משקל מנועי הרגליים',fmt(2*c.legs.count*(cat.legmotor?cat.legmotor.weight:LM.weight)/1000,2)+' ק"ג']);
   n.innerHTML=rows.map(r=>'<span>'+r[0]+'</span><b'+(r[2]?' class="bad"':'')+'>'+r[1]+'</b>').join('');
   const W=warnings(c).filter(w=>['legshort','kneefloor','legclash','tall','wide'].includes(w.t)||['legs','stab'].includes(w.r));
@@ -1652,7 +1670,7 @@ function labSide(c){const sv=$('#lsvg');let i=-1,bx=-Infinity;for(let k=0;k<c.le
   sv.setAttribute('viewBox',vb.x+' '+vb.y+' '+vb.w+' '+vb.h);sv.innerHTML=o}
 $('#lt').oninput=e=>{LV.t=+e.target.value/100;if(LV.on){const c=labCfg();lab3D(c);labSide(c)}};
 
-window.__app={showTab,labCfg,legTorques:()=>legTorques(cfg()),cogOf:()=>cogOf(cfg()),fixesFor:w=>fixesFor(cfg(),w),state:()=>S,cfg,warnings:()=>warnings(cfg()),layout:()=>layout(cfg()),select:id=>{sel=id;renderLight()},refresh,mode:m=>setMode(m)};
+window.__app={clearInfo:()=>clearInfo(cfg()),setClear:v=>setClear(cfg(),v),legsOk:()=>legsOk(cfg()),minLegsFor:v=>minLegsFor(cfg(),v),clearance:()=>clearance(cfg(),'stand'),showTab,labCfg,legTorques:()=>legTorques(cfg()),cogOf:()=>cogOf(cfg()),fixesFor:w=>fixesFor(cfg(),w),state:()=>S,cfg,warnings:()=>warnings(cfg()),layout:()=>layout(cfg()),select:id=>{sel=id;renderLight()},refresh,mode:m=>setMode(m)};
 
 const FRESH=(()=>{try{return!localStorage.getItem(STORE)}catch(e){return true}})();
 S=load();
