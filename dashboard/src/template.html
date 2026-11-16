@@ -616,6 +616,8 @@ function syncTotal(c){const s=c.shell;if(!perOn(c))return;s.total=Math.round(she
 function setPer(c,on){const s=c.shell;if(on){s.segs=segSpec(c).map(q=>({len:Math.round(q.len),wid:q.wid,hei:q.hei}));s.per=true;syncTotal(c)}else{const T=Math.round(shellLen(c)),W=shellWid(c),H=shellHei(c);s.per=false;s.total=T;s.wid=W;s.hei=H}}
 function resizeSegs(c,n){const s=c.shell;if(!s.per||!Array.isArray(s.segs))return;while(s.segs.length<n)s.segs.push({...s.segs[s.segs.length-1]});s.segs.length=n}
 /* lidar may stick out of the front end by s.lOut mm (0-30, set by the user, default 0); only the inside part is fit-checked */
+/* gimbal on top may sink into the body by s.gSink mm (0-30, set by the user, default 0): its lower part is then inside, the rest sticks up */
+const gimbalSink=c=>c.shell.gAt&&c.shell.gAt!=='top'?0:(c.shell.gSink||0);
 const lidarOut=(c,it)=>it.cid==='lidar'?(c.shell.lOut||0):0;
 const allowUp=(c,it)=>c.shell.steps?MAST:(it.cid==='lidar'&&c.shell.dyn?MAST:0);
 /* rounded corners: does box b (inside segment sg) stay inside the rounded outline? */
@@ -957,7 +959,7 @@ function zonesFor(c,it,e){
   if(it.role==='hip'){const s=segs[segIdx(c,it.seg)],z=it.side*(s.wid/2-e[2]/2),lo=[s.cx-s.len/2+e[0]/2,e[1]/2,z],hi=[s.cx+s.len/2-e[0]/2,s.hmax-e[1]/2,z];return lo[0]<=hi[0]+.01&&lo[1]<=hi[1]+.01?[{lo,hi}]:[]}
   if(it.cid==='gimbal'){const m=c.shell.gAt||'top';
     if(m!=='top'){const s=m==='front'?segs[segs.length-1]:segs[0],x=s.cx+(m==='front'?1:-1)*(s.len/2+e[0]/2);return[{lo:[x,e[1]/2,-h(s.wid/2-e[2]/2)],hi:[x,Math.max(e[1]/2,s.hmax-e[1]/2),h(s.wid/2-e[2]/2)]}]}
-    return segs.map(s=>({lo:[s.cx-h(s.len/2-e[0]/2),s.hei+e[1]/2,-h(s.wid/2-e[2]/2)],hi:[s.cx+h(s.len/2-e[0]/2),s.hei+e[1]/2,h(s.wid/2-e[2]/2)]}))}
+    const sk=gimbalSink(c);return segs.map(s=>({lo:[s.cx-h(s.len/2-e[0]/2),s.hei+e[1]/2-sk,-h(s.wid/2-e[2]/2)],hi:[s.cx+h(s.len/2-e[0]/2),s.hei+e[1]/2-sk,h(s.wid/2-e[2]/2)]}))}
   if(isMounted(it)){const g=c.items.find(i=>i.cid==='gimbal');if(!g)return[];const ge=ext(g),gp=g.pos;
     const lo=[0,1,2].map(k=>gp[k]-ge[k]/2+e[k]/2),hi=[0,1,2].map(k=>gp[k]+ge[k]/2-e[k]/2);return lo.every((v,k)=>v<=hi[k]+.01)?[{lo,hi}]:[]}
   return segs.map(s=>{const hm=s.hmax+allowUp(c,it);return{lo:[s.cx-s.len/2+e[0]/2,e[1]/2,-s.wid/2+e[2]/2],hi:[s.cx+s.len/2-e[0]/2+(s.i===segs.length-1?lidarOut(c,it):0),hm-e[1]/2,s.wid/2-e[2]/2]}}).filter(z=>z.lo.every((v,k)=>v<=z.hi[k]+.01));
@@ -965,9 +967,10 @@ function zonesFor(c,it,e){
 let OBS_POOL=null,EXCL=null;
 function obstaclesFor(c,it){
   if(it.cid==='gimbal')return[];
+  const gs=gimbalSink(c),gb=gs>0?c.items.filter(x=>x.cid==='gimbal'&&!x.unfit).map(g=>{const b=aabb(c,g);return{min:[b.min[0],b.min[1],b.min[2]],max:[b.max[0],b.min[1]+gs,b.max[2]]}}):[];
   const o=(OBS_POOL||c.items).filter(x=>x!==it&&!x.auto&&!x.unfit&&!(EXCL&&EXCL.has(x)));
   if(isMounted(it))return o.filter(isMounted).map(x=>aabb(c,x));
-  return o.filter(x=>!isMounted(x)&&x.cid!=='gimbal').map(x=>aabb(c,x));
+  return o.filter(x=>!isMounted(x)&&x.cid!=='gimbal').map(x=>aabb(c,x)).concat(gb);
 }
 function inZone(z,p){return[0,1,2].every(k=>p[k]>=z.lo[k]-.2&&p[k]<=z.hi[k]+.2)}
 function isLegal(c,it){
@@ -1013,7 +1016,7 @@ function placeGimbals(c){
   const segs=shellOf(c);
   if((c.shell.gAt||'top')!=='top')return;
   c.items.filter(i=>i.cid==='gimbal'&&!i.unfit).forEach(g=>{
-    const e=ext(g),gb=aabb(c,g);let base=segAt(segs,g.pos[0]).hei;stepsOf(c).forEach(st=>{if(st.x1>gb.min[0]&&st.x0<gb.max[0]&&st.z1>gb.min[2]&&st.z0<gb.max[2])base=Math.max(base,st.top)});const y=base+e[1]/2,dy=y-g.pos[1];
+    const e=ext(g),gb=aabb(c,g);let base=segAt(segs,g.pos[0]).hei;stepsOf(c).forEach(st=>{if(st.x1>gb.min[0]&&st.x0<gb.max[0]&&st.z1>gb.min[2]&&st.z0<gb.max[2])base=Math.max(base,st.top)});const y=base+e[1]/2-gimbalSink(c),dy=y-g.pos[1];
     if(Math.abs(dy)<.01)return;g.pos[1]=y;
     c.items.filter(isMounted).forEach(m=>{m.pos[1]+=dy});
   });
@@ -1044,7 +1047,7 @@ function layout(c){
     const r=tgtFor(c,it);it.rot=(r.rot||[0,0,0]).slice();const e=ext(it),pref=segIdx(c,r.s);
     if(it.cid==='gimbal'){const m=c.shell.gAt||'top';
       if(m!=='top'){const s2=m==='front'?segs[segs.length-1]:segs[0];it.pos=[s2.cx+(m==='front'?1:-1)*(s2.len/2+e[0]/2),Math.max(e[1]/2,s2.hei/2),0]}
-      else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2,0]}
+      else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2-gimbalSink(c),0]}
       return}
     if(isMounted(it)){const g=gim();if(g){const gp=g.pos,gi=c.items.filter(x=>x.cid===it.cid&&isMounted(x)).indexOf(it);
       const off=ext(it)[0]/2+1;it.pos=[gp[0]+(gi?off:-off),gp[1],gp[2]]  /* side by side, touching (was fixed 17 mm for the 32 mm body; 16.11 the size with enclosure is 38) */;it.rot=[0,0,0];return}}
@@ -2000,6 +2003,8 @@ function renderCtrl(){
   if(s.dyn)el.insertAdjacentHTML('beforeend','<div class="note">כל חוליה גבוהה כמו מה שבתוכה, והגימבל יושב על הגובה שלה. אפשר להגביה את הליידאר (גרירה למעלה) והקליפה סביבו תעלה. הליידאר יכול לעלות עד '+MAST+' מ"מ מעל הגובה המקסימלי.</div>');
   if(c.items.some(i=>i.cid==='lidar')){slider('הליידאר בולט מהקצה הקדמי',s.lOut||0,0,30,1,(v,fin)=>{s.lOut=v;clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'lOut'});
     el.insertAdjacentHTML('beforeend','<div class="note">כמה מותר לליידאר לצאת מהקצה הקדמי של הגוף. 0 = כולו בפנים. המספר נקבע על ידך, אין לו מקור בכרטיס. בדיקת ההכלה סופרת רק את החלק שבפנים, והמודל מצייר את החלק שבחוץ.</div>')}
+  if(c.items.some(i=>i.cid==='gimbal')&&(s.gAt||'top')==='top'){slider('הגימבל שקוע בגוף',s.gSink||0,0,30,1,(v,fin)=>{s.gSink=v;c.items.filter(i=>i.cid==='gimbal'||isMounted(i)).forEach(i=>i.manual=false);clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'gSink'});
+    el.insertAdjacentHTML('beforeend','<div class="note">כמה מהחלק התחתון של הגימבל נכנס לתוך הגוף (השאר בולט למעלה). 0 = כולו מעל הגוף. המספר נקבע על ידך. המידות של בסיס ההרכבה שלו עוד לא ידועות, לכן החלק השקוע נחשב כרוחב הגימבל כולו.</div>')}
   const segs=shellOf(c),mS=Math.floor(Math.min(...segs.map(x=>Math.min(x.len,x.hmax)/2))),mT=Math.floor(Math.min(...segs.map(x=>Math.min(x.len,x.wid)/2)));
   const applyR=key=>(v,fin)=>{s[key]=v;clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh()};
   slider('עיגול פינות מהצד',s.rS||0,0,mS,1,applyR('rS'),{k:'rS'});
