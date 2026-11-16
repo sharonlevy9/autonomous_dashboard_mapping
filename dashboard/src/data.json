@@ -3955,7 +3955,7 @@
   }
  },
  "images": {
-  "_note": "תמונות יצרן להמחשה בלבד, שימוש פנימי לקורס ולא לפרסום (שרון, 16.11). הקבצים לא נשמרים ב-GitHub כי הריפו ציבורי: הם בתיקיית הפרויקט images-src, מעתיקים אותם ל-dashboard/src/images ובונים עם build.py, שמטמיע אותם. אין תמונה לרכיב שלא נמצאה לו תמונה בדף היצרן או שאין לו דגם: safety, cliff, estop, battery, irled, backup, leddriver, airboard.",
+  "_note": "תמונות יצרן להמחשה בלבד, שימוש אישי ולא מסחרי, לקורס (שרון, 16.11). הקבצים ב-dashboard/src/images, ו-build.py מטמיע אותם. שרון אישרה ב-16.11 גם הצגה בריפו (שימוש אישי ולא מסחרי). אין תמונה לרכיב שלא נמצאה לו תמונה בדף היצרן או שאין לו דגם: safety, cliff, estop, battery, irled, backup, leddriver, airboard.",
   "by_id": {
    "radar": {
     "file": "radar.jpg",
