@@ -10,6 +10,15 @@
   --bg:#e7e8ea; --card:#f4f4f5; --card2:#ffffff; --line:#d6d8dc; --text:#15181e; --muted:#7b8290;
   --accent:#16263f; --accent2:#2f5d8c; --warn:#c2571a; --bad:#c0352b; --ok:#2e6b4a;
   --r:22px; --shadow:0 1px 2px rgba(20,25,35,.05),0 8px 24px rgba(20,25,35,.06);
+  /* Material 3 tokens (Google Material Web components read these) */
+  --md-sys-color-primary:#16263f; --md-sys-color-on-primary:#fff;
+  --md-sys-color-primary-container:#dbe4f1; --md-sys-color-on-primary-container:#16263f; --md-sys-color-surface-container-highest:#e4e6ea;
+  --md-sys-color-secondary-container:#dbe4f1; --md-sys-color-on-secondary-container:#16263f;
+  --md-sys-color-surface:#f4f4f5; --md-sys-color-surface-container:#f4f4f5; --md-sys-color-on-surface:#15181e;
+  --md-sys-color-on-surface-variant:#5b6270; --md-sys-color-outline:#8b919c; --md-sys-color-outline-variant:#d6d8dc;
+  --md-sys-color-surface-container-highest:#e4e6ea; --md-sys-color-surface-container-low:#f4f4f5;
+  --md-sys-typescale-label-large-font:"Heebo","Roboto",system-ui,sans-serif;
+  --md-ref-typeface-brand:"Heebo","Roboto",system-ui,sans-serif; --md-ref-typeface-plain:"Heebo","Roboto",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -159,23 +168,39 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .lnum{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:6px 18px 8px;font-size:13px}.lnum span{color:var(--muted)}.lnum b{font-weight:600;font-variant-numeric:tabular-nums;text-align:end}.lnum b.bad{color:var(--bad)}
 .lw{padding:2px 18px 4px;font-size:12px;color:var(--bad)}.lw.ok{color:var(--ok)}
 @media (max-width:1100px){.legtab{grid-template-columns:1fr;grid-row:auto}.lmain{grid-template-rows:60vh 320px}}
+/* stage 2: Material shell */
+header md-tabs{--md-primary-tab-container-color:transparent;min-width:200px;border-radius:999px}
+header md-icon-button svg{width:24px;height:24px;fill:currentColor}
+header md-icon-button{--md-icon-button-icon-color:var(--text)}
+header md-icon-button[disabled]{opacity:.35}
+.modesw{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.modesw md-switch{--md-switch-selected-track-color:var(--accent)}
+.pres-badge{display:none;font-size:12px;color:var(--muted)}
+/* presentation mode: read-only, only looking. Nothing can be dragged or edited. */
+.app.pres{grid-template-rows:64px minmax(0,1fr)}
+.app.pres .strip,.app.pres #ctrl,.app.pres .edit,.app.pres .pop .fields,.app.pres .pop .btns,.app.pres .xbtn,.app.pres .act{display:none}
+.app.pres main{grid-template-columns:210px minmax(0,1fr) 330px}
+.app.pres .it{cursor:default}
+.app.pres .side .m3{height:auto;flex:1}
+@media (max-width:1100px){.app.pres{grid-template-rows:auto auto}}
 </style>
 </head>
 <body>
 <div class="app">
   <header>
     <div class="brand">פריסת רכיבים</div>
-    <div class="seg" id="tabs"><button data-t="layout" class="on">פריסה</button><button data-t="legs">רגליים</button></div>
+    <md-tabs id="tabs" aria-label="תצוגות"><md-primary-tab data-t="layout" active>פריסה</md-primary-tab><md-primary-tab data-t="legs">רגליים</md-primary-tab></md-tabs>
     <div class="spacer"></div>
     <div class="seg" id="viewseg"><button data-m="side" class="on">מהצד</button><button data-m="top">מלמעלה</button><button data-m="front">מלפנים</button><button data-m="3d">תלת מימד</button><button data-m="win" title="שלושה היטלים ותלת מימד, יחד">הכול יחד</button></div>
     <div class="spacer"></div>
     <div class="hgrp">
-      <button class="pill" id="rulesbtn" style="box-shadow:var(--shadow)">כללי הנדסה</button>
-      <button class="ibtn" id="undo" title="ביטול" aria-label="ביטול">↶</button>
-      <button class="ibtn" id="redo" title="שחזור" aria-label="שחזור">↷</button>
-      <button class="ibtn" id="compare" title="השוואה בין קונפיגורציות" aria-label="השוואה">⇄</button>
-      <button class="ibtn" id="export" title="שמירת נתונים לקובץ" aria-label="שמירה">⤓</button>
-      <button class="ibtn" id="import" title="טעינת נתונים מקובץ" aria-label="טעינה">⤒</button>
+      <label class="modesw"><md-switch id="modesw" aria-label="מצב הצגה"></md-switch><span id="modelab">מצב תכנון</span></label>
+      <md-filled-tonal-button id="rulesbtn" class="edit">כללי הנדסה</md-filled-tonal-button>
+      <md-icon-button id="undo" class="edit" title="ביטול" aria-label="ביטול"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></md-icon-button>
+      <md-icon-button id="redo" class="edit" title="שחזור" aria-label="שחזור"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/></svg></md-icon-button>
+      <md-icon-button id="compare" title="השוואה בין קונפיגורציות" aria-label="השוואה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.01 14H2v2h7.01v3L13 15l-3.99-4v3zm5.98-1v-3H22V8h-7.01V5L11 9l3.99 4z"/></svg></md-icon-button>
+      <md-icon-button id="export" title="שמירת נתונים לקובץ" aria-label="שמירה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></md-icon-button>
+      <md-icon-button id="import" class="edit" title="טעינת נתונים מקובץ" aria-label="טעינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg></md-icon-button>
       <input type="file" id="file" accept="application/json" hidden>
     </div>
   </header>
@@ -218,6 +243,7 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 <script type="application/json" id="data-default">__DATA__</script>
 <script>__THREE__</script>
 <script>__ORBIT__</script>
+<script>__MW__</script>
 <script>
 (function(){
 'use strict';
@@ -1058,10 +1084,10 @@ let drag=null,pan=null;
 function bind2D(v){const el=v.el;
   el.addEventListener('pointerdown',ev=>{
     const vg=ev.target.closest('.vent'),c0=cfg();
-    if(vg&&c0.vent){sel='vent';drag={v,vent:true,p0:svgPt(v,ev),pos0:c0.vent.pos.slice(),moved:false,locked:c0.vent.locked};el.setPointerCapture(ev.pointerId);renderLight();return}
+    if(vg&&c0.vent&&!PRES){sel='vent';drag={v,vent:true,p0:svgPt(v,ev),pos0:c0.vent.pos.slice(),moved:false,locked:c0.vent.locked};el.setPointerCapture(ev.pointerId);renderLight();return}
     const g=ev.target.closest('.it');
     if(g){sel=g.dataset.id;const it=cfg().items.find(i=>i.id===sel);
-      if(it&&!it.auto){drag={v,it,p0:svgPt(v,ev),pos0:it.pos.slice(),moved:false,locked:!!it.locked};el.setPointerCapture(ev.pointerId)}
+      if(it&&!it.auto&&!PRES){drag={v,it,p0:svgPt(v,ev),pos0:it.pos.slice(),moved:false,locked:!!it.locked};el.setPointerCapture(ev.pointerId)}
       renderLight()}
     else{const sg=ev.target.closest('[data-seg]');if(sg&&perOn(cfg())&&V.seg!==+sg.dataset.seg){V.seg=+sg.dataset.seg;renderCtrl()}sel=null;pan={v,p0:svgPt(v,ev),vb0:{...v.vb}};el.setPointerCapture(ev.pointerId);renderLight()}
   });
@@ -1315,7 +1341,7 @@ W3.addEventListener('pointerdown',ev=>{if(!(V.mode==='3d'||V.mode==='win')||ev.b
   ev.stopPropagation();ev.preventDefault();
   const c=cfg(),it=c.items.find(i=>i.id===h.object.userData.id);sel=it?it.id:null;
   if(it&&it.locked)toast('נעול. אפשר לבטל את הנעילה בחלון שלמטה');
-  if(it&&!it.auto&&!it.locked){const vert=ev.shiftKey,n=new THREE.Vector3(0,1,0);
+  if(it&&!it.auto&&!it.locked&&!PRES){const vert=ev.shiftKey,n=new THREE.Vector3(0,1,0);
     if(vert){cam.getWorldDirection(n);n.y=0;if(n.lengthSq()<1e-4)n.set(0,0,1);n.normalize()}
     d3={it,plane:new THREE.Plane().setFromNormalAndCoplanarPoint(n,h.point),p0:h.point.clone(),pos0:it.pos.slice(),vert,moved:false};
     oc.enabled=false;W3.setPointerCapture(ev.pointerId)}
@@ -1594,9 +1620,18 @@ function migrate4(){S.configs.forEach(c=>{if(c.orient4)return;c.orient4=true;let
 function migrate(){S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
 
 /* ---------- legs tab: play with leg length and proportions, then import into a configuration ---------- */
-function showTab(tab){LV.on=tab==='legs';$('.app').classList.toggle('tl',LV.on);document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+function showTab(tab){LV.on=tab==='legs';$('.app').classList.toggle('tl',LV.on);{const tb=$('#tabs');[...tb.querySelectorAll('md-primary-tab')].forEach((b,i)=>{if(b.dataset.t===tab&&tb.activeTabIndex!==i)tb.activeTabIndex=i})}
   if(LV.on){lcamSet=false;if(S.lab){S.lab.target=S.active;Object.assign(S.lab,labFrom(cfg()))}renderLab();requestAnimationFrame(lresize)}else{requestAnimationFrame(()=>{resize3();refresh(true)})}}
-document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
+document.querySelectorAll('#tabs md-primary-tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.t)));
+/* stage 2: planning mode / presentation mode (same file, same data; presentation = read-only) */
+let PRES=false;
+function setPres(on,init){PRES=!!on;$('.app').classList.toggle('pres',PRES);$('#modelab').textContent=PRES?'מצב הצגה':'מצב תכנון';
+  const sw=$('#modesw');if(sw.selected!==PRES)sw.selected=PRES;
+  if(PRES){sel=null;if(LV.on)showTab('layout')}
+  try{localStorage.setItem('dash-mode',PRES?'pres':'plan')}catch(e){}
+  if(!init){requestAnimationFrame(()=>{resize3();refresh(true)})}}
+$('#modesw').addEventListener('change',()=>setPres($('#modesw').selected));
+try{if(localStorage.getItem('dash-mode')==='pres')setTimeout(()=>setPres(true,true),0)}catch(e){}
 function labTarget(){const i=S.lab&&S.lab.target!==undefined?S.lab.target:S.active;return S.configs[Math.max(0,Math.min(i,S.configs.length-1))]}
 function labFrom(c){legsOf(c);const h=hips(c);return{thigh:c.legs.thigh,shin:c.legs.shin,thick:c.legs.thick,knee:c.legs.knee,hipY:h.length?Math.round(Math.max(...h.map(x=>x.pos[1]))):Math.round(KR)}}
 /* real=true: on the configuration itself (hip motors snap to a free legal height); false: on a copy, for the preview */
