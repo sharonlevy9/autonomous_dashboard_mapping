@@ -4,7 +4,13 @@ import sys, pathlib
 here = pathlib.Path(__file__).parent
 three, orbit, out = sys.argv[1:4]
 t = (here / "template.html").read_text(encoding="utf-8")
-d = (here / "data.json").read_text(encoding="utf-8")
+import json, base64
+_d = json.loads((here / "data.json").read_text(encoding="utf-8"))
+for _k, _v in ((_d.get("images") or {}).get("by_id") or {}).items():
+    _f = here / "images" / _v["file"]  # manufacturer photos are NOT committed (public repo); keep them in dashboard/src/images locally
+    if _f.exists():
+        _v["src"] = "data:image/jpeg;base64," + base64.b64encode(_f.read_bytes()).decode()
+d = json.dumps(_d, ensure_ascii=False)
 t = t.replace("__DATA__", d.replace("</", "<\\/"))
 t = t.replace("__MESHES__", (here / "meshes.json").read_text(encoding="utf-8"))
 t = t.replace("__THREE__", pathlib.Path(three).read_text(encoding="utf-8"))

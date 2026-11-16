@@ -223,6 +223,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
 .trow{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}.tv{display:flex;flex-direction:column;align-items:center;gap:6px}.tr{background:#cfd6e2;border:1px solid #16263f;box-sizing:border-box}.tr.ref{background:#e4e6ea;border-color:#8b919c}.tl{font-size:12px;color:var(--muted);text-align:center;max-width:200px}
 @media(max-width:900px){.cdrawer{top:auto;height:70vh;left:6px;right:6px;width:auto}}
 .clinks{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}.clinks a{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--md-sys-color-primary-container,#dbe4f1);color:var(--accent);text-decoration:none;direction:ltr}.clinks a:hover{background:var(--accent);color:#fff}
+.mimg{margin:10px 0 2px;background:#fff;border:1px solid #d9dde3;border-radius:14px;padding:8px;text-align:center}.mimg img{max-width:100%;max-height:220px;object-fit:contain;display:block;margin:0 auto}.mimg .cmeta{margin-top:6px}.mimg a{direction:ltr;unicode-bidi:embed}
 .pvw{margin:10px 0 2px;background:#eef0f3;border-radius:14px;overflow:hidden}.pv3{width:100%;height:auto;aspect-ratio:5/3;display:block;cursor:grab;touch-action:none}.pvl{margin-bottom:6px}.row img.thumb{flex:none;border-radius:6px}
 </style>
 </head>
@@ -1972,6 +1973,8 @@ function renderCard(){
   let h=top+'<div class="cb2"><div class="ctitle"><div><h3>'+esc(k?k.name:cd.title)+'</h3>'+(k?'<div class="m">'+esc(k.model)+'</div>':'<div class="m">'+esc(cd.tab)+'</div>')+'<div class="m">כרטיס '+esc(cardId)+': '+esc(cd.title)+(shared&&k?' (משותף עם '+cov.shared_with.map(i=>esc(cat[i]?cat[i].name:i)).join(', ')+')':'')+'</div></div></div>';
   if(k){const s=SH[cid];h+='<div class="pvw" id="pvw"></div><div class="cmeta pvl">'+esc(s&&s.label?s.label:'צורה פשוטה לפי המידות. אין לי מודל של היצרן לרכיב הזה.')+(s&&s.extra?' '+esc(s.extra):'')+' גררי כדי לסובב, גלגלת לזום.</div>'}
   const lk=k&&DEF.links&&DEF.links.by_id&&DEF.links.by_id[cid];
+  const mi=k&&DEF.images&&DEF.images.by_id&&DEF.images.by_id[cid];
+  if(mi&&mi.src)h+='<figure class="mimg"><img src="'+mi.src+'" alt="'+esc('תמונת היצרן: '+k.name)+'"><figcaption class="cmeta">תמונת יצרן, להמחשה בלבד (לא בקנה מידה, לשימוש פנימי). מקור: <a href="'+esc(mi.page)+'" target="_blank" rel="noopener">'+esc(mi.label)+' ↗</a>'+(mi.note?'<br>'+esc(mi.note):'')+'</figcaption></figure>';
   if(lk&&lk.length)h+='<div class="clinks">'+lk.map(x=>'<a href="'+esc(x.u)+'" target="_blank" rel="noopener">'+esc(x.t)+' ↗</a>').join('')+'</div>';
   h+='<div class="cshort">'+gl(cd.short)+'</div>';
   const bt=[];if(k)bt.push('<button class="pill on" id="cdshow">הראי במודל</button><button class="pill" id="cd11">בגודל 1:1</button>');if(cardId==='10')bt.push('<button class="pill on" id="cdlegs">פתחי את חלון הרגליים</button>');
