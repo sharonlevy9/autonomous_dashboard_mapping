@@ -56,6 +56,21 @@ main{display:grid;grid-template-columns:210px minmax(0,1fr) 330px;gap:12px;min-h
 /* editor */
 .editor{display:flex;flex-direction:column;overflow:hidden}
 .stats{display:flex;gap:6px;padding:14px 22px 0;align-items:flex-end}
+.checks{display:flex;flex-wrap:wrap;gap:6px;padding:10px 22px 0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px}
+.chip i{font-style:normal;width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;color:#fff;background:var(--ok)}
+.chip b{font-weight:600}
+.chip.bad{border-color:var(--bad);color:var(--bad)}.chip.bad i{background:var(--bad)}
+.chip.wv{border-color:#b8860b;color:#7a5a00}.chip.wv i{background:#b8860b}
+.chip:hover{background:#f3f5f9}
+.wl2{list-style:none;margin:0;padding:0}.wl2>li{border-bottom:1px solid var(--line);padding:8px 2px}
+.wl2 summary{cursor:pointer;display:flex;gap:8px;align-items:center;list-style:none}.wl2 summary::-webkit-details-marker{display:none}
+.wl2 .st{width:9px;height:9px;border-radius:50%;background:var(--bad);flex:none}.wl2 .st.wv{background:#b8860b}
+.ex{margin:8px 0 6px;padding-inline-start:17px}.ex dt{font-size:12px;color:var(--muted)}.ex dd{margin:0 0 6px;font-size:14px}
+.opt{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.opt .res{font-size:13px;color:var(--muted);margin-top:3px}.opt .res b{color:var(--ink,#16263f)}
+.bx{background:#fff6e6;border:1px solid #e3c88a;border-radius:10px;padding:8px 10px;font-size:13px;margin:8px 0}
+.wvrow[hidden]{display:none}.wvrow{display:flex;gap:6px;margin-top:8px}.wvrow input{flex:1;min-width:0;padding:6px 10px;border:1px solid var(--line);border-radius:10px;font:inherit}
+.pill[disabled]{opacity:.45;pointer-events:none}
 .stat{padding-inline-end:26px;min-width:0}
 .stat .k{font-size:12px;color:var(--muted)}
 .stat .v{font-size:30px;font-weight:300;letter-spacing:-.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -233,6 +248,7 @@ dl.gl{margin:0}dl.gl dt{font-weight:600;margin-top:10px}dl.gl dt.hit{background:
     <section class="card list"><div class="cardh">רכיבים</div><div class="rows" id="rows"></div></section>
     <section class="card editor">
       <div class="stats" id="stats"></div>
+      <div class="checks" id="checks" role="group" aria-label="בדיקות בזמן אמת"></div>
       <div class="vopts" id="vopts"></div>
       <div class="stage" id="stage">
         <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -421,24 +437,25 @@ function hit(a,b){const q=.01;for(let k=0;k<3;k++)if(a.max[k]<=b.min[k]+q||b.max
 const isMounted=it=>cat[it.cid].mount==='gimbal';
 const isExternal=it=>cat[it.cid].external||isMounted(it);
 function name(c,it){const k=cat[it.cid],same=c.items.filter(x=>x.cid===it.cid);let n=k.name;if(it.role==='hip')n+=' (ירך, רגל '+(it.leg+1)+')';if(it.role==='knee')n+=' (ברך, רגל '+(it.leg+1)+')';if(it.role==='joint')n+=' (בין חוליות)';return n+(same.length>1&&!it.role?' '+(same.indexOf(it)+1):'')}
+function overshoot(c,b,segs,it){let best=1e9;segs.forEach(s=>{const o=Math.max(0,s.cx-s.len/2-b.min[0],b.max[0]-(s.cx+s.len/2),-s.wid/2-b.min[2],b.max[2]-s.wid/2,-b.min[1],b.max[1]-(s.hmax+allowUp(c,it)));best=Math.min(best,o)});return best}
 function warnings(c){
   const W=[],segs=shellOf(c),clear=clearance(c),items=c.items.filter(i=>!i.auto),bb=new Map(items.map(i=>[i.id,aabb(c,i)]));
   items.forEach(it=>{
     const b=bb.get(it.id);
     if(it.unfit){W.push({t:'nofit',a:it.id,text:name(c,it)+': לא נכנס בגוף במידות האלה'});return}
-    if(!isExternal(it)&&!segs.some(s=>b.min[0]>=s.cx-s.len/2-.2&&b.max[0]<=s.cx+s.len/2+.2&&b.min[2]>=-s.wid/2-.2&&b.max[2]<=s.wid/2+.2&&b.min[1]>=-.2&&b.max[1]<=s.hmax+allowUp(c,it)+.2))W.push({t:'out',a:it.id,text:name(c,it)+': חורג מהחוליה'});
+    if(!isExternal(it)&&!segs.some(s=>b.min[0]>=s.cx-s.len/2-.2&&b.max[0]<=s.cx+s.len/2+.2&&b.min[2]>=-s.wid/2-.2&&b.max[2]<=s.wid/2+.2&&b.min[1]>=-.2&&b.max[1]<=s.hmax+allowUp(c,it)+.2))W.push({t:'out',a:it.id,text:name(c,it)+': חורג מהחוליה',amt:'חורג בכ-'+Math.max(1,Math.ceil(overshoot(c,b,segs,it)))+' מ"מ'});
     else if(!isExternal(it)&&!roundOK(c,segAt(segs,P(c,it)[0]),b))W.push({t:'round',a:it.id,text:name(c,it)+': בולט מהפינה המעוגלת'});
-    if(b.min[1]+clear<-.01)W.push({t:'floor',a:it.id,text:name(c,it)+': מתחת לרצפה'});
+    if(b.min[1]+clear<-.01)W.push({t:'floor',a:it.id,text:name(c,it)+': מתחת לרצפה',amt:'מתחת לרצפה ב-'+Math.max(1,Math.round(-(b.min[1]+clear)))+' מ"מ'});
   });
   for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){
     const a=items[i],b=items[j];
     if(a.unfit||b.unfit)continue;
     if((a.cid==='gimbal'&&isMounted(b))||(b.cid==='gimbal'&&isMounted(a)))continue;
-    if(hit(bb.get(a.id),bb.get(b.id)))W.push({t:'hit',a:a.id,b:b.id,text:name(c,a)+' מתנגש עם '+name(c,b)});
+    if(hit(bb.get(a.id),bb.get(b.id))){const A=bb.get(a.id),B=bb.get(b.id),ov=[0,1,2].map(k=>Math.min(A.max[k],B.max[k])-Math.max(A.min[k],B.min[k]));W.push({t:'hit',a:a.id,b:b.id,text:name(c,a)+' מתנגש עם '+name(c,b),amt:'חפיפה של '+fmt(Math.min(...ov),1)+' מ"מ בכיוון הקצר ביותר (שם צריך להזיז כדי להפריד)'})}
   }
-  if(c.legs.count&&c.legs.stance!=='fold'){const H=Math.round(clear+bodyTop(c));if(H>PASS)W.push({t:'tall',a:(c.items.find(i=>i.cid==='gimbal')||c.items[0]).id,text:'הכלי בעמידה גבוה '+H+' מ"מ, יותר ממעבר הזחילה הנמוך ('+PASS+' מ"מ)'})}
-  {const ow=outerWidth(c);if(ow>PASSW)W.push({t:'wide',a:(items.find(i=>i.cid==='battery')||items[0]).id,text:'הכלי ברוחב '+ow+' מ"מ כולל הרגליים, יותר ממעבר הזחילה הצר ('+PASSW+' מ"מ)'})}
-  c.items.filter(i=>i.auto==='joint').forEach(j=>{const a=segs[j.gap],b=segs[j.gap+1];if(!a||!b)return;const e=ext(j),h=Math.min(a.hmax,b.hmax),w=Math.min(a.wid,b.wid);if(e[1]>h+.2||e[2]>w+.2)W.push({t:'joint',a:j.id,g:j.gap,text:'מנוע החיבור בין חוליה '+(j.gap+1)+' ל-'+(j.gap+2)+' ('+Math.round(e[1])+' מ"מ) לא נכנס בחוליה הנמוכה או הצרה'})});
+  if(c.legs.count&&c.legs.stance!=='fold'){const H=Math.round(clear+bodyTop(c));if(H>PASS)W.push({t:'tall',a:(c.items.find(i=>i.cid==='gimbal')||c.items[0]).id,text:'הכלי בעמידה גבוה '+H+' מ"מ, יותר ממעבר הזחילה הנמוך ('+PASS+' מ"מ)',amt:'גבוה ב-'+(H-PASS)+' מ"מ מעל הסף ('+H+' מול '+PASS+')'})}
+  {const ow=outerWidth(c);if(ow>PASSW)W.push({t:'wide',a:(items.find(i=>i.cid==='battery')||items[0]).id,text:'הכלי ברוחב '+ow+' מ"מ כולל הרגליים, יותר ממעבר הזחילה הצר ('+PASSW+' מ"מ)',amt:'רחב ב-'+(ow-PASSW)+' מ"מ מעל הסף ('+ow+' מול '+PASSW+')'})}
+  c.items.filter(i=>i.auto==='joint').forEach(j=>{const a=segs[j.gap],b=segs[j.gap+1];if(!a||!b)return;const e=ext(j),h=Math.min(a.hmax,b.hmax),w=Math.min(a.wid,b.wid);if(e[1]>h+.2||e[2]>w+.2)W.push({t:'joint',a:j.id,g:j.gap,text:'מנוע החיבור בין חוליה '+(j.gap+1)+' ל-'+(j.gap+2)+' ('+Math.round(e[1])+' מ"מ) לא נכנס בחוליה הנמוכה או הצרה',amt:(e[1]>h+.2?'חסרים '+Math.ceil(e[1]-h)+' מ"מ בגובה':'')+(e[1]>h+.2&&e[2]>w+.2?' ו-':'')+(e[2]>w+.2?'חסרים '+Math.ceil(e[2]-w)+' מ"מ ברוחב':'')})});
   legWarnings(c).forEach(x=>W.push(x));
   if(S&&S.rules)ruleWarnings(c).forEach(x=>W.push(x));
   return W;
@@ -502,7 +519,7 @@ function ruleWarnings(c){
   const R=RU(),W=[],items=c.items.filter(i=>!i.unfit),inner=items.filter(i=>!i.auto&&!isExternal(i)),segs=shellOf(c);
   const lid=items.find(i=>i.cid==='lidar');
   if(R.joint&&R.joint.on){const J=DEF.motors&&DEF.motors.joint,rt=J&&J.torque_rated_nm,pk=J&&J.torque_peak_nm;if(rt)jointLoads(c).forEach(L=>{if(L.nm<=rt)return;const j=c.items.find(i=>i.auto==='joint'&&i.gap===L.k);if(!j)return;
-    W.push({t:'rule',r:'joint',a:j.id,k:L.k,seg:L.seg,text:'החיבור בין חוליה '+(L.k+1)+' ל-'+(L.k+2)+': כדי להרים את חוליה '+(L.seg+1)+' צריך '+fmt(L.nm,1)+' Nm, והמנוע נותן '+rt+' Nm ברציפות'+(L.nm>pk?' (יותר גם מהשיא, '+pk+' Nm)':' (השיא '+pk+' Nm)')+(L.unk?'. חסר משקל ב-'+L.unk+' רכיבים':'')})})}
+    W.push({t:'rule',r:'joint',a:j.id,k:L.k,seg:L.seg,text:'החיבור בין חוליה '+(L.k+1)+' ל-'+(L.k+2)+': כדי להרים את חוליה '+(L.seg+1)+' צריך '+fmt(L.nm,1)+' Nm, והמנוע נותן '+rt+' Nm ברציפות'+(L.nm>pk?' (יותר גם מהשיא, '+pk+' Nm)':' (השיא '+pk+' Nm)')+(L.unk?'. חסר משקל ב-'+L.unk+' רכיבים':''),amt:'צריך '+fmt(L.nm,1)+' Nm, המנוע נותן '+rt+' Nm ברציפות ועד '+pk+' Nm לרגע'})})}
   if(R.lidar.on&&lid){const bl=lidarBlockers(c,lid);if(bl.length)W.push({t:'rule',r:'lidar',a:lid.id,text:'הליידאר מוסתר על ידי '+bl.map(x=>x.label).join(', ')})}
   if(R.imu.on&&lid){const im=inner.find(i=>i.cid==='imu');if(im&&segAt(segs,P(c,im)[0]).i!==segAt(segs,P(c,lid)[0]).i)W.push({t:'rule',r:'imu',a:im.id,text:'IMU לא באותה חוליה עם הליידאר'})}
   if(R.heat.on){const seen=new Set();inner.concat(items.filter(i=>i.auto==='joint')).filter(isSens).forEach(it=>{const o=heatConflict(c,it,P(c,it));if(o){const k=[it.id,o.id].sort().join();if(!seen.has(k)){seen.add(k);W.push({t:'rule',r:'heat',a:it.id,b:o.id,text:name(c,it)+' קרוב מדי לחום של '+name(c,o)+' (פחות מ-'+R.heat.d+' מ"מ)'})}}})}
@@ -511,8 +528,8 @@ function ruleWarnings(c){
   if(R.cog.on){const g=cogOf(c),b=cogBad(c,g);if(g&&(b.x||b.z||b.y)){const bat=items.filter(i=>i.cid==='battery').sort((a,b)=>b.frac-a.frac)[0],h=items.slice().sort((a,b)=>(eff(b,'weight')||0)-(eff(a,'weight')||0))[0];
     W.push({t:'rule',r:'cog',a:(bat||h).id,text:'מרכז הכובד '+(b.x?'רחוק מהאמצע לאורך':'')+(b.z?(b.x?', ':'')+'רחוק מהאמצע לרוחב':'')+(b.y?((b.x||b.z)?', ':'')+'גבוה מדי':'')})}}
   if(R.legs&&R.legs.on){const q=legTorques(c);if(q){
-    if(q.walk>q.rated)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הברך חלש מדי להליכה: צריך בערך '+fmt(q.walk,1)+' ניוטון-מטר, המנוע נותן '+q.rated+' ברציפות'});
-    if(q.rise>q.peak)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הירך חלש מדי כדי לקום מהבטן: צריך בערך '+fmt(q.rise,1)+' ניוטון-מטר, המנוע נותן עד '+q.peak+' לרגע'})}}
+    if(q.walk>q.rated)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הברך חלש מדי להליכה: צריך בערך '+fmt(q.walk,1)+' ניוטון-מטר, המנוע נותן '+q.rated+' ברציפות',amt:'חסרים כ-'+fmt(q.walk-q.rated,1)+' Nm'});
+    if(q.rise>q.peak)W.push({t:'rule',r:'legs',a:q.a,text:'מנוע הירך חלש מדי כדי לקום מהבטן: צריך בערך '+fmt(q.rise,1)+' ניוטון-מטר, המנוע נותן עד '+q.peak+' לרגע',amt:'חסרים כ-'+fmt(q.rise-q.peak,1)+' Nm'})}}
   if(R.stab&&R.stab.on&&c.legs.count>0&&c.legs.count<4){const h=hipItem(c,0);if(h)W.push({t:'rule',r:'stab',a:h.id,text:'עם '+c.legs.count+' רגליים הכלי לא יכול להרים רגל בלי ליפול. בהליכה צריך לפחות 3 רגליים על הקרקע בכל רגע'})}
   ventWarnings(c).forEach(x=>W.push(x));
   return W;
@@ -1384,24 +1401,108 @@ W3.addEventListener('pointerup',end3);W3.addEventListener('pointercancel',end3);
 /* ---------- panels ---------- */
 const fmt=(n,d=1)=>(Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toLocaleString('en');
 function renderStats(){
-  const c=cfg(),t=totals(c),w=warnings(c),h=t.p>0&&t.cap>0?t.cap/t.p:null;
+  const c=cfg(),t=totals(c),w=warnings(c),wo=w.filter(x=>!isWaived(c,x)),h=t.p>0&&t.cap>0?t.cap/t.p:null;
   $('#stats').innerHTML=
    '<div class="stat"><div class="k">משקל</div><div class="v">'+fmt(t.w/1000,2)+'<small>ק"ג</small></div>'+(t.wu?'<div class="s">חסר ב-'+t.wu+' רכיבים</div>':'')+'</div>'+
    '<div class="stat"><div class="k">הספק</div><div class="v">'+fmt(t.p,0)+'<small>W</small></div>'+(t.pu?'<div class="s">חסר ב-'+t.pu+' רכיבים</div>':'')+'</div>'+
    '<div class="stat"><div class="k">זמן עבודה</div><div class="v">'+(h?fmt(h,1):'—')+'<small>שעות</small></div>'+(h&&t.pu?'<div class="s">עד, חסרים נתונים</div>':'')+'</div>'+
    '<div class="stat"><div class="k">נפח רכיבים</div><div class="v">'+fmt(t.vol/t.sv*100,0)+'<small>% מהגוף</small></div></div>'+
-   '<button class="stat '+(w.length?'bad':'ok')+'" id="wbtn"><div class="k">אזהרות</div><div class="v">'+(w.length||'אין')+'</div></button>';
-  $('#wbtn').onclick=()=>{if(w.length)openWarnings()};
+   '<button class="stat '+(wo.length?'bad':'ok')+'" id="wbtn"><div class="k">אזהרות</div><div class="v">'+(wo.length||'אין')+'</div>'+(w.length>wo.length?'<div class="s" style="color:#7a5a00">'+(w.length-wo.length)+' הוחלט שבסדר</div>':'')+'</button>';
+  $('#wbtn').onclick=()=>{if(w.length)openWarnings()};renderChecks();
 }
-function openWarnings(){
-  const c=cfg(),w=warnings(c);
-  if(!w.length){$('#modal').classList.remove('on');return}
-  const fx=w.map(x=>fixesFor(c,x));
-  $('#mcard').innerHTML='<h2>אזהרות</h2><div class="btns" style="margin-bottom:10px"><button class="pill" id="fixall">תקני הכול</button></div><ul class="wl">'+w.map((x,i)=>'<li><div><div>'+x.text+'</div><div class="btns" style="margin-top:6px">'+fx[i].map((f,j)=>'<button class="pill" data-i="'+i+'" data-j="'+j+'">'+f.label+'</button>').join('')+'<button class="pill" data-s="'+i+'">הצגה</button></div></div></li>').join('')+'</ul><div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
-  $('#modal').classList.add('on');$('#mc').onclick=()=>$('#modal').classList.remove('on');
-  $('#fixall').onclick=()=>{snap();autoFixAll(c);save();refresh(true);openWarnings();toast(warnings(c).length?'נשארו אזהרות':'הכול תוקן')};
-  $('#mcard').querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{snap();const ok=fx[+b.dataset.i][+b.dataset.j].run();layout(c);save();refresh(true);if(ok===false)toast('לא נמצא מקום פנוי. נסי להגדיל את הגוף');openWarnings()});
-  $('#mcard').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{sel=w[+b.dataset.s].a;$('#modal').classList.remove('on');renderLight()});
+/* ---------- step 5: live checks bar, explanation window, "תקני" window with preview ---------- */
+const CHK_GROUPS=[
+ ['fit','נכנס בגוף','רכיבים בתוך הגוף: בלי חריגה, בלי חפיפה ובלי מגע ברצפה',w=>['nofit','out','round','floor','hit'].includes(w.t)],
+ ['pass','מעבר צר','גובה ורוחב הכלי מול מעברי הזחילה במערות ('+PASS+' מ"מ גובה, '+PASSW+' מ"מ רוחב)',w=>['tall','wide'].includes(w.t)],
+ ['legs','רגליים','הרגליים לא מתנגשות, לא נוגעות ברצפה והמנועים מספיק חזקים',w=>['legshort','kneefloor','legclash'].includes(w.t)||['legs','stab'].includes(w.r)],
+ ['joint','חיבורי חוליות','מנוע החיבור נכנס בחוליות ומסוגל להרים חוליה',w=>w.t==='joint'||w.r==='joint'],
+ ['sens','חיישנים ושירות','ליידאר לא מוסתר, חום, דופן, פתח אוויר וגישה להוצאת רכיבים',w=>['lidar','imu','heat','wall','service','vent','ventblock'].includes(w.r)],
+ ['cog','מרכז כובד','הכלי לא נוטה ליפול (מרכז הכובד קרוב לאמצע ונמוך)',w=>w.r==='cog']];
+/* [what the problem means in plain words, why it matters] */
+const WHY={
+ nofit:['הרכיב גדול מדי למקום שיש לו בגוף במידות הנוכחיות.','רכיב שלא נכנס לא יכול להיות בכלי. אפשר להגדיל את הגוף או לשנות את מספר החוליות.'],
+ out:['חלק מהרכיב יוצא מדופן הגוף.','הדופן לא תיסגר עליו, או שהוא ייתקע במעבר הצר.'],
+ round:['פינות הגוף מעוגלות, והרכיב נוגע בעיגול.','הרכיב ייצא מהדופן באזור הפינה.'],
+ floor:['הרכיב נמוך מגובה הרצפה.','בפועל הוא ייתקע בקרקע.'],
+ hit:['שני רכיבים תופסים חלק מאותו מקום בגוף.','אי אפשר להניח שני דברים באותו מקום. צריך להזיז אחד מהם.'],
+ tall:['הכלי בעמידה גבוה יותר ממעבר הזחילה הנמוך שמצאנו.','כלי גבוה מדי לא יעבור בעמידה, ויצטרך ללכת מקופל או נמוך יותר.'],
+ wide:['הכלי רחב יותר ממעבר הזחילה הצר שמצאנו.','כלי רחב מדי ייתקע במעבר.'],
+ joint:['המנוע שמחבר בין שתי חוליות לא נכנס בחוליה הנמוכה או הצרה.','בלי מקום למנוע אי אפשר לחבר את החוליות.'],
+ legshort:['מנוע הירך גבוה מדי לאורך הרגל, והרגל קצרה מכדי להרים את הבטן.','הבטן תישב על הרצפה, והרגליים לא יעזרו.'],
+ kneefloor:['מנוע הברך נוגע ברצפה בעמידה.','הרגל לא תוכל לזוז בחופשיות.'],
+ legclash:['שתי רגליים תפגשנה זו בזו.','הן יפריעו זו לזו בתנועה או בקיפול.'],
+ r_joint:['המנוע בחיבור בין חוליות חלש מדי להרים את החוליה.','החוליה לא תירים ולא תתקפל כמו שתכננו. החישוב הוא הערכה שלי.'],
+ r_lidar:['משהו עומד בדרך של הליידאר.','הליידאר הוא החיישן שבונה את המפה. אם הוא מוסתר, הוא לא רואה חלק מהסביבה.'],
+ r_imu:['ה-IMU (חיישן התנועה) לא יושב באותה חוליה עם הליידאר.','הוא צריך להיות קרוב לליידאר כדי שהמפה תתאים לתנועה (כרטיס 06).'],
+ r_heat:['חיישן קרוב מדי לרכיב שמתחמם.','החום ישנה את הקריאה של החיישן או יפגע בו.'],
+ r_wall:['הרכיב צריך לראות או לפלוט החוצה, אבל הוא לא צמוד לדופן החיצונית.','בלי קשר לדופן הוא לא יקלוט או יאיר את הסביבה.'],
+ r_service:['אין דרך פנויה להוציא את הרכיב מהגוף.','אי אפשר יהיה להחליף או לתקן אותו בלי לפרק חלקים אחרים.'],
+ r_cog:['מרכז הכובד רחוק מהאמצע, או גבוה.','כלי כזה נוטה ליפול בשיפוע או בהליכה.'],
+ r_legs:['מנוע ברגל חלש מדי לעומס שהוא נושא.','הרגל לא תצליח ללכת או להרים את הכלי מהבטן. החישוב הוא הערכה שלי.'],
+ r_stab:['עם מעט רגליים אי אפשר להרים רגל ולהישאר יציבים.','בהליכה צריך לפחות 3 רגליים על הקרקע בכל רגע, אחרת הכלי נופל.'],
+ r_vent:['חיישן האוויר לא יושב מול פתח האוויר.','הוא ימדוד אוויר מתוך הכלי ולא מבחוץ (כרטיס 13).'],
+ r_ventblock:['משהו קרוב לפתח האוויר.','הוא יחסום או יחמם את האוויר שנכנס (כרטיס 13).']};
+const whyKey=w=>w.t==='rule'?'r_'+w.r:w.t;
+const wkey=w=>[w.t,w.r||'',w.a,w.b||'',w.k===undefined?'':w.k,w.g===undefined?'':w.g].join('|');
+const isWaived=(c,w)=>!!(c.waive&&c.waive[wkey(w)]!==undefined);
+function chipsData(c){const rows=CHK_GROUPS.map(g=>({id:g[0],name:g[1],help:g[2],ws:[]})),oth={id:'other',name:'אחר',help:'',ws:[]};
+  warnings(c).forEach(w=>{const g=CHK_GROUPS.find(x=>x[3](w));(g?rows.find(r=>r.id===g[0]):oth).ws.push(w)});if(oth.ws.length)rows.push(oth);return rows}
+function renderChecks(){const e=$('#checks');if(!e)return;const c=cfg(),rows=chipsData(c);
+  e.innerHTML=rows.map(r=>{const o=r.ws.filter(w=>!isWaived(c,w)).length,v=r.ws.length-o,st=o?'bad':v?'wv':'ok';
+    return '<button class="chip '+st+'" data-g="'+r.id+'" title="'+esc(r.help)+'" aria-label="'+esc(r.name+': '+(o?o+' אזהרות':v?v+' הוחלט שבסדר':'תקין'))+'"><i aria-hidden="true">'+(o?'!':v?'~':'✓')+'</i>'+r.name+(o?' <b>'+o+'</b>':v?' <b>'+v+'</b>':'')+'</button>'}).join('');
+  e.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const r=rows.find(x=>x.id===b.dataset.g);if(r.ws.length)openWarnings(r.id);else toast(r.name+': תקין')})}
+const cloneCfg=c=>JSON.parse(JSON.stringify(c));
+function metricsOf(c){const t=totals(c);return{len:shellLen(c),wid:outerWidth(c),w:t.w,h:t.p>0&&t.cap>0?t.cap/t.p:null,pu:t.pu}}
+/* trial on a copy: the real configuration does not change until the fix is chosen */
+function previewFix(c,w,j,k0,m0){const cl=cloneCfg(c);let ok;
+  try{const f=fixesFor(cl,w)[j];ok=f.run();layout(cl);computeTops(cl)}catch(e){return{ok:false}}
+  const ka=warnings(cl).map(wkey);return{ok,solved:!ka.includes(wkey(w)),neu:ka.filter(x=>!k0.includes(x)).length,m:metricsOf(cl),m0}}
+function previewLines(p){if(p.ok===false)return[];const L=[],m=p.m,m0=p.m0,d=(a,b)=>Math.round(a-b);
+  L.push('<b>'+(p.solved?'הבעיה נפתרת':'הבעיה לא נפתרת')+'</b>');L.push(p.neu?'נוצרות '+p.neu+' אזהרות חדשות':'לא נוצרות אזהרות חדשות');
+  const ch=[];if(Math.abs(d(m.len,m0.len))>=1)ch.push('הכלי נעשה '+(m.len>m0.len?'ארוך':'קצר')+' ב-'+Math.abs(d(m.len,m0.len))+' מ"מ');
+  if(Math.abs(d(m.wid,m0.wid))>=1)ch.push('הכלי נעשה '+(m.wid>m0.wid?'רחב':'צר')+' ב-'+Math.abs(d(m.wid,m0.wid))+' מ"מ');
+  if(Math.abs(d(m.w,m0.w))>=1)ch.push('המשקל '+(m.w>m0.w?'עולה':'יורד')+' ב-'+Math.abs(d(m.w,m0.w))+' גרם');
+  if(m.h!==null&&m0.h!==null){const mn=(m.h-m0.h)*60;if(Math.abs(mn)>=1)ch.push('זמן העבודה '+(mn>0?'ארוך':'קצר')+' ב-'+Math.round(Math.abs(mn))+' דקות'+(m.pu?' (חסרים נתוני הספק)':''))}
+  L.push(ch.length?ch.join('. '):'שאר המידות לא משתנות');return L}
+function srcOf(w){return w.t==='rule'?'הכלל הוא ערך ניסיון שלי (אפשר לשנות ב"כללי הנדסה"), לא בדיקה של יצרן.':(w.t==='tall'||w.t==='wide')?'הסף מגיע ממסמך המערות של הפרויקט (מעברי זחילה, רוחב 0.5-0.8 מ\' וגובה 0.6-0.9 מ\').':'חישוב מהמידות שבקובץ.'}
+function closeModal(){$('#modal').classList.remove('on')}
+function openWarnings(g){
+  const c=cfg(),all=warnings(c);
+  if(!all.length){closeModal();return}
+  let grp=g&&g!=='all'?chipsData(c).find(r=>r.id===g):null;if(grp&&!grp.ws.length)grp=null;
+  const ws=grp?grp.ws:all,open=ws.length<=3;
+  $('#mcard').innerHTML='<h2>'+(grp?grp.name:'כל האזהרות')+'</h2>'+(grp&&grp.help?'<div class="m" style="margin-bottom:8px">'+esc(grp.help)+'</div>':'')+
+   '<div class="btns" style="margin-bottom:6px">'+(grp?'<button class="pill" id="wall">כל האזהרות</button>':'<button class="pill edit" id="fixall">תקני הכול</button>')+'</div>'+
+   '<ul class="wl2">'+ws.map((x,i)=>{const wv=isWaived(c,x),k=WHY[whyKey(x)]||['',''];
+     return '<li><details'+(open||i===0?' open':'')+'><summary><span class="st'+(wv?' wv':'')+'"></span><span>'+x.text+(wv?' <small style="color:#7a5a00">(הוחלט שבסדר)</small>':'')+'</span></summary>'+
+     '<dl class="ex"><dt>מה הבעיה</dt><dd>'+k[0]+'</dd>'+(x.amt?'<dt>כמה</dt><dd>'+x.amt+'</dd>':'')+'<dt>למה זה חשוב</dt><dd>'+k[1]+'</dd><dt>מאיפה זה</dt><dd>'+srcOf(x)+'</dd></dl>'+
+     (wv?'<div class="bx">הוחלט שזה בסדר: '+esc(c.waive[wkey(x)]||'ללא הערה')+'</div>':'')+
+     '<div class="btns"><button class="pill edit" data-f="'+i+'">תקני</button>'+(wv?'<button class="pill edit" data-u="'+i+'">ביטול ההחלטה</button>':'')+'<button class="pill" data-s="'+i+'">הצגה במודל</button></div></details></li>'}).join('')+'</ul>'+
+   '<div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
+  $('#modal').classList.add('on');$('#mc').onclick=closeModal;
+  const wa=$('#wall');if(wa)wa.onclick=()=>openWarnings();
+  const fa=$('#fixall');if(fa)fa.onclick=()=>{snap();autoFixAll(c);save();refresh(true);openWarnings();toast(warnings(c).length?'נשארו אזהרות':'הכול תוקן')};
+  $('#mcard').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>openFix(wkey(ws[+b.dataset.f]),grp&&grp.id));
+  $('#mcard').querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{snap();delete c.waive[wkey(ws[+b.dataset.u])];save();refresh();openWarnings(g)});
+  $('#mcard').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{sel=ws[+b.dataset.s].a;closeModal();renderLight()});
+}
+function openFix(key,g){
+  const c=cfg(),w=warnings(c).find(x=>wkey(x)===key);if(!w){openWarnings(g);return}
+  const fx=fixesFor(c,w),k0=warnings(c).map(wkey),m0=metricsOf(c),lk=[c.items.find(i=>i.id===w.a),w.b&&c.items.find(i=>i.id===w.b)].filter(x=>x&&x.locked);
+  const pv=fx.map((f,j)=>previewFix(c,w,j,k0,m0)),blocked=pv.some(p=>p.ok===false)&&lk.length;
+  $('#mcard').innerHTML='<h2>תקני</h2><div class="m" style="margin-bottom:6px">'+w.text+'</div><div class="m" style="margin-bottom:8px">מה אפשר להזיז או לשנות. התוצאה של כל אפשרות מחושבת בניסוי, ושום דבר לא משתנה עד שתבחרי.</div>'+
+   (blocked?'<div class="bx">חלק מהפתרונות דורשים להזיז רכיב נעול: '+lk.map(x=>name(c,x)).join(', ')+'. <button class="pill" id="unl">שחררי נעילה</button></div>':'')+
+   '<ul class="wl2">'+(fx.length?fx.map((f,j)=>{const p=pv[j],bad=p.ok===false;
+     return '<li class="opt"><div><div>'+f.label+'</div><div class="res">'+(bad?(lk.length?'לא אפשרי כרגע: הרכיב נעול':'לא נמצא מקום פנוי בגוף'):previewLines(p).join('<br>'))+'</div></div><button class="pill" data-j="'+j+'"'+(bad?' disabled':'')+'>בחרי</button></li>'}).join(''):'<li class="m">אין לי הצעת תיקון אוטומטית לבעיה הזו. אפשר להזיז רכיב ידנית בגרירה.</li>')+'</ul>'+
+   '<div class="btns" style="margin-top:12px"><button class="pill" id="wvb">אין מה לתקן, זה בסדר בשבילי</button><button class="pill" id="bk">חזרה</button><button class="pill" id="mc">סגירה</button></div>'+
+   '<div class="wvrow" id="wvrow" hidden><input id="wvn" maxlength="140" placeholder="למה זה בסדר? הערה קצרה"><button class="pill" id="wvok">שמירה</button></div>'+
+   '<div class="m" style="margin-top:6px">הבעיה תישאר מסומנת בצהוב ותופיע גם במצב הצגה.</div>';
+  $('#modal').classList.add('on');$('#mc').onclick=closeModal;$('#bk').onclick=()=>openWarnings(g);
+  const ul=$('#unl');if(ul)ul.onclick=()=>{snap();lk.forEach(x=>x.locked=false);save();refresh();openFix(key,g)};
+  $('#mcard').querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{snap();const f=fixesFor(c,w)[+b.dataset.j];f.run();layout(c);computeTops(c);save();refresh(true);
+    const n=warnings(c).filter(x=>!isWaived(c,x)).length;toast('בוצע. '+(n?'נשארו '+n+' אזהרות':'אין אזהרות'));if(warnings(c).length)openWarnings(g);else closeModal()});
+  $('#wvb').onclick=()=>{$('#wvrow').hidden=false;$('#wvn').focus()};
+  $('#wvok').onclick=()=>{const n=$('#wvn').value.trim();if(!n){toast('כתבי הערה קצרה למה זה בסדר');return}snap();c.waive=c.waive||{};c.waive[key]=n;save();refresh();openWarnings(g)};
 }
 function renderRows(){
   const c=cfg(),bad=badSet(c),R=$('#rows');R.innerHTML='';
