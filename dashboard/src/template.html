@@ -961,7 +961,7 @@ function zonesFor(c,it,e){
   const segs=shellOf(c),h=(v)=>Math.max(0,v);
   if(it.role==='hip'){const s=segs[segIdx(c,it.seg)],z=it.side*(s.wid/2-e[2]/2),lo=[s.cx-s.len/2+e[0]/2,e[1]/2,z],hi=[s.cx+s.len/2-e[0]/2,s.hmax-e[1]/2,z];return lo[0]<=hi[0]+.01&&lo[1]<=hi[1]+.01?[{lo,hi}]:[]}
   if(it.cid==='gimbal'){const m=c.shell.gAt||'top';
-    if(m!=='top'){const s=m==='front'?segs[segs.length-1]:segs[0],x=s.cx+(m==='front'?1:-1)*(s.len/2+e[0]/2);return[{lo:[x,e[1]/2,-h(s.wid/2-e[2]/2)],hi:[x,Math.max(e[1]/2,s.hmax-e[1]/2),h(s.wid/2-e[2]/2)]}]}
+    if(m!=='top'){const s=m==='front'?segs[segs.length-1]:segs[0],x=s.cx+(m==='front'?1:-1)*(s.len/2+e[0]/2);const gf=gimbalFoot(c,e),fy=Math.min(e[1],c.shell.gFoot||50);return[{lo:[x,fy/2,-h(s.wid/2-gf[1]/2)],hi:[x,Math.max(fy/2,s.hmax-fy/2),h(s.wid/2-gf[1]/2)]}]}
     const gf=gimbalFoot(c,e);return segs.map(s=>({lo:[s.cx-h(s.len/2-gf[0]/2),s.hei+e[1]/2,-h(s.wid/2-gf[1]/2)],hi:[s.cx+h(s.len/2-gf[0]/2),s.hei+e[1]/2,h(s.wid/2-gf[1]/2)]}))}
   if(isMounted(it)){const g=c.items.find(i=>i.cid==='gimbal');if(!g)return[];const ge=ext(g),gp=g.pos;
     const lo=[0,1,2].map(k=>gp[k]-ge[k]/2+e[k]/2),hi=[0,1,2].map(k=>gp[k]+ge[k]/2-e[k]/2);return lo.every((v,k)=>v<=hi[k]+.01)?[{lo,hi}]:[]}
@@ -2003,7 +2003,7 @@ function renderCtrl(){
     slider('מרווח מדרגה',s.sPad||0,0,40,1,(v,fin)=>{s.sPad=v;if(!fin){schedule();return}layout(c);save();refresh()},{k:'steps'});
     el.insertAdjacentHTML('beforeend','<div class="note">הגובה הוא גובה הבסיס. רכיב שגבוה ממנו (או שגוררים למעלה, עד '+MAST+' מ"מ) מקבל מדרגה רק מעליו, במקום שכל החוליה תגבה. מרווח מדרגה: כמה הקליפה רחוקה מהרכיב. עובי הדופן עוד לא ידוע.</div>')}
   if(s.dyn)el.insertAdjacentHTML('beforeend','<div class="note">כל חוליה גבוהה כמו מה שבתוכה, והגימבל יושב על הגובה שלה. אפשר להגביה את הליידאר (גרירה למעלה) והקליפה סביבו תעלה. הליידאר יכול לעלות עד '+MAST+' מ"מ מעל הגובה המקסימלי.</div>');
-  if(c.items.some(i=>i.cid==='gimbal')&&(s.gAt||'top')==='top'){slider('נקודת ההשקה של הגימבל (ריבוע)',s.gFoot||50,20,80,1,(v,fin)=>{s.gFoot=v;c.items.filter(i=>i.cid==='gimbal'||isMounted(i)).forEach(i=>i.manual=false);clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'gFoot'});
+  if(c.items.some(i=>i.cid==='gimbal')){slider('נקודת ההשקה של הגימבל (ריבוע)',s.gFoot||50,20,80,1,(v,fin)=>{s.gFoot=v;c.items.filter(i=>i.cid==='gimbal'||isMounted(i)).forEach(i=>i.manual=false);clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'gFoot'});
     el.insertAdjacentHTML('beforeend','<div class="note">רק נקודת ההשקה של הגימבל חייבת לשבת על הגוף. שאר הגימבל יכול לבלוט מעבר לקצה. המספר הוא הערכה שלי מקובץ ה-3D של היצרן, לא מידה רשמית (ברירת מחדל 50 מ"מ), ואפשר לשנות אותו.</div>')}
   if(c.items.some(i=>i.cid==='lidar')){slider('בליטת הליידאר מהגוף',s.lOut||0,0,30,1,(v,fin)=>{s.lOut=v;c.items.filter(i=>i.cid==='lidar').forEach(i=>{});clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)},{k:'lOut'});
     el.insertAdjacentHTML('beforeend','<div class="note">כמה מותר לקצה החשוף של הליידאר (הצד שאליו הוא פונה, 23.8 מ"מ חשופים לפי הכרטיס) לבלוט מהגוף. 0 = כולו בפנים. אפשר לגרור אותו לכל דופן ולסובב. המספר נקבע על ידך. בדיקת ההכלה סופרת רק את החלק שבפנים.</div>')}
