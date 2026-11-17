@@ -177,6 +177,14 @@ th{font-size:14px;color:var(--muted);font-weight:500}
 .app.tl .legscrim{display:block}
 .lclose{position:absolute;top:8px;inset-inline-end:10px;z-index:2}
 .app.tl .legtab{display:grid}
+.sttab{display:none;position:fixed;inset:72px 16px 16px;z-index:9;background:var(--bg);border-radius:var(--r);padding:12px;box-shadow:0 16px 60px rgba(15,20,30,.35);grid-template-columns:390px minmax(0,1fr);gap:12px;min-height:0;text-align:start}
+.app.ts .sttab{display:grid}.app.ts .legscrim{display:block}
+.sttab .lmain{display:grid;grid-template-rows:minmax(0,1fr);min-height:0}.sttab .l3,.sttab #sc3{width:100%;height:100%;min-height:360px}
+.stsub{color:var(--mu,#5b6676);font-size:13px;margin:6px 0}.stopts{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stopts button{border:1px solid #c3cad6;background:transparent;border-radius:16px;padding:6px 12px;font:inherit;cursor:pointer}
+.stopts button.on{background:#e07a1f;border-color:#e07a1f;color:#fff}
+.stwhy{margin:8px 0;font-size:14px;line-height:1.5}.stleg{font-size:13px;line-height:1.9;margin:8px 0}.stleg span{display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:6px}
+@media (max-width:1100px){.sttab{grid-template-columns:1fr;overflow:auto;inset:72px 8px 8px}}
 .lctl{overflow:auto;padding-bottom:14px}
 .lctl select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);min-width:0}
 .lmain{display:grid;grid-template-rows:minmax(0,1.4fr) minmax(0,1fr);gap:12px;min-height:0}
@@ -387,6 +395,7 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
   <header>
     <div class="brand">פריסת רכיבים</div>
     <md-filled-tonal-button id="legsbtn">רגליים</md-filled-tonal-button>
+    <md-filled-tonal-button id="stbtn">עמדה</md-filled-tonal-button>
     <md-filled-tonal-button id="helpbtn" aria-haspopup="dialog">עזרה</md-filled-tonal-button>
     <div class="spacer"></div>
     <div class="seg" id="viewseg"><button data-m="side" class="on">מהצד</button><button data-m="top">מלמעלה</button><button data-m="front">מלפנים</button><button data-m="3d">תלת מימד</button><button data-m="win" title="שלושה היטלים ותלת מימד, יחד">הכול יחד</button></div>
@@ -435,6 +444,11 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
       <div class="card l3"><canvas id="lc3"></canvas><div class="lst"><span>עומד</span><input type="range" id="lt" min="0" max="100" value="0" aria-label="עמידה או קיפול"><span>מקופל</span></div></div>
       <div class="card lsv"><svg id="lsvg" xmlns="http://www.w3.org/2000/svg"></svg></div>
     </div>
+  </section>
+  <div class="legscrim" id="stscrim"></div>
+  <section class="sttab" id="sttab"><md-icon-button class="lclose" id="stclose" title="סגירה" aria-label="סגירת חלון העמדה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></md-icon-button>
+    <div class="card lctl" id="sctl"></div>
+    <div class="lmain"><div class="card l3"><canvas id="sc3"></canvas></div></div>
   </section>
   <div class="strip" id="strip"></div>
 </div>
@@ -1600,6 +1614,74 @@ function build3D(){
   over3D(c,clear);
   oc.update();
 }
+/* ---------- station tab: docking station and the choice of the charge point on the tool ----------
+   Assumptions (mine, not decided): +x is the front of the tool, the fibre enters at the rear, the receiver coil is a placeholder disc,
+   the tool rests folded on the pad (legs not drawn). Station boxes are the sizes from Rotem's form; the row layout is a proposal. */
+const ST={on:false};
+const sren=new THREE.WebGLRenderer({canvas:$('#sc3'),antialias:true,alpha:true});sren.setPixelRatio(Math.min(devicePixelRatio,2));
+const sscene=new THREE.Scene(),scam=new THREE.PerspectiveCamera(32,1,5,20000),soc=new THREE.OrbitControls(scam,$('#sc3'));soc.enableDamping=true;
+sscene.add(new THREE.HemisphereLight(0xffffff,0x9aa3b2,1));{const d=new THREE.DirectionalLight(0xffffff,.5);d.position.set(300,600,400);sscene.add(d)}
+const sroot=new THREE.Group();sscene.add(sroot);let scamSet=false;
+function sresize(){const cv=$('#sc3'),r=cv.getBoundingClientRect();if(!r.width)return;sren.setSize(r.width,r.height,false);scam.aspect=r.width/Math.max(r.height,1);scam.updateProjectionMatrix()}
+new ResizeObserver(sresize).observe($('#sc3'));
+const stOpt=()=>{const c=cfg(),o=DEF.station.options;return o.find(x=>x.id===c.chargeAt)||o[0]};
+function stPart(par,shape,sz,pos,col,op,rotX){ // sz: box [w,h,d] or cylinder [r,len]
+  const g=shape==='cyl'?new THREE.CylinderGeometry(sz[0],sz[0],sz[1],28):new THREE.BoxGeometry(sz[0],sz[1],sz[2]);
+  const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:col,transparent:op<1,opacity:op}));m.position.set(pos[0],pos[1],pos[2]);if(rotX)m.rotation.x=Math.PI/2;
+  m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x1b2430,transparent:true,opacity:.45})));par.add(m);return m}
+function stBuild(){
+  while(sroot.children.length){const o=sroot.children.pop();o.traverse(q=>{if(q.geometry)q.geometry.dispose();if(q.material)q.material.dispose()})}
+  const c=cfg(),SD=DEF.station,o=stOpt(),sg=shellOf(c),T=shellLen(c),W=shellWid(c),xR=-T/2,rear=sg[0],front=sg[sg.length-1],PD=SD.pad,PW=PD.w,PT=PD.h,G=SD.tray_gap;
+  const TOOL=0x6f9bd1,COIL=0xe07a1f,STN=0xaab3c0,PAD=0x303846,DRUM=0x8695a8;
+  sg.forEach(s=>stPart(sroot,'box',[s.len,s.hei,s.wid],[s.cx,s.hei/2,0],TOOL,.5));
+  let coil,coilN;const CR=PD.coil_d/2;
+  if(o.id==='bf'){coil=[front.cx,0,0];coilN='-y'}else if(o.id==='br'){coil=[rear.cx,0,0];coilN='-y'}
+  else if(o.id==='top'){coil=[rear.cx,rear.hei,0];coilN='+y'}
+  else if(o.id==='rear'){coil=[xR,rear.hei/2,0];coilN='-x'}
+  else{const sd=o.id==='left'?-1:1;coil=[rear.cx,rear.hei/2,sd*W/2];coilN=sd>0?'+z':'-z'}
+  const disc=stPart(sroot,'cyl',[CR,6],coil,COIL,1,false);
+  if(coilN==='-x')disc.rotation.z=Math.PI/2;else if(coilN[1]==='z')disc.rotation.x=Math.PI/2;
+  /* rows of station parts: place(item, a0 from the reference edge, b centre) */
+  const rows=[1,2,3,4].map(r=>SD.items.filter(i=>i.row===r)),drumZ=SD.items.filter(i=>i.row===5);
+  const rowA=rows.map(r=>Math.max(...r.map(i=>i.a))),rowH=rows.map(r=>Math.max(...r.map(i=>i.h)));
+  const bOf=arr=>{const tot=arr.reduce((s,i)=>s+i.b,0)+G*(arr.length-1);let x=-tot/2;return arr.map(i=>{const m=x+i.b/2;x+=i.b+G;return{i,b:m}})};
+  const draw=(par,items,mapAB,y0)=>items.forEach(({i,a,b})=>{const mp=mapAB(a,b,i);stPart(par,i.shape,i.shape==='cyl'?[i.h/2,i.b]:[i.b,i.h,i.a],[mp[0],y0+i.h/2,mp[1]],i.id==='battery'?0x5c8f78:i.shape==='cyl'?DRUM:STN,1,i.shape==='cyl')});
+  const plan=(order)=>{let a=0;const out=[];order.forEach(z=>{const arr=z.items,A=z.a;bOf(arr).forEach(({i,b})=>out.push({i,a:a+A/2,b}));a+=A+G});return{out,len:a-G}};
+  const zones=rows.map((r,k)=>({items:r,a:rowA[k]}));const dz={items:drumZ,a:Math.max(...drumZ.map(i=>i.a))};
+  if(o.kind==='h'){ // pad under the tool, parts on a tray below the pad, drum zone behind the rear end
+    const trayY=-(PT+SD.post_h+3),pl=plan([dz,...zones]);
+    // drum zone first (rear-most), rows continue forwards (+x)
+    const x0=xR-20-dz.a;draw(sroot,pl.out,(a,b)=>[x0+a,b],trayY+3);
+    const x1=Math.max(x0+pl.len,coil[0]+PW/2+10);stPart(sroot,'box',[x1-x0,3,330],[(x0+x1)/2,trayY+1.5,0],0xc9d0da,1);
+    stPart(sroot,'box',[PW,PT,PW],[coil[0],-PT/2,0],PAD,1);
+    [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>stPart(sroot,'box',[10,SD.post_h,10],[coil[0]+sx*(PW/2-8),-PT-SD.post_h/2,sz*(PW/2+10)],0xc9d0da,1));
+  }else{ // vertical pad: build in a local frame (pad plane at local x=0, parts extend to -x); rotate for the side options
+    const grp=new THREE.Group();sroot.add(grp);
+    const rot=o.id==='left'?-Math.PI/2:o.id==='right'?Math.PI/2:0;grp.rotation.y=rot;
+    const ax=o.id==='rear'?xR:o.id==='top'?xR-30:coil[0],az=o.id==='left'?-W/2:o.id==='right'?W/2:0;grp.position.set(ax,0,az);
+    const pl=plan([...zones,dz]);draw(grp,pl.out,(a,b)=>[-16-a,b],3);
+    stPart(grp,'box',[pl.len+30,3,330],[-(pl.len+30)/2-8,1.5,0],0xc9d0da,1);
+    if(o.id!=='top'){const py=Math.max(PW/2,coil[1]);stPart(grp,'box',[PT,PW,PW],[-PT/2,py,0],PAD,1)}
+    else{const H=Math.max(...sg.map(s=>s.hei)),by=H+14+PT;stPart(sroot,'box',[20,by,200],[xR-30,by/2,0],PAD,1);
+      const bx0=xR-30,bx1=coil[0]+PW/2;stPart(sroot,'box',[bx1-bx0,PT,PW],[(bx0+bx1)/2,H+10+PT/2,0],PAD,1)}
+  }
+  if(!scamSet){scamSet=true;const L=Math.max(T,520);scam.position.set(-L*1.5,L*1.4,L*2.4);soc.target.set(-L*.25,0,0);soc.update()}
+}
+function stPanel(){
+  const c=cfg(),SD=DEF.station,o=stOpt(),tot=SD.items.reduce((s,i)=>s+i.g,0)+SD.not_drawn.filter(n=>!/חבל|כבל סיב/.test(n.name)).reduce((s,i)=>s+i.g,0);
+  $('#sctl').innerHTML='<h3>עמדת כניסה</h3><div class="stsub">מיקום הטעינה בכלי. העמדה משתנה לפי הבחירה.</div>'
+   +'<div class="stopts">'+SD.options.map(x=>'<button data-o="'+x.id+'" class="'+(x.id===o.id?'on':'')+'">'+x.label+'</button>').join('')+'</div>'
+   +'<div class="stwhy"><b>למה:</b> '+o.why+' <i>(הסבר שלי, לא אומת)</i></div>'
+   +'<div class="stleg"><span style="background:#6f9bd1"></span>הכלי (קופסאות לפי התצורה הפעילה, רגליים לא מצוירות)<br><span style="background:#e07a1f"></span>סליל קליטה (placeholder Ø'+SD.pad.coil_d+' מ"מ)<br><span style="background:#303846"></span>משטח טעינה '+SD.pad.w+'×'+SD.pad.w+' מ"מ (placeholder)<br><span style="background:#aab3c0"></span>רכיבי העמדה, במידות מהטופס של רותם; הסידור הוא הצעה</div>'
+   +'<div class="stwhy"><b>חבל נושא (200 מ\', כ-1 ק"ג)</b> נקשר לעוגן בסלע או בקרקע, לא לעמדה, ולכן לא מצויר כאן.</div>'
+   +'<details><summary>רכיבים שלא מצוירים ('+SD.not_drawn.length+')</summary><ul>'+SD.not_drawn.map(n=>'<li>'+n.name+' ('+n.g+' ג\'): '+n.why+'</li>').join('')+'</ul></details>'
+   +'<div class="stsub">משקל רכיבי העמדה שנבחרו, בלי מעטפת: כ-'+(tot/1000).toFixed(1)+' ק"ג (טופס רותם: כ-5.6, כולל כבל סיב 0.78)</div>';
+  $('#sctl').querySelectorAll('.stopts button').forEach(b=>b.onclick=()=>{snap();cfg().chargeAt=b.dataset.o;save();scamSet=true;stPanel();stBuild()});
+}
+function showSt(on){ST.on=!!on;LV.on=false;const a=$('.app');a.classList.toggle('ts',ST.on);a.classList.remove('tl');
+  if(ST.on){scamSet=false;stPanel();stBuild();requestAnimationFrame(sresize)}else{requestAnimationFrame(()=>{resize3();refresh(true)})}}
+$('#stbtn').addEventListener('click',()=>showSt(!ST.on));$('#stclose').addEventListener('click',()=>showSt(false));$('#stscrim').addEventListener('click',()=>showSt(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ST.on)showSt(false)});
 /* ---------- legs tab: 3D ---------- */
 const LV={t:0,on:false};
 const lcv=$('#lc3'),lren=new THREE.WebGLRenderer({canvas:lcv,antialias:true,alpha:true});lren.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -1611,7 +1693,7 @@ new ResizeObserver(lresize).observe(lcv);
 function resize3(){const r=cv.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/Math.max(r.height,1);cam.updateProjectionMatrix()}
 new ResizeObserver(()=>{resize3();render2D(false)}).observe($('#stage'));
 new ResizeObserver(resize3).observe(cv);
-(function loop(){if(LV.on){loc.update();lren.render(lscene,lcam)}else{oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
+(function loop(){if(ST.on){soc.update();sren.render(sscene,scam)}else if(LV.on){loc.update();lren.render(lscene,lcam)}else{oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
 
 /* ---------- step 4: direction of each part, view ranges, cables, 3D editing, view modes ---------- */
 const FACEV={'+x':[1,0,0],'-x':[-1,0,0],'+y':[0,1,0],'-y':[0,-1,0],'+z':[0,0,1],'-z':[0,0,-1]};
@@ -2156,7 +2238,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&LV.on&&!$('#modal')
 let PRES=false;
 function setPres(on,init){PRES=!!on;$('.app').classList.toggle('pres',PRES);$('#modelab').textContent=PRES?'מצב הצגה':'מצב תכנון';
   const sw=$('#modesw');if(sw.selected!==PRES)sw.selected=PRES;
-  if(PRES){sel=null;if(LV.on)showTab('layout')}
+  if(PRES){sel=null;if(LV.on)showTab('layout');if(ST.on)showSt(false)}
   try{localStorage.setItem('dash-mode',PRES?'pres':'plan')}catch(e){}
   if(!init){requestAnimationFrame(()=>{resize3();refresh(true)})}}
 $('#modesw').addEventListener('change',()=>setPres($('#modesw').selected));
