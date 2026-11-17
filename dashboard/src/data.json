@@ -4064,18 +4064,22 @@
     "g": 3500,
     "row": 1,
     "shape": "box",
+    "grp": "power",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    },
    {
-    "id": "computer",
-    "name": "מחשב העמדה",
-    "model": "Radxa AIRbox Q900",
-    "b": 104,
-    "a": 84,
-    "h": 45,
-    "g": 450,
-    "row": 2,
+    "id": "bms",
+    "name": "לוח הגנה לסוללה",
+    "model": "Bisida 13S 48V 20A",
+    "b": 60,
+    "a": 34,
+    "h": 9.2,
+    "g": 46,
+    "row": 1,
     "shape": "box",
+    "grp": "power",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    },
    {
@@ -4088,7 +4092,9 @@
     "g": 60,
     "row": 2,
     "shape": "box",
-    "source": "מידות: מדריך TI; גובה לא ידוע, 2 מ\"מ הוא placeholder"
+    "grp": "power",
+    "est": true,
+    "source": "מידות: מדריך TI. גובה לא ידוע, 2 מ\"מ הוא placeholder"
    },
    {
     "id": "buck",
@@ -4100,6 +4106,36 @@
     "g": 67,
     "row": 2,
     "shape": "box",
+    "grp": "power",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "magconn",
+    "name": "מחבר טעינה מגנטי (חלופה)",
+    "model": "Rosenberger RoPD C001-04",
+    "b": 25,
+    "a": 25,
+    "h": 20,
+    "g": 20,
+    "row": 2,
+    "shape": "cylv",
+    "grp": "power",
+    "est": false,
+    "source": "חור התקנה ø25×20. נשקל כחלופה לטעינה אלחוטית"
+   },
+   {
+    "id": "computer",
+    "name": "מחשב העמדה",
+    "model": "Radxa AIRbox Q900",
+    "b": 104,
+    "a": 84,
+    "h": 45,
+    "g": 450,
+    "row": 3,
+    "shape": "box",
+    "grp": "compute",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    },
    {
@@ -4112,6 +4148,8 @@
     "g": 48,
     "row": 3,
     "shape": "box",
+    "grp": "compute",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    },
    {
@@ -4124,6 +4162,8 @@
     "g": 38,
     "row": 3,
     "shape": "box",
+    "grp": "compute",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    },
    {
@@ -4136,18 +4176,8 @@
     "g": 45,
     "row": 3,
     "shape": "box",
-    "source": "טופס עמדה של רותם 14.11"
-   },
-   {
-    "id": "bms",
-    "name": "לוח הגנה לסוללה",
-    "model": "Bisida 13S 48V 20A",
-    "b": 60,
-    "a": 34,
-    "h": 9.2,
-    "g": 46,
-    "row": 3,
-    "shape": "box",
+    "grp": "compute",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    },
    {
@@ -4160,43 +4190,51 @@
     "g": 10.5,
     "row": 4,
     "shape": "box",
+    "grp": "compute",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    },
    {
-    "id": "daq",
-    "name": "לוח קריאה לחיישן מתיחה",
-    "model": "Phidgets DAQ1500",
-    "b": 45,
-    "a": 45,
-    "h": 16,
-    "g": 12,
+    "id": "gps",
+    "name": "מקלט GPS",
+    "model": "SparkFun ZED-X20P",
+    "b": 43.2,
+    "a": 43.2,
+    "h": 5,
+    "g": 10,
     "row": 4,
     "shape": "box",
-    "source": "טופס עמדה של רותם 14.11"
+    "grp": "compute",
+    "est": true,
+    "source": "גובה לא ידוע, 5 מ\"מ הוא placeholder"
    },
    {
-    "id": "loadcell",
-    "name": "תא עומס",
-    "model": "Phidgets CZL635",
-    "b": 55.25,
-    "a": 12.7,
-    "h": 12.7,
+    "id": "gpsant",
+    "name": "אנטנת GPS",
+    "model": "ArduSimple AS-ANT3B",
+    "b": 30,
+    "a": 30,
+    "h": 43.5,
+    "g": 26,
+    "row": 4,
+    "shape": "cylv",
+    "grp": "compute",
+    "est": true,
+    "source": "קוטר לא ידוע, ø30 הוא placeholder. גובה 43.5"
+   },
+   {
+    "id": "mast",
+    "name": "תורן אנטנה (מקופל)",
+    "model": "תכנון שלנו, פחמן",
+    "b": 300,
+    "a": 12,
+    "h": 12,
     "g": 20,
     "row": 4,
-    "shape": "box",
-    "source": "טופס עמדה של רותם 14.11"
-   },
-   {
-    "id": "jrk",
-    "name": "בקר מנוע הכננת",
-    "model": "Pololu Jrk G2 21v3",
-    "b": 30.5,
-    "a": 25.4,
-    "h": 7.6,
-    "g": 4.5,
-    "row": 4,
-    "shape": "box",
-    "source": "טופס עמדה של רותם 14.11"
+    "shape": "cyl",
+    "grp": "compute",
+    "est": false,
+    "source": "ø12×300"
    },
    {
     "id": "drum",
@@ -4208,6 +4246,8 @@
     "g": 200,
     "row": 5,
     "shape": "cyl",
+    "grp": "winch",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    },
    {
@@ -4220,6 +4260,204 @@
     "g": 205,
     "row": 5,
     "shape": "cyl",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "jrk",
+    "name": "בקר מנוע הכננת",
+    "model": "Pololu Jrk G2 21v3",
+    "b": 30.5,
+    "a": 25.4,
+    "h": 7.6,
+    "g": 4.5,
+    "row": 5,
+    "shape": "box",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "loadcell",
+    "name": "תא עומס (חיישן מתיחה)",
+    "model": "Phidgets CZL635",
+    "b": 55.25,
+    "a": 12.7,
+    "h": 12.7,
+    "g": 20,
+    "row": 5,
+    "shape": "box",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "daq",
+    "name": "לוח קריאה לחיישן מתיחה",
+    "model": "Phidgets DAQ1500",
+    "b": 45,
+    "a": 45,
+    "h": 16,
+    "g": 12,
+    "row": 5,
+    "shape": "box",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "pulleys",
+    "name": "3 גלגלות לחיישן המתיחה",
+    "model": "דגם לא נבחר",
+    "b": 20,
+    "a": 20,
+    "h": 10,
+    "g": 30,
+    "row": 5,
+    "shape": "box",
+    "grp": "winch",
+    "est": true,
+    "source": "דגם ומידות לא נבחרו; הקובייה היא placeholder אחת לשלוש"
+   },
+   {
+    "id": "forj",
+    "name": "מחבר סיבים מסתובב",
+    "model": "SPINNER FORJ 1.14",
+    "b": 40,
+    "a": 14,
+    "h": 14,
+    "g": 20,
+    "row": 5,
+    "shape": "cyl",
+    "grp": "winch",
+    "est": false,
+    "source": "ø14, אורך 40 מהפריסה (אורך מדויק לא ידוע)"
+   },
+   {
+    "id": "lidar",
+    "name": "לידאר",
+    "model": "Livox Mid-360",
+    "b": 65,
+    "a": 65,
+    "h": 60,
+    "g": 265,
+    "row": 6,
+    "shape": "box",
+    "grp": "prev",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "thermsens",
+    "name": "חיישן חום פנימי",
+    "model": "הדגם לא נשמר",
+    "b": 25.2,
+    "a": 18,
+    "h": 4.6,
+    "g": null,
+    "row": 6,
+    "shape": "box",
+    "grp": "prev",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "scd41",
+    "name": "חיישן איכות אוויר",
+    "model": "Adafruit SCD-41",
+    "b": 25.5,
+    "a": 22.8,
+    "h": 7.7,
+    "g": 2.8,
+    "row": 6,
+    "shape": "box",
+    "grp": "prev",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "piepsx",
+    "name": "משדר איתור חירום",
+    "model": "PIEPS Mini IPS",
+    "b": 104,
+    "a": 74,
+    "h": 20,
+    "g": 158,
+    "row": 6,
+    "shape": "box",
+    "grp": "prev",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "doclight",
+    "name": "תאורת תיעוד",
+    "model": "Aputure MC Pro",
+    "b": 108,
+    "a": 70,
+    "h": 25,
+    "g": 247,
+    "row": 6,
+    "shape": "box",
+    "grp": "prev",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "drivelight",
+    "name": "פנס נסיעה",
+    "model": "Blue Robotics Lumen",
+    "b": 78.4,
+    "a": 37,
+    "h": 37,
+    "g": 118,
+    "row": 6,
+    "shape": "cyl",
+    "grp": "prev",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "estop",
+    "name": "לחצן עצירת חירום",
+    "model": "Schneider XB5AS8445",
+    "b": 43,
+    "a": 43,
+    "h": 82,
+    "g": 67,
+    "row": 6,
+    "shape": "cylv",
+    "grp": "prev",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "statuslight",
+    "name": "נורת מצב מהבהבת",
+    "model": "McMaster 4435N12",
+    "b": 76.2,
+    "a": 76.2,
+    "h": 22.2,
+    "g": null,
+    "row": 6,
+    "shape": "cylv",
+    "grp": "prev",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "buzzer",
+    "name": "זמזם חירום",
+    "model": "McMaster (מק\"ט לא נשמר)",
+    "b": 28.6,
+    "a": 28.6,
+    "h": 19.1,
+    "g": null,
+    "row": 6,
+    "shape": "cylv",
+    "grp": "prev",
+    "est": false,
     "source": "טופס עמדה של רותם 14.11"
    }
   ],
@@ -4227,42 +4465,12 @@
    {
     "name": "כבל סיב אופטי 300 מ'",
     "g": 780,
-    "why": "על התוף. אורך 300 מ' מול 200 מ' בכננת: לא הוחלט"
+    "why": "גלול על התוף, לא נפרד. אורך 300 מ' מול 200 מ' בכננת: לא הוחלט"
    },
    {
     "name": "חבל נושא Dyneema 3 מ\"מ, 200 מ'",
     "g": 1000,
-    "why": "לא באותו טופס. כ-5 גרם למטר, מקור: יצרנים. נקשר לעוגן, לא לעמדה"
-   },
-   {
-    "name": "מחבר סיבים מסתובב SPINNER",
-    "g": 20,
-    "why": "אורך לא ידוע (40 בפריסה), ø14"
-   },
-   {
-    "name": "3 גלגלות לחיישן המתיחה",
-    "g": 30,
-    "why": "דגם לא נבחר"
-   },
-   {
-    "name": "מקלט GPS SparkFun ZED-X20P",
-    "g": 10,
-    "why": "גובה לא ידוע"
-   },
-   {
-    "name": "אנטנת GPS ArduSimple",
-    "g": 26,
-    "why": "קוטר לא ידוע"
-   },
-   {
-    "name": "תורן אנטנה מתקפל",
-    "g": 20,
-    "why": "ø12×300, תכנון שלנו"
-   },
-   {
-    "name": "מחבר טעינה מגנטי Rosenberger",
-    "g": 20,
-    "why": "נשקל כחלופה לטעינה אלחוטית, חור ø25×20"
+    "why": "לא בטופס של רותם. כ-5 גרם למטר. נקשר לעוגן, לא לעמדה"
    }
   ],
   "options": [
