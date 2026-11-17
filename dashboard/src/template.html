@@ -771,11 +771,11 @@ function gapDist(a,b){let s=0;for(let k=0;k<3;k++){const g=Math.max(0,a.min[k]-b
 const isSrc=it=>{const h=cat[it.cid].heat;return h==='source'||h==='both'};
 const isSens=it=>{const h=cat[it.cid].heat;return h==='sensitive'||h==='both'};
 function heatConflict(c,it,p){
-  if(!isSrc(it)&&!isSens(it))return null;const d=RU().heat.d,b=aabb(c,it,p);
+  if(!isSrc(it)&&!isSens(it))return null;const d=RU().heat.d,b=aabb(c,it,p);let best=null,bg=Infinity;
   for(const o of c.items){if(o===it||o.unfit||o.cid===it.cid||o.auto==='knee'||isExternal(o))continue;
     if(!((isSrc(it)&&isSens(o))||(isSens(it)&&isSrc(o))))continue;
-    if(gapDist(b,aabb(c,o))<d)return o}
-  return null;
+    const g=gapDist(b,aabb(c,o));if(g<d&&g<bg){bg=g;best=o}}
+  return best;
 }
 function wallOK(c,it,p){
   const w=cat[it.cid].wall;if(!w)return true;
@@ -793,12 +793,24 @@ function svcOK(c,it,p){
     return!others.some(x=>(d.k===1||!x.ext)&&hit(r,x.o));
   });
 }
+/* ray helpers: a part blocks a sensor only if it covers at least MINSHARE of the sensor's field of view (my test value, 5%) */
+const MINSHARE=.05;
+function rayHitsBox(o,d,mn,mx,t0){let a=t0,b=1e9;for(let k=0;k<3;k++){if(Math.abs(d[k])<1e-9){if(o[k]<mn[k]||o[k]>mx[k])return false}else{let t1=(mn[k]-o[k])/d[k],t2=(mx[k]-o[k])/d[k];if(t1>t2){const t=t1;t1=t2;t2=t}a=Math.max(a,t1);b=Math.min(b,t2);if(a>b)return false}}return true}
+function shareBlocked(o,dirs,mn,mx,t0){let n=0;for(const d of dirs)if(rayHitsBox(o,d,mn,mx,t0))n++;return n/dirs.length}
+/* lidar (card 03): a dome around the axis of the face that looks out, from the plane across the axis (-4.4 deg behind it) up to the axis */
 function lidarBlockers(c,l){
-  const p=P(c,l),yw=p[1],R=RU().lidar,segs=shellOf(c),ls=segAt(segs,p[0]),out=[],all=R.fov==='360';
-  c.items.filter(i=>i.cid==='gimbal'&&!i.unfit).forEach(g=>{const b=aabb(c,g);
-    if(b.min[1]<yw&&b.max[1]>yw&&(all||b.max[0]>p[0]))out.push({id:g.id,label:'הגימבל',top:b.max[1]})});
-  segs.forEach(s=>{if(s.i!==ls.i&&(all||s.cx>p[0])&&s.hei>yw+.5)out.push({label:'חוליה '+(s.i+1),top:s.hei})});
-  const lb=aabb(c,l);stepsOf(c).forEach(st=>{if(st.x1>lb.min[0]-.5&&st.x0<lb.max[0]+.5&&st.z1>lb.min[2]-.5&&st.z0<lb.max[2]+.5)return;if((all||st.x0>p[0])&&st.top>yw+.5)out.push({label:'מדרגה בחוליה '+(st.i+1),top:st.top})});
+  const clear=clearance(c),F=faceOf(c,l,clear);if(!F)return[];
+  const o=F.o,d=F.d,fv=cat.lidar.fov||{},back=Math.abs((fv.from_perp_deg&&fv.from_perp_deg[0])||0),cmax=Math.cos((90+back)*Math.PI/180);
+  const up=Math.abs(d[1])>.9?[1,0,0]:[0,1,0],r=norm(cross(d,up)),u=cross(r,d),N=120,dirs=[];
+  for(let i=0;i<N;i++){const cz=1-(1-cmax)*(i+.5)/N,sz=Math.sqrt(Math.max(0,1-cz*cz)),az=i*2.399963,ca=Math.cos(az)*sz,sa=Math.sin(az)*sz;
+    dirs.push(norm([d[0]*cz+r[0]*ca+u[0]*sa,d[1]*cz+r[1]*ca+u[1]*sa,d[2]*cz+r[2]*ca+u[2]*sa]))}
+  const segs=shellOf(c),ls=segAt(segs,P(c,l)[0]),out=[],seen=new Set();
+  const add=(id,label,top)=>{if(seen.has(label))return;seen.add(label);out.push({id,label,top})};
+  c.items.forEach(x=>{if(x===l||x.unfit)return;const pr=parentOf(c,x);if(pr&&pr.p===l)return;const b=aabb(c,x);
+    if(shareBlocked(o,dirs,[b.min[0],b.min[1]+clear,b.min[2]],[b.max[0],b.max[1]+clear,b.max[2]],.5)>=MINSHARE)add(x.id,isMounted(x)||x.cid==='gimbal'?'הגימבל':name(c,x),b.max[1])});
+  segs.forEach(g=>{if(g.i===ls.i)return;if(shareBlocked(o,dirs,[g.cx-g.len/2,clear,-g.wid/2],[g.cx+g.len/2,clear+g.hei,g.wid/2],.5)>=MINSHARE)add(null,'חוליה '+(g.i+1),g.hei)});
+  const lb=aabb(c,l);stepsOf(c).forEach(st=>{if(st.x1>lb.min[0]-.5&&st.x0<lb.max[0]+.5&&st.z1>lb.min[2]-.5&&st.z0<lb.max[2]+.5)return;
+    if(shareBlocked(o,dirs,[st.x0,clear+st.y0,st.z0],[st.x1,clear+st.top,st.z1],.5)>=MINSHARE)add(null,'מדרגה בחוליה '+(st.i+1),st.top)});
   return out;
 }
 function cogOf(c){
@@ -815,7 +827,7 @@ function ruleWarnings(c){
     W.push({t:'rule',r:'joint',a:j.id,k:L.k,seg:L.seg,text:'החיבור בין חוליה '+(L.k+1)+' ל-'+(L.k+2)+': כדי להרים את חוליה '+(L.seg+1)+' צריך '+fmt(L.nm,1)+' Nm, והמנוע נותן '+rt+' Nm ברציפות'+(L.nm>pk?' (יותר גם מהשיא, '+pk+' Nm)':' (השיא '+pk+' Nm)')+(L.unk?'. חסר משקל ב-'+L.unk+' רכיבים':''),amt:'צריך '+fmt(L.nm,1)+' Nm, המנוע נותן '+rt+' Nm ברציפות ועד '+pk+' Nm לרגע'})})}
   if(R.lidar.on&&lid){const bl=lidarBlockers(c,lid);if(bl.length)W.push({t:'rule',r:'lidar',a:lid.id,text:'הליידאר מוסתר על ידי '+bl.map(x=>x.label).join(', ')})}
   if(R.imu.on&&lid){const im=inner.find(i=>i.cid==='imu');if(im&&segAt(segs,P(c,im)[0]).i!==segAt(segs,P(c,lid)[0]).i)W.push({t:'rule',r:'imu',a:im.id,text:'IMU לא באותה חוליה עם הליידאר'})}
-  if(R.heat.on){const seen=new Set();inner.concat(items.filter(i=>i.auto==='joint')).filter(isSens).forEach(it=>{const o=heatConflict(c,it,P(c,it));if(o){const k=[it.id,o.id].sort().join();if(!seen.has(k)){seen.add(k);W.push({t:'rule',r:'heat',a:it.id,b:o.id,text:name(c,it)+' קרוב מדי לחום של '+name(c,o)+' (פחות מ-'+R.heat.d+' מ"מ)'})}}})}
+  if(R.heat.on){const seen=new Set();inner.concat(items.filter(i=>i.auto==='joint')).filter(isSens).forEach(it=>{const o=heatConflict(c,it,P(c,it));if(o){const k=[it.id,o.id].sort().join();if(!seen.has(k)){seen.add(k);W.push({t:'rule',r:'heat',a:it.id,b:o.id,text:name(c,it)+' קרוב מדי לחום של '+name(c,o)+' (פחות מ-'+R.heat.d+' מ"מ)',amt:'המרחק בפועל '+Math.round(gapDist(aabb(c,it),aabb(c,o)))+' מ"מ, והמינימום '+R.heat.d+' מ"מ. זה המקור הקרוב ביותר'})}}})}
   if(R.wall.on)inner.forEach(it=>{if(!wallOK(c,it,P(c,it)))W.push({t:'rule',r:'wall',a:it.id,text:name(c,it)+': צריך להיות צמוד לדופן החיצונית'})});
   if(R.service.on)inner.forEach(it=>{if(!svcOK(c,it,P(c,it)))W.push({t:'rule',r:'service',a:it.id,text:name(c,it)+': אין דרך פנויה להוציא אותו (שירות)'})});
   if(R.cog.on){const g=cogOf(c),b=cogBad(c,g);if(g&&(b.x||b.z||b.y)){const bat=items.filter(i=>i.cid==='battery').sort((a,b)=>b.frac-a.frac)[0],h=items.slice().sort((a,b)=>(eff(b,'weight')||0)-(eff(a,'weight')||0))[0];
@@ -881,7 +893,9 @@ function sensorBlockers(c,s,q){const old=s.pos;if(q)s.pos=q;try{
     if(hv===null){if(Math.abs(u[1])<.9||mn[1]>o[1]||mx[1]<o[1])return false;for(let i=0;i<N;i++)for(let k=0;k<N;k++)if(inside([L(0,i),o[1],L(2,k)]))return true;return false}
     for(let i=0;i<N;i++)for(let j=0;j<N;j++)for(let k=0;k<N;k++)if(inside([L(0,i),L(1,j),L(2,k)]))return true;return false};
   const out=new Set(),segs=shellOf(c),own=segAt(segs,P(c,s)[0]).i,sb=aabb(c,s);
-  c.items.forEach(x=>{if(x===s||x.unfit)return;const b=aabb(c,x);if(boxIn([b.min[0],b.min[1]+clear,b.min[2]],[b.max[0],b.max[1]+clear,b.max[2]]))out.add(isMounted(x)?'הגימבל':name(c,x))});
+  const dirs=[],NH=15,NV=hv===null?1:5;for(let i=0;i<NH;i++)for(let j=0;j<NV;j++){const ah=-hh+2*hh*(i+.5)/NH,av=hv===null?0:-hv+2*hv*(j+.5)/NV,ch=Math.cos(av);
+    dirs.push(norm([d[0]*Math.cos(ah)*ch+r[0]*Math.sin(ah)*ch+u[0]*Math.sin(av),d[1]*Math.cos(ah)*ch+r[1]*Math.sin(ah)*ch+u[1]*Math.sin(av),d[2]*Math.cos(ah)*ch+r[2]*Math.sin(ah)*ch+u[2]*Math.sin(av)]))}
+  c.items.forEach(x=>{if(x===s||x.unfit)return;const b=aabb(c,x);if(shareBlocked(o,dirs,[b.min[0],b.min[1]+clear,b.min[2]],[b.max[0],b.max[1]+clear,b.max[2]],3)>=MINSHARE)out.add(isMounted(x)||x.cid==='gimbal'?'הגימבל':name(c,x))});
   segs.forEach(g=>{if(g.i===own)return;if(boxIn([g.cx-g.len/2,clear,-g.wid/2],[g.cx+g.len/2,clear+g.hei,g.wid/2]))out.add('חוליה '+(g.i+1))});
   stepsOf(c).forEach(st=>{if(st.x1>sb.min[0]-.5&&st.x0<sb.max[0]+.5&&st.z1>sb.min[2]-.5&&st.z0<sb.max[2]+.5)return;if(boxIn([st.x0,clear+st.y0,st.z0],[st.x1,clear+st.top,st.z1]))out.add('מדרגה בחוליה '+(st.i+1))});
   for(let i=0;i<(c.legs.count||0);i++){const g=legGeom(c,i);if(!g)continue;let hitL=false;[[g.hip,g.knee],[g.knee,g.foot]].forEach(([a,b])=>{for(let k=0;k<=8&&!hitL;k++){const pt=a.map((v,m)=>v+(b[m]-v)*k/8);if(inside(pt)&&(hv!==null||Math.abs(pt[1]-o[1])<=legBand(c)/2))hitL=true}});if(hitL)out.add('רגל '+(i+1))}
@@ -1497,11 +1511,11 @@ function bind2D(v){const el=v.el;
       const c=cfg(),q0=drag.pos0,m=v.mode;
       const want=m==='side'?[q0[0]+dx,q0[1]-dy,q0[2]]:m==='top'?[q0[0]+dx,q0[1],q0[2]+dy]:[q0[0],q0[1]-dy,q0[2]-dx];
       if(drag.vent){ventMove(c,want);computeTops(c);schedule();return}
-      moveItem(c,drag.it,want,m==='side'?[true,true,false]:m==='top'?[true,false,true]:[false,true,true]);
+      drag.want=want;moveItem(c,drag.it,want,m==='side'?[true,true,false]:m==='top'?[true,false,true]:[false,true,true]);
       computeTops(c);schedule()}
     else if(pan&&pan.v===v){const p=svgPt(v,ev);v.vb.x=pan.vb0.x-(p.x-pan.p0.x);v.vb.y=pan.vb0.y-(p.y-pan.p0.y);pan.vb0={...v.vb};pan.p0=svgPt(v,ev);setVB(v)}
   });
-  const endp=()=>{if(drag&&drag.moved){save();refresh()}drag=null;pan=null};
+  const endp=()=>{if(drag&&drag.moved){save();refresh();if(drag.it)blockedNote(cfg(),drag.it,drag.want)}drag=null;pan=null};
   el.addEventListener('pointerup',endp);el.addEventListener('pointercancel',endp);
   el.addEventListener('wheel',ev=>{ev.preventDefault();if(v.vb)zoom(v,ev.deltaY<0?.85:1.18,svgPt(v,ev))},{passive:false});
 }
@@ -1515,6 +1529,10 @@ const nearest=(arr,p)=>arr.reduce((m,x)=>dist2(x.pos,p)<dist2(m.pos,p)?x:m,arr[0
 function kidsOf(c,it){const out=[];DEPS.filter(d=>d.parent===it.cid).forEach(d=>{const ps=c.items.filter(i=>i.cid===d.parent&&!i.unfit);if(!ps.length)return;
   c.items.filter(i=>i.cid===d.child&&!i.auto&&(!i.locked||isMounted(i))).forEach(k=>{if(nearest(ps,k.pos)===it)out.push(k)})});return out}
 function parentOf(c,it){const d=DEPS.find(q=>q.child===it.cid);if(!d)return null;const ps=c.items.filter(i=>i.cid===d.parent&&!i.unfit);return ps.length?{p:nearest(ps,it.pos),d}:null}
+/* dropped in another segment but it stayed where it was: say why (no free room there) */
+function blockedNote(c,it,want){if(!want||!it||it.auto)return;const sg=shellOf(c),a=segAt(sg,want[0]),b=segAt(sg,P(c,it)[0]);if(a.i===b.i||Math.abs(want[0]-it.pos[0])<40||isMounted(it)||it.cid==='gimbal')return;
+  const who=[...new Set(c.items.filter(x=>x!==it&&!x.auto&&!x.unfit&&!isMounted(x)&&x.cid!=='gimbal'&&segAt(sg,x.pos[0]).i===a.i).map(x=>name(c,x)))];
+  toast('אין מקום ל'+name(c,it)+' בחוליה '+(a.i+1)+'. יושבים בה: '+who.slice(0,6).join(', ')+(who.length>6?' ועוד':'')+'. אפשר להזיז או להקטין אחד מהם, או להגדיל את החוליה.',6000)}
 function moveItem(c,it,want,free){
   const kids=kidsOf(c,it);EXCL=new Set(kids);
   let q=snapPos(c,it,want,free);
@@ -1747,8 +1765,8 @@ W3.addEventListener('pointerdown',ev=>{if(!(V.mode==='3d'||V.mode==='win')||ev.b
 W3.addEventListener('pointermove',ev=>{if(!d3||!d3.it)return;rayAt(ev);const pt=new THREE.Vector3();if(!ray.ray.intersectPlane(d3.plane,pt))return;
   const d=pt.sub(d3.p0);if(!d3.moved&&d.length()<1.5)return;if(!d3.moved){snap();d3.moved=true}
   const q=d3.pos0,c=cfg(),want=d3.vert?[q[0],q[1]+d.y,q[2]]:[q[0]+d.x,q[1],q[2]+d.z];
-  moveItem(c,d3.it,want,d3.vert?[false,true,false]:[true,false,true]);computeTops(c);schedule()});
-const end3=ev=>{if(d3&&d3.it){oc.enabled=true;if(d3.moved){save();refresh()}}else if(d3&&d3.click&&sel&&Math.hypot(ev.clientX-d3.x,ev.clientY-d3.y)<4){sel=null;renderLight()}d3=null};
+  d3.want=want;moveItem(c,d3.it,want,d3.vert?[false,true,false]:[true,false,true]);computeTops(c);schedule()});
+const end3=ev=>{if(d3&&d3.it){oc.enabled=true;if(d3.moved){save();refresh();blockedNote(cfg(),d3.it,d3.want)}}else if(d3&&d3.click&&sel&&Math.hypot(ev.clientX-d3.x,ev.clientY-d3.y)<4){sel=null;renderLight()}d3=null};
 W3.addEventListener('pointerup',end3);W3.addEventListener('pointercancel',end3);
 
 /* ---------- panels ---------- */
@@ -2068,14 +2086,14 @@ function renderStrip(){
   add.onclick=()=>{snap();S.configs.push(newConfig('קונפיגורציה '+(S.configs.length+1)));S.active=S.configs.length-1;sel=null;save();refresh(true)};st.appendChild(add);
 }
 function refresh(refit){if(refit)camSet=false;computeTops(cfg());renderCtrl();render2D(!!refit);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard();updUndo();if(LV.on)renderLab()}
-function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),2200)}
+function toast(t,ms){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),ms||2200)}
 
 function openRules(){
   const R=RU(),c=cfg(),g=cogOf(c),b=g&&cogBad(c,g),lq=legTorques(c);
   const num=(id,p,v,lab)=>'<span>'+lab+'</span><input type="number" step="any" data-r="'+id+'" data-p="'+p+'" value="'+v+'">';
   const row=(id,title,desc,extra)=>'<div class="rl"><label class="rh"><input type="checkbox" data-r="'+id+'"'+(R[id].on?' checked':'')+'><b>'+title+'</b></label><div class="m">'+desc+'</div>'+(extra?'<div class="pf">'+extra+'</div>':'')+'</div>';
   $('#mcard').innerHTML='<h2>כללי הנדסה</h2><div class="m" style="margin-bottom:6px">כל הכללים הם אזהרות עם תיקון, ולא חוסמים. כל המספרים הם ערכי ניסיון שלנו, לא מקור.</div>'+
-   row('lidar','הליידאר לא מוסתר','משטח הסריקה הוא גובה מרכז הליידאר (הזווית האנכית שלו לא ידועה). חוליה גבוהה או הגימבל לפניו מסתירים.','<span>כיוון</span><select data-r="lidar" data-p="fov"><option value="front"'+(R.lidar.fov==='front'?' selected':'')+'>קדימה בלבד (צד B)</option><option value="360"'+(R.lidar.fov==='360'?' selected':'')+'>סביב</option></select>')+
+   row('lidar','הליידאר לא מוסתר','שדה הראייה של הליידאר הוא כיפה סביב הפאה שפונה החוצה (כרטיס 03): 360° סביב הציר, ועד 4.4° אחורה מהמישור הניצב לציר. חלק נחשב מסתיר רק אם הוא חוסם לפחות 5% משדה הראייה (ערך ניסיון שלי). חלק שרק עומד לידו ולא בולט לא נחשב.')+
    (DEF.motors&&DEF.motors.joint?row('joint','כוח במפרק בין חוליות','מנוע החיבור צריך להרים את החוליה שלידו, למשל כדי לטפס על מדרגה. החישוב שלי: משקל כל רכיב בחוליה כפול המרחק שלו מהמפרק, כשהחוליה באוויר. ההשוואה היא למנוע '+DEF.motors.joint.model+': '+DEF.motors.joint.torque_rated_nm+' Nm ברציפות, '+DEF.motors.joint.torque_peak_nm+' Nm בשיא. לקליפה, לשלד ולכבלים עוד אין משקל, לכן המספר האמיתי יהיה גבוה יותר.')+'<div class="rl" style="border:0;padding-top:0"><div class="live">'+(jointLoads(c).map(L=>'מפרק '+(L.k+1)+'-'+(L.k+2)+', הרמת חוליה '+(L.seg+1)+': '+fmt(L.nm,1)+' Nm').join(' · ')||'אין חיבורים (חוליה אחת)')+'</div></div>':'')+
    row('legs','כוח במנועי הרגליים','החישוב שלי, רק עם המשקלים הידועים (בלי קליפה, כבלים ומקטעי הרגל). הליכה איטית, רגל אחת באוויר: המשקל מתחלק בין שאר הרגליים, ומנוע הברך מחזיק אותו כפול המרחק האופקי מהברך לכף הרגל. קימה מהבטן: מנוע הירך מרים כשהירך אופקית. ההשוואה היא ל-'+LM.model+': '+LM.torque_rated_nm+' ניוטון-מטר ברציפות, '+LM.torque_peak_nm+' לרגע.')+
    '<div class="rl" style="border:0;padding-top:0"><div class="live">'+(lq?'עכשיו: הליכה '+fmt(lq.walk,2)+', קימה '+fmt(lq.rise,2)+' ניוטון-מטר'+(lq.unk?'. חסר משקל ב-'+lq.unk+' רכיבים':''):'אין רגליים')+'</div></div>'+
