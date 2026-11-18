@@ -177,6 +177,20 @@ th{font-size:14px;color:var(--muted);font-weight:500}
 .app.tl .legscrim{display:block}
 .lclose{position:absolute;top:8px;inset-inline-end:10px;z-index:2}
 .app.tl .legtab{display:grid}
+.sttab{display:none;position:fixed;inset:72px 16px 16px;z-index:9;background:var(--bg);border-radius:var(--r);padding:12px;box-shadow:0 16px 60px rgba(15,20,30,.35);grid-template-columns:390px minmax(0,1fr);gap:12px;min-height:0;text-align:start}
+.app.ts .sttab{display:grid}.app.ts .legscrim{display:block}
+.sttab .lmain{display:grid;grid-template-rows:minmax(0,1fr);min-height:0}.sttab .l3,.sttab #sc3{width:100%;height:100%;min-height:360px}
+.stsub{color:var(--mu,#5b6676);font-size:13px;margin:6px 0}.stopts{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.stopts button{border:1px solid #c3cad6;background:transparent;border-radius:16px;padding:6px 12px;font:inherit;cursor:pointer}
+.stopts button.on{background:#e07a1f;border-color:#e07a1f;color:#fff}
+.stwhy{margin:8px 0;font-size:14px;line-height:1.5}.stleg{font-size:13px;line-height:1.9;margin:8px 0}.stleg span{display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:6px}
+h4{margin:14px 0 4px}.stsl{display:block;font-size:14px;margin:8px 0}.stsl input{width:100%;display:block}.stbtns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.stbtns button{border:1px solid #c3cad6;background:transparent;border-radius:16px;padding:6px 12px;font:inherit;cursor:pointer}
+.stwarn{background:#fde8e6;color:#8a1f17;border-radius:8px;padding:6px 10px;font-size:14px}.stok{background:#e5f3ea;color:#1c5a36;border-radius:8px;padding:6px 10px;font-size:14px}
+.stlist{margin:6px 0}.stg{font-weight:700;margin:10px 0 4px;font-size:14px}.stg .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:6px}
+.stit{display:block;width:100%;text-align:start;border:1px solid #d6dbe4;background:transparent;border-radius:10px;padding:6px 10px;margin:3px 0;font:inherit;cursor:pointer}.stit b{display:block;font-size:14px}.stit span{display:block;font-size:12.5px;color:#5b6676}
+.stit.on{background:#fff4cc;border-color:#f2c230}.stit.bad{border-color:#d9534f}.stit.warn{border-color:#e9965a;background:#fff3e8}.stw{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#fff3e8;border-radius:8px;padding:6px 10px;margin:4px 0;font-size:13.5px}.stw span{cursor:pointer}.stw button{border:1px solid #e9965a;background:#fff;border-radius:12px;padding:2px 10px;font:inherit;cursor:pointer;white-space:nowrap}.stsel{background:#f1f4f8;border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.6}.stsel span{color:#5b6676}.stsrc{font-size:12.5px;color:#5b6676}.stleg2{font-size:13px;color:#5b6676}
+.stlab{position:absolute;display:none;pointer-events:none;background:#1b2430;color:#fff;font-size:13px;padding:4px 8px;border-radius:6px;white-space:nowrap}
+@media (max-width:1100px){.sttab{grid-template-columns:1fr;overflow:auto;inset:72px 8px 8px}}
 .lctl{overflow:auto;padding-bottom:14px}
 .lctl select{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);min-width:0}
 .lmain{display:grid;grid-template-rows:minmax(0,1.4fr) minmax(0,1fr);gap:12px;min-height:0}
@@ -387,6 +401,7 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
   <header>
     <div class="brand">פריסת רכיבים</div>
     <md-filled-tonal-button id="legsbtn">רגליים</md-filled-tonal-button>
+    <md-filled-tonal-button id="stbtn">עמדה</md-filled-tonal-button>
     <md-filled-tonal-button id="helpbtn" aria-haspopup="dialog">עזרה</md-filled-tonal-button>
     <div class="spacer"></div>
     <div class="seg" id="viewseg"><button data-m="side" class="on">מהצד</button><button data-m="top">מלמעלה</button><button data-m="front">מלפנים</button><button data-m="3d">תלת מימד</button><button data-m="win" title="שלושה היטלים ותלת מימד, יחד">הכול יחד</button></div>
@@ -435,6 +450,11 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
       <div class="card l3"><canvas id="lc3"></canvas><div class="lst"><span>עומד</span><input type="range" id="lt" min="0" max="100" value="0" aria-label="עמידה או קיפול"><span>מקופל</span></div></div>
       <div class="card lsv"><svg id="lsvg" xmlns="http://www.w3.org/2000/svg"></svg></div>
     </div>
+  </section>
+  <div class="legscrim" id="stscrim"></div>
+  <section class="sttab" id="sttab"><md-icon-button class="lclose" id="stclose" title="סגירה" aria-label="סגירת חלון העמדה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></md-icon-button>
+    <div class="card lctl" id="sctl"></div>
+    <div class="lmain"><div class="card l3" style="position:relative"><canvas id="sc3"></canvas><div id="stlab" class="stlab"></div></div></div>
   </section>
   <div class="strip" id="strip"></div>
 </div>
@@ -1600,6 +1620,196 @@ function build3D(){
   over3D(c,clear);
   oc.update();
 }
+/* ---------- station tab: docking station, choice of the charge point on the tool, and a free layout of the station parts with placement rules ----------
+   Assumptions (mine, not decided): +x is the front of the tool, the fibre enters the tool at the rear, the receiver coil is a placeholder disc,
+   the tool rests folded on the pad (legs not drawn). Part sizes come from Rotem's form (data.json "station"); placement rules are in data.json "station.rules"
+   (same method as the tool: heat, closeness, edge, service, direction). Drag a part on the tray; a part dropped over another sits on top of it. */
+const ST={on:false,sel:null,drag:null,map:null,ex:'a0',warns:[],pl:null};
+const sren=new THREE.WebGLRenderer({canvas:$('#sc3'),antialias:true,alpha:true});sren.setPixelRatio(Math.min(devicePixelRatio,2));
+const sscene=new THREE.Scene(),scam=new THREE.PerspectiveCamera(32,1,5,20000),soc=new THREE.OrbitControls(scam,$('#sc3'));soc.enableDamping=true;
+sscene.add(new THREE.HemisphereLight(0xffffff,0x9aa3b2,1));{const d=new THREE.DirectionalLight(0xffffff,.5);d.position.set(300,600,400);sscene.add(d)}
+const sroot=new THREE.Group();sscene.add(sroot);let scamSet=false;const sparts=[];const sray=new THREE.Raycaster();
+function sresize(){const cv=$('#sc3'),r=cv.getBoundingClientRect();if(!r.width)return;sren.setSize(r.width,r.height,false);scam.aspect=r.width/Math.max(r.height,1);scam.updateProjectionMatrix()}
+new ResizeObserver(sresize).observe($('#sc3'));
+const stOpt=()=>{const c=cfg(),o=DEF.station.options;return o.find(x=>x.id===c.chargeAt)||o[0]};
+const ST_COL={power:0x5c8f78,winch:0x8695a8,compute:0xc4b48a},ST_GRP={power:'חשמל וטעינה',winch:'כננת וכבל',compute:'מחשב, רשת ומיקום'};
+const stIt=id=>DEF.station.items.find(x=>x.id===id);
+function stS(){const c=cfg();if(!c.stn)c.stn={pos:{},rot:{},y0:{},L:null,W:330,H:null,touched:false};return c.stn}
+const stFp=(i,r)=>r?[i.a,i.b]:[i.b,i.a]; // [extent along b, extent along a]
+function stAuto(o){const SD=DEF.station,W=stS().W,G=SD.tray_gap,its=SD.items.slice().sort((x,y)=>x.row-y.row);
+  const order=o.kind==='h'?[...its.filter(i=>i.row===5),...its.filter(i=>i.row!==5)]:[...its.filter(i=>i.row!==5),...its.filter(i=>i.row===5)];
+  const pos={};let a=0,b=-W/2,ra=0;
+  order.forEach(i=>{if(b+i.b>W/2+.1&&b>-W/2+.1){a+=ra+G;b=-W/2;ra=0}pos[i.id]=[a+i.a/2,b+i.b/2];b+=i.b+G;ra=Math.max(ra,i.a)});
+  return{pos,L:Math.ceil(a+ra)}}
+function stPlace(o){
+  const st=stS(),SD=DEF.station,auto=stAuto(o),pos={};
+  SD.items.forEach(i=>{const p=st.touched&&st.pos[i.id]?st.pos[i.id]:auto.pos[i.id];pos[i.id]=p.slice()});
+  const L=st.L||auto.L,fit=(i,p)=>{const [wb,wa]=stFp(i,st.rot[i.id]);p[0]=Math.min(Math.max(p[0],wa/2),L-wa/2);p[1]=Math.min(Math.max(p[1],-st.W/2+wb/2),st.W/2-wb/2)};
+  if(st.touched)SD.items.forEach(i=>fit(i,pos[i.id]));
+  const y0={};SD.items.forEach(i=>y0[i.id]=st.y0[i.id]||0);
+  SD.items.forEach(i=>{if(i.on){pos[i.id]=pos[i.on].slice();y0[i.id]=y0[i.on]+stIt(i.on).h}});
+  const H=st.H||Math.ceil(Math.max(...SD.items.filter(i=>!i.exempt&&!i.inside).map(i=>i.h))+20);
+  return{pos,L,y0,H,fit}}
+function stBoxes(pl){const st=stS();return DEF.station.items.filter(i=>!i.inside).map(i=>{const [wb,wa]=stFp(i,st.rot[i.id]),p=pl.pos[i.id],y=pl.y0[i.id];return{i,a0:p[0]-wa/2,a1:p[0]+wa/2,b0:p[1]-wb/2,b1:p[1]+wb/2,y0:y,y1:y+i.h}})}
+const stOv=(p,q,e)=>p.a1>q.a0+e&&q.a1>p.a0+e&&p.b1>q.b0+e&&q.b1>p.b0+e;
+function stBad(pl,only){const B=stBoxes(pl).filter(b=>!only||only.has(b.i.id)),bad=new Set(),st=stS();
+  for(let m=0;m<B.length;m++){const p=B[m];if(!p.i.on&&(p.a0<-.01||p.a1>pl.L+.01||p.b0<-st.W/2-.01||p.b1>st.W/2+.01)||(p.y1>pl.H+.01&&!p.i.exempt))bad.add(p.i.id);
+    for(let n=m+1;n<B.length;n++){const q=B[n];if(stOv(p,q,.5)&&p.y1>q.y0+.5&&q.y1>p.y0+.5){bad.add(p.i.id);bad.add(q.i.id)}}}
+  return bad}
+const stGap=(p,q)=>{const g=(a0,a1,b0,b1)=>Math.max(0,b0-a1,a0-b1);return Math.hypot(g(p.a0,p.a1,q.a0,q.a1),g(p.b0,p.b1,q.b0,q.b1),g(p.y0,p.y1,q.y0,q.y1))};
+const stEdgeGap=(p,k,L,W)=>k==='a0'?p.a0:k==='aL'?L-p.a1:k==='bn'?p.b0+W/2:W/2-p.b1;
+/* the placement rules, applied to the station (heat, closeness, edge, direction, free top). only = the set of parts already placed (used by the automatic arrangement) */
+function stWarn(pl,ex,only){
+  const SD=DEF.station,R=SD.rules,st=stS(),B=stBoxes(pl).filter(b=>!only||only.has(b.i.id)),by={},Wn=[],seen=new Set(),nm=id=>stIt(id).name,tol=SD.wall_tol,L=pl.L,Wd=st.W;B.forEach(b=>by[b.i.id]=b);
+  B.forEach(p=>{const id=p.i.id,r=R[id];if(!r)return;
+    if(r.heat==='sens')B.forEach(q=>{const rq=R[q.i.id];if(q!==p&&rq&&rq.heat==='src'){const g=stGap(p,q);if(g<SD.heat_d-.01)Wn.push({id,o:q.i.id,k:'heat',t:nm(id)+' קרוב מדי למקור חום, '+nm(q.i.id)+': '+Math.round(g)+' מ"מ, צריך לפחות '+SD.heat_d})}});
+    (r.near||[]).forEach(n=>{const q=by[n.id];if(!q)return;const key=[id,n.id].sort().join('|');if(seen.has(key))return;const g=stGap(p,q);if(g>n.mm+.01){seen.add(key);Wn.push({id,o:n.id,k:'near',t:nm(id)+' רחוק מ'+nm(n.id)+': '+Math.round(g)+' מ"מ, צריך עד '+n.mm+' ('+n.text+(n.inferred?', הסקה שלי':'')+')'})}});
+    if(r.wall==='exit'){const g=stEdgeGap(p,ex,L,Wd);if(g>tol+.01)Wn.push({id,k:'wall',t:nm(id)+' רחוק מקצה יציאת הסיב: '+Math.round(g)+' מ"מ, צריך עד '+tol})}
+    else if(r.wall==='edge'){const g=Math.min(...['a0','aL','bn','bp'].map(k=>stEdgeGap(p,k,L,Wd)));if(g>tol+.01)Wn.push({id,k:'wall',t:nm(id)+' לא בקצה המגש: '+Math.round(g)+' מ"מ מהקצה, צריך עד '+tol})}
+    if(r.sky||r.service){if(B.some(q=>q!==p&&stOv(p,q,.5)&&q.y0>=p.y1-.5))Wn.push({id,k:r.sky?'sky':'service',t:nm(id)+(r.sky?' מכוסה: האנטנה צריכה שמיים פתוחים':' מכוסה: צריך גישה מלמעלה לשירות')})}
+    if(r.axis){const aT=(ex==='a0'||ex==='aL'),need=r.axis==='exit'?(aT?0:1):(aT?1:0);if((st.rot[id]?1:0)!==need)Wn.push({id,k:'axis',t:nm(id)+(r.axis==='exit'?': הציר צריך להיות ניצב לכיוון יציאת הסיב.':': צריך לשכב לאורך כיוון יציאת הסיב.')+' לחצי "סובב 90°"'})}
+    if(r.clear)B.forEach(q=>{if(q===p)return;const g=stGap(p,q);if(g<r.clear-.01)Wn.push({id,o:q.i.id,k:'clear',t:nm(id)+' צריך '+r.clear+' מ"מ פנויים לאוויר; '+nm(q.i.id)+' במרחק '+Math.round(g)})});});
+  return Wn}
+function stExitKey(o,pl,W,x0,rot,ax,az,xR){ // which tray edge faces the rear end of the tool, where the fibre enters
+  const wx=(a,b)=>o.kind==='h'?[x0+a,b]:[ax+(-16-a)*Math.cos(rot)+b*Math.sin(rot),az-(-16-a)*Math.sin(rot)+b*Math.cos(rot)],L=pl.L,SW=stS().W;
+  const c=[['a0',[0,0]],['aL',[L,0]],['bn',[L/2,-SW/2]],['bp',[L/2,SW/2]]];let best='a0',bd=1e9;
+  c.forEach(([k,p])=>{const w=wx(p[0],p[1]),d=Math.hypot(w[0]-xR,w[1]);if(d<bd){bd=d;best=k}});return best}
+function stPart(par,shape,sz,pos,col,op){
+  const g=shape==='cyl'||shape==='cylv'?new THREE.CylinderGeometry(sz[0],sz[0],sz[1],28):new THREE.BoxGeometry(sz[0],sz[1],sz[2]);
+  const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:col,transparent:op<1,opacity:op}));m.position.set(pos[0],pos[1],pos[2]);
+  m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x1b2430,transparent:true,opacity:.45})));par.add(m);return m}
+function stBuild(){
+  while(sroot.children.length){const o=sroot.children.pop();o.traverse(q=>{if(q.geometry)q.geometry.dispose();if(q.material)q.material.dispose()})}
+  sparts.length=0;
+  const c=cfg(),SD=DEF.station,st=stS(),o=stOpt(),sg=shellOf(c),T=shellLen(c),W=shellWid(c),xR=-T/2,rear=sg[0],front=sg[sg.length-1],PD=SD.pad,PW=PD.w,PT=PD.h;
+  const TOOL=0x6f9bd1,COIL=0xe07a1f,PAD=0x303846,pl=stPlace(o),SW=st.W;
+  sg.forEach(s=>stPart(sroot,'box',[s.len,s.hei,s.wid],[s.cx,s.hei/2,0],TOOL,.5));
+  let coil;const CR=PD.coil_d/2;
+  if(o.id==='bf')coil=[front.cx,0,0];else if(o.id==='br')coil=[rear.cx,0,0];else if(o.id==='top')coil=[rear.cx,rear.hei,0];
+  else if(o.id==='rear')coil=[xR,rear.hei/2,0];else coil=[rear.cx,rear.hei/2,(o.id==='left'?-1:1)*W/2];
+  const disc=stPart(sroot,'cyl',[CR,6],coil,COIL,1);
+  if(o.id==='rear')disc.rotation.z=Math.PI/2;else if(o.id==='left'||o.id==='right')disc.rotation.x=Math.PI/2;
+  const Ad=Math.max(...SD.items.filter(i=>i.row===5).map(i=>i.a)),x0=xR-20-Ad,rot=o.id==='left'?-Math.PI/2:o.id==='right'?Math.PI/2:0,
+    ax=o.id==='rear'?xR:o.id==='top'?xR-30:coil[0],az=o.id==='left'?-W/2:o.id==='right'?W/2:0;
+  const ex={left:'bp',right:'bn'}[o.id]||'a0';ST.ex=ex; // the tray edge on the side of the tool's rear end (the fibre enters the tool at the rear)
+  const warns=stWarn(pl,ex),wset=new Set();warns.forEach(w=>{wset.add(w.id);if(w.o)wset.add(w.o)});ST.warns=warns;
+  const bad=stBad(pl);
+  let par,baseY,mp;
+  if(o.kind==='h'){par=sroot;const trayY=-(PT+SD.post_h+3);baseY=trayY+3;mp=(a,b)=>[x0+a,b];
+    const x1=Math.max(x0+pl.L,coil[0]+PW/2+10);stPart(sroot,'box',[x1-x0,3,SW],[(x0+x1)/2,trayY+1.5,0],0xc9d0da,1);
+    stPart(sroot,'box',[PW,PT,PW],[coil[0],-PT/2,0],PAD,1);
+    [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz])=>stPart(sroot,'box',[10,SD.post_h,10],[coil[0]+sx*(PW/2-8),-PT-SD.post_h/2,sz*(PW/2+10)],0xc9d0da,1));
+    ST.map={toTray:v=>[v.x-x0,v.z],baseY,L:pl.L,W:SW,fit:pl.fit};
+  }else{
+    const grp=new THREE.Group();sroot.add(grp);par=grp;grp.rotation.y=rot;grp.position.set(ax,0,az);baseY=3;mp=(a,b)=>[-16-a,b];
+    stPart(grp,'box',[pl.L+30,3,SW],[-(pl.L+30)/2-8,1.5,0],0xc9d0da,1);
+    if(o.id!=='top'){const py=Math.max(PW/2,coil[1]);stPart(grp,'box',[PT,PW,PW],[-PT/2,py,0],PAD,1)}
+    else{const H=Math.max(...sg.map(s=>s.hei)),by=H+14+PT;stPart(sroot,'box',[20,by,200],[xR-30,by/2,0],PAD,1);
+      const bx0=xR-30,bx1=coil[0]+PW/2;stPart(sroot,'box',[bx1-bx0,PT,PW],[(bx0+bx1)/2,H+10+PT/2,0],PAD,1)}
+    grp.updateMatrixWorld(true);
+    ST.map={toTray:v=>{const q=grp.worldToLocal(v.clone());return[-16-q.x,q.z]},baseY,L:pl.L,W:SW,fit:pl.fit};
+  }
+  SD.items.forEach(i=>{if(i.inside)return;const r=st.rot[i.id],p=pl.pos[i.id],yy=baseY+pl.y0[i.id],sel=ST.sel===i.id||(ST.sel&&i.on===ST.sel),[X,Z]=mp(p[0],p[1]);
+    const col=sel?0xf2c230:bad.has(i.id)?0xd9534f:wset.has(i.id)?0xe9965a:ST_COL[i.grp]||0xaab3c0;let m;
+    if(i.shape==='cyl'){m=stPart(par,'cyl',[i.a/2,i.b],[X,yy+i.h/2,Z],col,1);if(!r)m.rotation.x=Math.PI/2;else m.rotation.z=Math.PI/2}
+    else if(i.shape==='cylv')m=stPart(par,'cylv',[i.b/2,i.h],[X,yy+i.h/2,Z],col,1);
+    else m=stPart(par,'box',[r?i.b:i.a,i.h,r?i.a:i.b],[X,yy+i.h/2,Z],col,1);
+    m.userData.id=i.id;sparts.push(m)});
+  // envelope (orange line box) and the fibre exit edge (green bar)
+  const eh=pl.H,ec=mp(pl.L/2,0),E=stPart(par,'box',[pl.L,eh,SW],[ec[0],baseY+eh/2,0],0x000000,1);E.material.visible=false;E.children[0].material.color.set(0xe07a1f);
+  const aEdge=ex==='a0'||ex==='aL',ea=ex==='a0'?-3:ex==='aL'?pl.L+3:pl.L/2,eb=ex==='bn'?-SW/2-3:ex==='bp'?SW/2+3:0,ep=mp(ea,eb);
+  stPart(par,'box',[aEdge?5:pl.L,6,aEdge?SW:5],[ep[0],baseY+3,ep[1]],0x2e9b57,1);
+  ST.pl=pl;
+  if(!scamSet){scamSet=true;const L=Math.max(T,520)+pl.L*.5;scam.position.set(-L*1.2-pl.L*.3,L*1.1,L*1.9);soc.target.set(-pl.L*.3,0,0);soc.update()}
+}
+/* automatic arrangement and fixes: try positions on a 10 mm grid, both turns, keep the one with the fewest rule problems (nearest to the fibre exit edge on a tie) */
+function stCost(pl,ex,only,id){const w=stWarn(pl,ex,only).filter(x=>x.id===id||x.o===id).length,B=stBoxes(pl).filter(b=>only.has(b.i.id)),me=B.find(b=>b.i.id===id);let col=0;
+  B.forEach(q=>{if(q!==me&&stOv(me,q,.5)&&me.y1>q.y0+.5&&q.y1>me.y0+.5)col++});return col*1000+w*50}
+function stRelocate(id,only,pl,ex){if(stIt(id).on)id=stIt(id).on;if(stIt(id).inside)return 0;const st=stS(),it=stIt(id),L=pl.L,W=st.W,keepRot=st.rot[id],old=pl.pos[id].slice();let best=null;
+  const others=stBoxes(pl).filter(q=>only.has(q.i.id)&&q.i.id!==id&&q.i.on!==id);
+  for(const r of(it.shape==='cylv'?[0]:[0,1])){st.rot[id]=r;const [wb,wa]=stFp(it,r),C=[];
+    const stp=(DEF.station.rules[id]||{}).near&&DEF.station.rules[id].near.some(n=>n.mm<=10)?5:10;for(let a=wa/2;a<=L-wa/2+.1;a+=stp)for(let b=-W/2+wb/2;b<=W/2-wb/2+.1;b+=stp)C.push([a,b]);
+    // positions touching each placed part (1 mm gap), so close-fitting rules (5 mm) can be met
+    others.forEach(q=>{const As=[q.a0-wa/2-1,q.a1+wa/2+1],Bs=[q.b0+wb/2,q.b1-wb/2,(q.b0+q.b1)/2],Bt=[q.b0-wb/2-1,q.b1+wb/2+1],At=[q.a0+wa/2,q.a1-wa/2,(q.a0+q.a1)/2];
+      As.forEach(a=>Bs.forEach(b=>C.push([a,b])));Bt.forEach(b=>At.forEach(a=>C.push([a,b])))});
+    for(const [a,b] of C){if(a<wa/2-.01||a>L-wa/2+.01||b<-W/2+wb/2-.01||b>W/2-wb/2+.01)continue;pl.pos[id]=[a,b];pl.y0[id]=0;DEF.station.items.forEach(k=>{if(k.on===id){pl.pos[k.id]=[a,b];pl.y0[k.id]=it.h}});
+      const cost=stCost(pl,ex,only,id),ea={a0:a,aL:L-a,bn:b+W/2,bp:W/2-b}[ex]+(ex==='a0'||ex==='aL'?0:0),score=cost+ea*.002+(r!==(keepRot?1:0)?.5:0);
+      if(!best||score<best.s)best={s:score,p:[a,b],r}}}
+  if(best){pl.pos[id]=best.p;st.rot[id]=best.r;pl.y0[id]=0;DEF.station.items.forEach(k=>{if(k.on===id){pl.pos[k.id]=best.p.slice();pl.y0[k.id]=it.h}});return best.s}pl.pos[id]=old;st.rot[id]=keepRot;return 1e9}
+function stCommit(pl){const st=stS();st.touched=true;DEF.station.items.forEach(i=>{st.pos[i.id]=pl.pos[i.id].slice();st.y0[i.id]=pl.y0[i.id]});save()}
+const ST_ORDER=['drum','forj','winchmotor','jrk','pulleys','loadcell','daq','sfpadapter','computer','hub','wifi','mast','gps','battery','bms','charger','buck','magconn'];
+function stAutoArrange(){snap();const o=stOpt(),st=stS();if(!st.touched){const a=stAuto(o);st.L=a.L}st.touched=true;
+  stBuild();const pl=ST.pl,ex=ST.ex,only=new Set();st.rot={};
+  ST_ORDER.forEach(id=>{only.add(id);DEF.station.items.forEach(k=>{if(k.on===id)only.add(k.id)});let s=stRelocate(id,only,pl,ex),n=0;
+    // no spot without a problem: lengthen the tray in 20 mm steps (up to 900 mm) and try again
+    while(s>=50&&pl.L<900&&n<20){pl.L+=20;st.L=pl.L;s=stRelocate(id,only,pl,ex);n++}});
+  stCommit(pl);stRefresh();toast&&toast('סידור לפי הכללים: אורך המגש '+pl.L+' מ"מ')}
+function stFixOne(id){snap();stFreezeNow();stBuild();const pl=ST.pl,only=new Set(DEF.station.items.map(i=>i.id));stRelocate(id,only,pl,ST.ex);stCommit(pl);stRefresh()}
+function stFixAll(){snap();stFreezeNow();stBuild();const pl=ST.pl,only=new Set(DEF.station.items.map(i=>i.id));
+  for(let k=0;k<2;k++){const ids=[...new Set(stWarn(pl,ST.ex).flatMap(w=>[w.id]))];ids.forEach(id=>stRelocate(id,only,pl,ST.ex))}stCommit(pl);stRefresh()}
+function stFreezeNow(){const st=stS();if(st.touched)return;const pl=stPlace(stOpt());st.pos={};DEF.station.items.forEach(i=>st.pos[i.id]=pl.pos[i.id]);st.L=pl.L;st.touched=true}
+function stRefresh(){stBuild();stPanel()}
+function stListHtml(){const SD=DEF.station,bad=stBad(ST.pl),wset=new Set();ST.warns.forEach(w=>{wset.add(w.id);if(w.o)wset.add(w.o)});const by={};SD.items.forEach(i=>(by[i.grp]=by[i.grp]||[]).push(i));
+  return Object.keys(ST_GRP).map(g=>'<div class="stg"><span class="sw" style="background:#'+ST_COL[g].toString(16).padStart(6,'0')+'"></span>'+ST_GRP[g]+'</div>'+by[g].map(i=>'<button class="stit'+(ST.sel===i.id?' on':'')+(bad.has(i.id)?' bad':wset.has(i.id)?' warn':'')+'" data-id="'+i.id+'"><b>'+i.name+'</b><span>'+i.model+' · '+i.b+'×'+i.a+'×'+i.h+' מ"מ · '+(i.g==null?'משקל לא ידוע':i.g+' ג\'')+(i.est?' · <u>מידה חסרה, placeholder</u>':'')+(i.inside?' · <u>בתוך המחשב, לא מצויר</u>':'')+(i.on?' · <u>בראש התורן</u>':'')+'</span></button>').join('')).join('')}
+function stWarnHtml(){const W=ST.warns,bad=stBad(ST.pl);
+  return (bad.size?'<div class="stwarn">'+bad.size+' רכיבים בחפיפה או מחוץ למעטפת (אדום)</div>':'')
+   +(W.length?'<div class="stwlist">'+W.map((w,k)=>'<div class="stw"><span data-s="'+w.id+'">'+w.t+'</span><button data-f="'+w.id+'">תקני</button></div>').join('')+'</div>':'<div class="stok">'+(bad.size?'אין אזהרות כללים':'אין אזהרות ואין חפיפות')+'</div>')}
+function stSelHtml(){const id=ST.sel;if(!id)return'<div class="stsub">בחרי רכיב ברשימה או במודל כדי לראות את כללי המיקום שלו.</div>';const i=stIt(id),r=DEF.station.rules[id]||{},st=stS();
+  const aT=(ST.ex==='a0'||ST.ex==='aL'),axis=r.axis?'<div><b>מצב הכיוון עכשיו:</b> '+((st.rot[id]?1:0)===(r.axis==='exit'?(aT?0:1):(aT?1:0))?'תקין':'לא תקין, לחצי "סובב 90°"')+'.</div>':'';
+  return '<div class="stsel"><b>'+i.name+'</b> <span>'+i.model+'</span><div><b>מקום מותר:</b> '+(r.zone||'לא נקבע')+'</div>'+axis+'<div><b>כיוון:</b> '+(r.orient||'לא משנה')+'</div><div><b>למה:</b> '+(r.why||'לא נקבע: אין צורך טכני מתועד')+'</div><div class="stsrc">מקור: '+(r.source||i.source)+'</div>'+(i.est?'<div class="stsrc">מידה חסרה: '+i.source+'</div>':'')+'</div>'}
+function stPanel(){
+  const SD=DEF.station,o=stOpt(),st=stS(),pl=ST.pl||stPlace(o);
+  const tot=SD.items.reduce((s,i)=>s+(i.g||0),0),unk=SD.items.filter(i=>i.g==null).length;
+  $('#sctl').innerHTML='<h3>עמדת כניסה</h3><div class="stsub">מיקום הטעינה בכלי. העמדה משתנה לפי הבחירה.</div>'
+   +'<div class="stopts">'+SD.options.map(x=>'<button data-o="'+x.id+'" class="'+(x.id===o.id?'on':'')+'">'+x.label+'</button>').join('')+'</div>'
+   +'<div class="stwhy"><b>למה:</b> '+o.why+' <i>(הסבר שלי, לא אומת)</i></div>'
+   +'<h4>צורת העמדה</h4><div class="stsub">גרירת רכיב בתלת־מימד מזיזה אותו על המגש; ליד קצה הוא נצמד אליו כשהכלל דורש. רכיב שנגרר מעל אחר נערם עליו.</div>'
+   +'<label class="stsl">אורך המגש <output>'+pl.L+'</output> מ"מ<input type="range" id="stL" min="200" max="900" step="5" value="'+pl.L+'"></label>'
+   +'<label class="stsl">רוחב המגש <output>'+st.W+'</output> מ"מ<input type="range" id="stW" min="150" max="600" step="5" value="'+st.W+'"></label>'
+   +'<label class="stsl">גובה המעטפת <output>'+pl.H+'</output> מ"מ<input type="range" id="stH" min="40" max="400" step="5" value="'+pl.H+'"></label>'
+   +'<div class="stbtns"><button id="stAuto">סידור מומלץ לפי הכללים</button><button id="stFixAll">תקני הכול</button><button id="stRot">סובב רכיב נבחר 90°</button><button id="stReset">איפוס</button></div>'
+   +'<h4>אזהרות</h4><div class="stsub">הקו הירוק במודל = הקצה שבו הסיב יוצא לכיוון הכלי (הקצה הקרוב לקצה האחורי של הכלי).</div><div id="stwarns">'+stWarnHtml()+'</div>'
+   +'<h4>הרכיב הנבחר</h4><div id="stselbox">'+stSelHtml()+'</div>'
+   +'<h4>כל רכיבי העמדה ('+SD.items.length+')</h4><div class="stleg2">לחצי על רכיב כדי להדגיש אותו. צהוב = נבחר, כתום = אזהרת כלל, אדום = חפיפה.</div><div class="stlist" id="stlistbox">'+stListHtml()+'</div>'
+   +'<div class="stwhy"><b>לא מצוירים:</b> '+SD.not_drawn.map(n=>n.name+(n.g!=null?' ('+n.g+' ג\')':'')+' – '+n.why).join('; ')+'.</div>'
+   +'<div class="stleg"><span style="background:#6f9bd1"></span>הכלי (קופסאות לפי התצורה הפעילה, רגליים לא מצוירות)<br><span style="background:#e07a1f"></span>סליל קליטה (placeholder Ø'+SD.pad.coil_d+' מ"מ) וקו המעטפת<br><span style="background:#303846"></span>משטח טעינה '+SD.pad.w+'×'+SD.pad.w+' מ"מ (placeholder)<br><span style="background:#2e9b57"></span>קצה יציאת הסיב</div>'
+   +'<div class="stsub">'+SD.rules_note+'</div><details class="stsrcs"><summary>מקורות ('+SD.sources.length+')</summary><ol>'+SD.sources.map(s=>'<li><a href="'+s[1]+'" target="_blank" rel="noopener">'+s[0]+'</a></li>').join('')+'</ol></details>'
+   +'<div class="stsub">משקל הרכיבים המצוירים: '+(tot/1000).toFixed(2)+' ק"ג'+(unk?' (ללא '+unk+' רכיבים שמשקלם לא ידוע)':'')+'. טופס רותם כולל גם כבל סיב 0.78 ק"ג.</div>';
+  stBind();
+}
+function stBind(){const q=s=>$('#sctl').querySelectorAll(s),st=stS();
+  q('.stopts button').forEach(b=>b.onclick=()=>{snap();cfg().chargeAt=b.dataset.o;save();stRefresh()});
+  q('.stit').forEach(b=>b.onclick=()=>{ST.sel=ST.sel===b.dataset.id?null:b.dataset.id;stRefresh()});
+  q('.stw span').forEach(b=>b.onclick=()=>{ST.sel=b.dataset.s;stRefresh()});q('.stw button').forEach(b=>b.onclick=()=>stFixOne(b.dataset.f));
+  const sl=(id,fn)=>{const e=$('#'+id);e.oninput=()=>{fn(+e.value);e.parentNode.querySelector('output').textContent=e.value;stBuild();stLive()};e.onchange=()=>{save();stPanel()}};
+  sl('stL',v=>{stFreezeNow();st.L=v});sl('stW',v=>{if(!st.touched)st.L=null;st.W=v});sl('stH',v=>{st.H=v});
+  $('#stRot').onclick=()=>{if(!ST.sel)return;stFreezeNow();st.rot[ST.sel]=st.rot[ST.sel]?0:1;save();stRefresh()};
+  $('#stReset').onclick=()=>{snap();cfg().stn=null;save();stRefresh()};$('#stAuto').onclick=stAutoArrange;$('#stFixAll').onclick=stFixAll}
+function stLive(){const a=$('#stwarns'),b=$('#stselbox'),c=$('#stlistbox');if(a){a.innerHTML=stWarnHtml();b.innerHTML=stSelHtml();c.innerHTML=stListHtml();stBind()}}
+/* drag a part on the tray */
+(function(){const cv=$('#sc3'),lab=$('#stlab'),v=new THREE.Vector2();
+  const ndc=e=>{const r=cv.getBoundingClientRect();v.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));sray.setFromCamera(v,scam)};
+  const hitPart=()=>{const h=sray.intersectObjects(sparts,false)[0];return h||null};
+  cv.addEventListener('pointerdown',e=>{if(!ST.on||e.button!==0)return;ndc(e);const h=hitPart();if(!h)return;
+    let id=h.object.userData.id;if(stIt(id).on)id=stIt(id).on;ST.sel=id;stFreezeNow();const st=stS(),M=ST.map,t=M.toTray(h.point),p=st.pos[id];
+    ST.drag={id,off:[t[0]-p[0],t[1]-p[1]],y:h.point.y};soc.enabled=false;cv.setPointerCapture(e.pointerId);snap();stRefresh()});
+  cv.addEventListener('pointermove',e=>{if(!ST.on)return;ndc(e);
+    if(ST.drag){const D=ST.drag,st=stS(),M=ST.map,pn=new THREE.Plane(new THREE.Vector3(0,1,0),-D.y),pt=new THREE.Vector3();
+      if(sray.ray.intersectPlane(pn,pt)){const t=M.toTray(pt),it=stIt(D.id),r=DEF.station.rules[D.id]||{};let p=[Math.round((t[0]-D.off[0])/5)*5,Math.round((t[1]-D.off[1])/5)*5];
+        const [wb,wa]=stFp(it,st.rot[D.id]),lo=[wa/2,-M.W/2+wb/2],hi=[M.L-wa/2,M.W/2-wb/2];p[0]=Math.min(Math.max(p[0],lo[0]),hi[0]);p[1]=Math.min(Math.max(p[1],lo[1]),hi[1]);
+        if(r.wall){const ed={a0:[0,lo[0]],aL:[0,hi[0]],bn:[1,lo[1]],bp:[1,hi[1]]},ks=r.wall==='exit'?[ST.ex]:['a0','aL','bn','bp'];let bk=null,bd=25;
+          ks.forEach(k=>{const [ax,val]=ed[k],d=Math.abs(p[ax]-val);if(d<bd){bd=d;bk=k}});if(bk){const [ax,val]=ed[bk];p[ax]=val}}
+        st.pos[D.id]=p;
+        let y=0;const me={a0:p[0]-wa/2,a1:p[0]+wa/2,b0:p[1]-wb/2,b1:p[1]+wb/2};
+        stBoxes(ST.pl).forEach(q=>{if(q.i.id===D.id)return;if(stOv(me,q,.5))y=Math.max(y,q.y1)});
+        st.y0[D.id]=y;stBuild();stLive()}}
+    else{const h=hitPart();if(h){const i=stIt(h.object.userData.id);lab.textContent=i.name+' · '+i.model;lab.style.display='block';const r=cv.getBoundingClientRect();lab.style.left=(e.clientX-r.left+12)+'px';lab.style.top=(e.clientY-r.top+12)+'px'}else lab.style.display='none'}});
+  const end=e=>{if(ST.drag){ST.drag=null;soc.enabled=true;save();stPanel()}};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);cv.addEventListener('pointerleave',()=>{lab.style.display='none'});
+})();
+function showSt(on){ST.on=!!on;LV.on=false;const a=$('.app');a.classList.toggle('ts',ST.on);a.classList.remove('tl');
+  if(ST.on){scamSet=false;ST.sel=null;stBuild();stPanel();requestAnimationFrame(sresize)}else{soc.enabled=true;ST.drag=null;requestAnimationFrame(()=>{resize3();refresh(true)})}}
+$('#stbtn').addEventListener('click',()=>showSt(!ST.on));$('#stclose').addEventListener('click',()=>showSt(false));$('#stscrim').addEventListener('click',()=>showSt(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ST.on)showSt(false)});
 /* ---------- legs tab: 3D ---------- */
 const LV={t:0,on:false};
 const lcv=$('#lc3'),lren=new THREE.WebGLRenderer({canvas:lcv,antialias:true,alpha:true});lren.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -1611,7 +1821,7 @@ new ResizeObserver(lresize).observe(lcv);
 function resize3(){const r=cv.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/Math.max(r.height,1);cam.updateProjectionMatrix()}
 new ResizeObserver(()=>{resize3();render2D(false)}).observe($('#stage'));
 new ResizeObserver(resize3).observe(cv);
-(function loop(){if(LV.on){loc.update();lren.render(lscene,lcam)}else{oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
+(function loop(){if(ST.on){soc.update();sren.render(sscene,scam)}else if(LV.on){loc.update();lren.render(lscene,lcam)}else{oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
 
 /* ---------- step 4: direction of each part, view ranges, cables, 3D editing, view modes ---------- */
 const FACEV={'+x':[1,0,0],'-x':[-1,0,0],'+y':[0,1,0],'-y':[0,-1,0],'+z':[0,0,1],'-z':[0,0,-1]};
@@ -2156,7 +2366,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&LV.on&&!$('#modal')
 let PRES=false;
 function setPres(on,init){PRES=!!on;$('.app').classList.toggle('pres',PRES);$('#modelab').textContent=PRES?'מצב הצגה':'מצב תכנון';
   const sw=$('#modesw');if(sw.selected!==PRES)sw.selected=PRES;
-  if(PRES){sel=null;if(LV.on)showTab('layout')}
+  if(PRES){sel=null;if(LV.on)showTab('layout');if(ST.on)showSt(false)}
   try{localStorage.setItem('dash-mode',PRES?'pres':'plan')}catch(e){}
   if(!init){requestAnimationFrame(()=>{resize3();refresh(true)})}}
 $('#modesw').addEventListener('change',()=>setPres($('#modesw').selected));

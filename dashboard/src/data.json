@@ -4042,5 +4042,736 @@
     "note": "תמונה משער דף הנתונים של היצרן."
    }
   }
+ },
+ "station": {
+  "_note": "עמדת העגינה, לפי טופס רותם (station/rotem-station-form-2026-11-14.xlsx). מידות בקופסאות הן המידות מהטופס. b=לרוחב השורה, a=עומק, h=גובה, מ\"מ. הסידור בשורות הוא הצעה שלי, לא החלטה. verified=false.",
+  "pad": {
+   "w": 240,
+   "h": 8,
+   "coil_d": 110,
+   "note": "משטח הטעינה והסליל Ø110 הם placeholder מהסוף של השיחה 17.11, לא נבחר דגם"
+  },
+  "tray_gap": 8,
+  "post_h": 80,
+  "items": [
+   {
+    "id": "battery",
+    "name": "סוללת העמדה",
+    "model": "Molicel M65A 13S3P",
+    "b": 282.1,
+    "a": 65.1,
+    "h": 71,
+    "g": 3500,
+    "row": 1,
+    "shape": "box",
+    "grp": "power",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "bms",
+    "name": "לוח הגנה לסוללה",
+    "model": "Bisida 13S 48V 20A",
+    "b": 60,
+    "a": 34,
+    "h": 9.2,
+    "g": 46,
+    "row": 1,
+    "shape": "box",
+    "grp": "power",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "charger",
+    "name": "לוח מטען",
+    "model": "TI BQ25756EVM",
+    "b": 112,
+    "a": 84,
+    "h": 2,
+    "g": 60,
+    "row": 2,
+    "shape": "box",
+    "grp": "power",
+    "est": true,
+    "source": "מידות: מדריך TI. גובה לא ידוע, 2 מ\"מ הוא placeholder"
+   },
+   {
+    "id": "buck",
+    "name": "ממיר מתח",
+    "model": "Mean Well SKA60C-12",
+    "b": 50.8,
+    "a": 50.8,
+    "h": 10.92,
+    "g": 67,
+    "row": 2,
+    "shape": "box",
+    "grp": "power",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "magconn",
+    "name": "מחבר טעינה מגנטי (חלופה)",
+    "model": "Rosenberger RoPD C001-04",
+    "b": 25,
+    "a": 25,
+    "h": 20,
+    "g": 20,
+    "row": 2,
+    "shape": "cylv",
+    "grp": "power",
+    "est": false,
+    "source": "חור התקנה ø25×20. נשקל כחלופה לטעינה אלחוטית"
+   },
+   {
+    "id": "computer",
+    "name": "מחשב העמדה",
+    "model": "Radxa AIRbox Q900",
+    "b": 104,
+    "a": 84,
+    "h": 45,
+    "g": 450,
+    "row": 3,
+    "shape": "box",
+    "grp": "compute",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "sfpadapter",
+    "name": "מתאם רשת לסיב",
+    "model": "StarTech US1GC30SFP",
+    "b": 65,
+    "a": 55,
+    "h": 20,
+    "g": 48,
+    "row": 3,
+    "shape": "box",
+    "grp": "compute",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "hub",
+    "name": "מפצל USB",
+    "model": "StarTech ST4300MINU3B",
+    "b": 80,
+    "a": 36,
+    "h": 14,
+    "g": 38,
+    "row": 3,
+    "shape": "box",
+    "grp": "compute",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "wifi",
+    "name": "מתאם Wi-Fi",
+    "model": "Tylogy TYMT7921UC",
+    "b": 64.7,
+    "a": 20.9,
+    "h": 11.4,
+    "g": 45,
+    "row": 3,
+    "shape": "box",
+    "grp": "compute",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "modem",
+    "name": "מודם סלולרי",
+    "model": "Quectel EG25-GL",
+    "b": 51,
+    "a": 30,
+    "h": 4.9,
+    "g": 10.5,
+    "row": 4,
+    "shape": "box",
+    "grp": "compute",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11",
+    "inside": "computer"
+   },
+   {
+    "id": "gps",
+    "name": "מקלט GPS",
+    "model": "SparkFun ZED-X20P",
+    "b": 43.2,
+    "a": 43.2,
+    "h": 5,
+    "g": 10,
+    "row": 4,
+    "shape": "box",
+    "grp": "compute",
+    "est": true,
+    "source": "גובה לא ידוע, 5 מ\"מ הוא placeholder"
+   },
+   {
+    "id": "gpsant",
+    "name": "אנטנת GPS",
+    "model": "ArduSimple AS-ANT3B",
+    "b": 30,
+    "a": 30,
+    "h": 43.5,
+    "g": 26,
+    "row": 4,
+    "shape": "cylv",
+    "grp": "compute",
+    "est": true,
+    "source": "קוטר לא ידוע, ø30 הוא placeholder. גובה 43.5",
+    "on": "mast",
+    "exempt": true
+   },
+   {
+    "id": "mast",
+    "name": "תורן אנטנה (פתוח)",
+    "model": "תכנון שלנו, פחמן",
+    "b": 12,
+    "a": 12,
+    "h": 300,
+    "g": 20,
+    "row": 4,
+    "shape": "cylv",
+    "grp": "compute",
+    "est": false,
+    "source": "טופס רותם: ø12×300, מתקפל להעברה. מוצג פתוח (זקוף)",
+    "exempt": true
+   },
+   {
+    "id": "drum",
+    "name": "תוף הכננת",
+    "model": "תכנון שלנו, PETG",
+    "b": 70,
+    "a": 165,
+    "h": 165,
+    "g": 200,
+    "row": 5,
+    "shape": "cyl",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "winchmotor",
+    "name": "מנוע הכננת",
+    "model": "Pololu 37D 50:1 #4753",
+    "b": 70,
+    "a": 37,
+    "h": 37,
+    "g": 205,
+    "row": 5,
+    "shape": "cyl",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "jrk",
+    "name": "בקר מנוע הכננת",
+    "model": "Pololu Jrk G2 21v3",
+    "b": 30.5,
+    "a": 25.4,
+    "h": 7.6,
+    "g": 4.5,
+    "row": 5,
+    "shape": "box",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "loadcell",
+    "name": "תא עומס (חיישן מתיחה)",
+    "model": "Phidgets CZL635",
+    "b": 55.25,
+    "a": 12.7,
+    "h": 12.7,
+    "g": 20,
+    "row": 5,
+    "shape": "box",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "daq",
+    "name": "לוח קריאה לחיישן מתיחה",
+    "model": "Phidgets DAQ1500",
+    "b": 45,
+    "a": 45,
+    "h": 16,
+    "g": 12,
+    "row": 5,
+    "shape": "box",
+    "grp": "winch",
+    "est": false,
+    "source": "טופס עמדה של רותם 14.11"
+   },
+   {
+    "id": "pulleys",
+    "name": "3 גלגלות לחיישן המתיחה",
+    "model": "דגם לא נבחר",
+    "b": 20,
+    "a": 20,
+    "h": 10,
+    "g": 30,
+    "row": 5,
+    "shape": "box",
+    "grp": "winch",
+    "est": true,
+    "source": "דגם ומידות לא נבחרו; הקובייה היא placeholder אחת לשלוש"
+   },
+   {
+    "id": "forj",
+    "name": "מחבר סיבים מסתובב",
+    "model": "SPINNER FORJ 1.14",
+    "b": 40,
+    "a": 14,
+    "h": 14,
+    "g": 20,
+    "row": 5,
+    "shape": "cyl",
+    "grp": "winch",
+    "est": false,
+    "source": "ø14, אורך 40 מהפריסה (אורך מדויק לא ידוע)"
+   }
+  ],
+  "not_drawn": [
+   {
+    "name": "כבל סיב אופטי 300 מ'",
+    "g": 780,
+    "why": "גלול על התוף, לא נפרד. אורך 300 מ' מול 200 מ' בכננת: לא הוחלט"
+   },
+   {
+    "name": "חבל נושא Dyneema 3 מ\"מ, 200 מ'",
+    "g": 1000,
+    "why": "לא בטופס של רותם. כ-5 גרם למטר. נקשר לעוגן, לא לעמדה"
+   },
+   {
+    "name": "מוביל כבל (level wind)",
+    "g": null,
+    "why": "חסר בטופס. בלעדיו הסיב לא יילפף אחיד על התוף (ראו כלל התוף)"
+   }
+  ],
+  "options": [
+   {
+    "id": "bf",
+    "label": "בטן המקטע הקדמי",
+    "kind": "h",
+    "why": "הכלי רק מתיישב על המשטח, בלי תנועה נוספת. הסליל מוגן מפגיעות. חסרון: אבק מהרצפה על הסליל."
+   },
+   {
+    "id": "br",
+    "label": "בטן המקטע האחורי",
+    "kind": "h",
+    "why": "כמו הקודם, אבל הסליל קרוב לקצה שבו נכנס הסיב, והכננת באותו צד. הסליל רחוק מהחיישנים בקדמת הכלי."
+   },
+   {
+    "id": "top",
+    "label": "גב המקטע האחורי",
+    "kind": "t",
+    "why": "הסליל רחוק מאבק. הכלי חייב להיכנס מתחת לזרוע של העמדה, ולכן צריך גובה פנוי. בקדמת הגב יושבים הלידאר והגימבל, לכן בחרתי את המקטע האחורי."
+   },
+   {
+    "id": "rear",
+    "label": "הקצה האחורי",
+    "kind": "v",
+    "why": "הכלי נסוג אל לוח אנכי, כמו הסתלקות מהכננת. חסרון: הסיב נכנס לכלי באותו קצה, וצריך לעבור לצד הסליל."
+   },
+   {
+    "id": "left",
+    "label": "צד שמאל",
+    "kind": "v",
+    "why": "אפשרי. חסרון: הצדדים תפוסים ברגליים, והסליל מרחיב את הכלי, מה שמזיק במעבר צר. הכלי צריך לעגון לקיר אנכי."
+   },
+   {
+    "id": "right",
+    "label": "צד ימין",
+    "kind": "v",
+    "why": "כמו צד שמאל."
+   }
+  ],
+  "heat_d": 30,
+  "wall_tol": 10,
+  "rules_note": "כללי מיקום וכיוון לכל רכיב, מתוך מקורות היצרנים (רשימה למטה). מרחקי הקרבה המסומנים 'הסקה שלי' הם אורכי כבלים סבירים, לא מספר של יצרן. מרחק החום 30 מ\"מ הוא הערך הניסיוני של הכלי.",
+  "rules": {
+   "battery": {
+    "heat": "sens",
+    "service": true,
+    "near": [
+     {
+      "id": "bms",
+      "mm": 100,
+      "text": "לוח ההגנה מחובר לתאים בחוטים קצרים",
+      "inferred": true
+     }
+    ],
+    "why": "39 תאי 21700 (13S3P) עומדים (גובה החבילה 71 מ\"מ = אורך תא), כך שפתחי הפליטה של התאים פונים למעלה ולמטה. פתח פליטה צריך לפנות לתעלה פתוחה ולא לאלקטרוניקה, ולכן אין רכיבים מעל הסוללה. טעינת התאים מותרת רק בין 0 ל-60 מעלות (בחבילות מוכנות: עד 45), לכן רחוק ממקורות חום.",
+    "zone": "בלי שום רכיב מעליה. לפחות 30 מ\"מ ממחשב, מטען, ממיר, בקר ומנוע.",
+    "orient": "תאים עומדים; הצד העליון פתוח.",
+    "source": "Molicel M65A (טמפרטורה, אתרי מפיצים); Dan Energy / Epec (כיוון פליטה); מרחק 30 מ\"מ: ערך ניסיוני מהכלי"
+   },
+   "bms": {
+    "heat": "sens",
+    "near": [
+     {
+      "id": "battery",
+      "mm": 100,
+      "text": "כולל חיישן חום שמודבק לתאים",
+      "inferred": false
+     }
+    ],
+    "why": "לוח ההגנה כולל חיישן חום של התאים, ולכן צמוד לסוללה.",
+    "zone": "עד 100 מ\"מ מהסוללה; רחוק ממקורות חום.",
+    "orient": "לא משנה.",
+    "source": "טופס רותם שורה 17 (Bisida, חיישן חום)"
+   },
+   "charger": {
+    "heat": "src",
+    "near": [
+     {
+      "id": "battery",
+      "mm": 200,
+      "text": "זרם טעינה עד 10 אמפר",
+      "inferred": true
+     }
+    ],
+    "why": "לפי TI הלוח מתחמם מאוד: מעל 100 וואט צריך ניטור חום; בזרם 10 אמפר הסליל והטרנזיסטורים מתחממים בכ-40 מעלות. יש רכיבים גם בצד התחתון, לכן מתקינים על עמודונים ולא צמוד למשטח.",
+    "zone": "עד 200 מ\"מ מהסוללה, אבל לפחות 30 מ\"מ ממנה.",
+    "orient": "שטוח, על עמודונים, הצד העליון פתוח לאוויר.",
+    "source": "TI SLUUCT7 (מדריך BQ25756EVM); פורום TI E2E 1549269"
+   },
+   "buck": {
+    "heat": "src",
+    "near": [
+     {
+      "id": "computer",
+      "mm": 200,
+      "text": "מזין 12 וולט למחשב",
+      "inferred": true
+     }
+    ],
+    "why": "ממיר 60 וואט שמתקרר באוויר חופשי (בלי צלע קירור) עד 70 מעלות. מולחם ללוח (Through Hole), לכן צריך לוח נושא.",
+    "zone": "עד 200 מ\"מ מהמחשב; לפחות 30 מ\"מ מהסוללה.",
+    "orient": "שטוח על לוח נושא, עם אוויר מעליו.",
+    "source": "Mean Well SKA60 (מפיצים: bravoelectro, RS)"
+   },
+   "computer": {
+    "heat": "src",
+    "service": true,
+    "clear": 10,
+    "near": [
+     {
+      "id": "sfpadapter",
+      "mm": 150,
+      "text": "מתאם הסיב מחובר ב-USB",
+      "inferred": false
+     },
+     {
+      "id": "hub",
+      "mm": 150,
+      "text": "המפצל מחובר ב-USB",
+      "inferred": true
+     }
+    ],
+    "why": "מארז אלומיניום 104×84×45 עם מאוורר מובנה; עובד עד 60 מעלות. היצרן לא מפרסם איפה פתחי האוויר, ולכן החלטתי (החלטה הנדסית שלי) להשאיר 10 מ\"מ פנויים מכל הצדדים. המודם נכנס לחריץ Mini PCIe שבתוכו.",
+    "zone": "10 מ\"מ פנויים סביבו; לפחות 30 מ\"מ מהסוללה.",
+    "orient": "שטוח (45 מ\"מ גובה).",
+    "source": "Radxa docs (מאוורר, Mini PCIe); Electronics Lab (טמפרטורה)"
+   },
+   "sfpadapter": {
+    "near": [
+     {
+      "id": "forj",
+      "mm": 150,
+      "text": "הסיב עובר מהמחבר המסתובב למתאם",
+      "inferred": true
+     },
+     {
+      "id": "computer",
+      "mm": 150,
+      "text": "מחובר למחשב ב-USB-C",
+      "inferred": false
+     }
+    ],
+    "why": "ממיר USB-C לשקע SFP. הסיב נכנס בשקע ה-SFP, שצריך לפנות אל המחבר המסתובב כדי שהסיב לא יתכופף חד.",
+    "zone": "בין המחבר המסתובב למחשב.",
+    "orient": "שקע ה-SFP פונה לכיוון התוף.",
+    "source": "StarTech US1GC30SFP (דפי מפיצים); טופס רותם"
+   },
+   "hub": {
+    "near": [
+     {
+      "id": "computer",
+      "mm": 150,
+      "text": "USB",
+      "inferred": true
+     }
+    ],
+    "why": "מפצל USB למחשב.",
+    "zone": "קרוב למחשב.",
+    "orient": "לא משנה.",
+    "source": "טופס רותם שורה 22"
+   },
+   "wifi": {
+    "wall": "edge",
+    "near": [
+     {
+      "id": "hub",
+      "mm": 150,
+      "text": "נכנס ל-USB",
+      "inferred": true
+     }
+    ],
+    "why": "לדגם הזה יש אנטנה פנימית (2dBi), בלי אנטנה חיצונית. לכן הוא צריך לשבת בקצה, רחוק ממתכת ומרכיבים אחרים.",
+    "zone": "בקצה המגש, עד 10 מ\"מ מהקצה.",
+    "orient": "לא משנה (אנטנה פנימית).",
+    "source": "Tylogy (דף המוצר, אנטנה פנימית)"
+   },
+   "modem": {
+    "why": "המודם נכנס לחריץ Mini PCIe שבתוך המחשב, ולכן לא מצויר בנפרד.",
+    "zone": "בתוך המחשב.",
+    "orient": "בתוך המחשב.",
+    "source": "Radxa AIRbox Q900 (Mini PCIe ל-4G/5G); טופס רותם שורה 20"
+   },
+   "gps": {
+    "heat": "sens",
+    "near": [],
+    "why": "ArduSimple: לוח ה-RTK צריך להיות בקופסה בלי מאוורר, כי זרימת אוויר פוגעת בביצועים. לכן לפחות 30 מ\"מ מהמחשב (שיש בו מאוורר) וממקורות חום. הוא מחובר לאנטנה בכבל קואקסיאלי, ולכן אין צורך שיהיה צמוד לתורן.",
+    "zone": "לפחות 30 מ\"מ מהמחשב וממקורות חום.",
+    "orient": "שטוח.",
+    "source": "ArduSimple GNSS antenna installation guide"
+   },
+   "gpsant": {
+    "sky": true,
+    "why": "האנטנה צריכה לראות את כל השמיים. משטח האנטנה צריך להיות מקביל לאופק (פונה למעלה). לכן היא בראש התורן הזקוף, ושום דבר לא מעליה.",
+    "zone": "בראש התורן.",
+    "orient": "זקופה, פונה לשמיים.",
+    "source": "ArduSimple GNSS antenna installation guide"
+   },
+   "mast": {
+    "wall": "edge",
+    "why": "התורן מרים את האנטנה מעל העמדה. מוצג פתוח (זקוף). בהעברה הוא מתקפל.",
+    "zone": "בקצה המגש, כדי שלא יסתיר רכיבים.",
+    "orient": "זקוף כשהעמדה עובדת.",
+    "source": "טופס רותם שורה 13"
+   },
+   "drum": {
+    "axis": "exit",
+    "near": [
+     {
+      "id": "forj",
+      "mm": 5,
+      "text": "המחבר המסתובב יושב על הדופן החיצונית של התוף, על הציר",
+      "inferred": false
+     },
+     {
+      "id": "winchmotor",
+      "mm": 5,
+      "text": "המנוע על אותו ציר, מהצד השני",
+      "inferred": true
+     }
+    ],
+    "why": "הסיב יוצא מהתוף בקו ישר לכיוון הכלי, ולכן ציר התוף ניצב לכיוון היציאה. כדי שהסיב יילפף אחיד בלי מנגנון מוביל, המרחק מהתוף לגלגלת הראשונה צריך להיות 16-19 פעמים רוחב התוף (כ-1.1-1.3 מ'). אין מקום כזה בעמדה, לכן צריך מוביל כבל (level wind) שזז לרוחב התוף. הוא חסר בטופס.",
+    "zone": "ציר ניצב לקו הירוק.",
+    "orient": "ציר אופקי, ניצב לכיוון היציאה.",
+    "source": "Hercules (זווית הסטה 1.5-2 מעלות); KHL; מאמר URI Fiber Optic Reel System (par.nsf.gov)"
+   },
+   "winchmotor": {
+    "heat": "src",
+    "axis": "exit",
+    "near": [
+     {
+      "id": "drum",
+      "mm": 5,
+      "text": "על ציר התוף",
+      "inferred": true
+     },
+     {
+      "id": "jrk",
+      "mm": 100,
+      "text": "חוטי המנוע לבקר",
+      "inferred": true
+     }
+    ],
+    "why": "מנוע ממוסגר בפנים (6 ברגי M3). Pololu מזהירה שעצירה בעומס מחממת את הליפופים תוך שניות.",
+    "zone": "צמוד לדופן התוף, על אותו ציר.",
+    "orient": "ציר אופקי, באותו כיוון כמו התוף.",
+    "source": "Pololu #4753"
+   },
+   "jrk": {
+    "heat": "src",
+    "near": [
+     {
+      "id": "winchmotor",
+      "mm": 100,
+      "text": "חוטי המנוע",
+      "inferred": true
+     }
+    ],
+    "why": "עד 2.6 אמפר רציף בלי צלע קירור. Pololu ממליצה על זרימת אוויר יותר מצלע.",
+    "zone": "עד 100 מ\"מ מהמנוע; לא ליד הסוללה.",
+    "orient": "שטוח, צד הרכיבים פתוח לאוויר.",
+    "source": "Pololu Jrk G2 21v3"
+   },
+   "forj": {
+    "axis": "exit",
+    "near": [
+     {
+      "id": "drum",
+      "mm": 5,
+      "text": "על הדופן החיצונית של התוף",
+      "inferred": false
+     },
+     {
+      "id": "sfpadapter",
+      "mm": 150,
+      "text": "הסיב הקבוע יוצא אל המתאם",
+      "inferred": true
+     }
+    ],
+    "why": "המחבר המסתובב מחבר בין הסיב שמסתובב עם התוף לסיב הקבוע. הוא יושב על ציר התוף, בדופן החיצונית, והגוף שלו מחובר למסגרת שלא מסתובבת.",
+    "zone": "על ציר התוף, בצד הנגדי למנוע.",
+    "orient": "באותו ציר כמו התוף.",
+    "source": "מאמר URI Fiber Optic Reel System; פטנט US5078466; SPINNER"
+   },
+   "pulleys": {
+    "wall": "exit",
+    "near": [
+     {
+      "id": "loadcell",
+      "mm": 5,
+      "text": "הגלגלת האמצעית לוחצת על תא העומס",
+      "inferred": false
+     }
+    ],
+    "why": "הסיב עובר בין 3 גלגלות לפני שהוא יוצא. האמצעית לוחצת על תא העומס, וכך נמדדת המתיחה. הן בקצה היציאה.",
+    "zone": "בקצה יציאת הסיב (הקו הירוק).",
+    "orient": "בקו ישר עם כיוון היציאה.",
+    "source": "טופס רותם שורות 5-7; מאמר URI (חיישן מתיחה בדרך החוצה)"
+   },
+   "loadcell": {
+    "axis": "along",
+    "near": [
+     {
+      "id": "pulleys",
+      "mm": 5,
+      "text": "הגלגלת האמצעית יושבת על הקצה החופשי",
+      "inferred": false
+     },
+     {
+      "id": "daq",
+      "mm": 100,
+      "text": "חוטי התא (550 מ\"מ) ללוח הקריאה",
+      "inferred": true
+     }
+    ],
+    "why": "תא עומס מסוג קורת גזירה: מבריגים את הקצה עם החוטים למסגרת, והכוח נכנס בקצה השני בכיוון החץ. לכן הוא שוכב לאורך כיוון הסיב, והגלגלת האמצעית על קצהו החופשי.",
+    "zone": "צמוד לגלגלות.",
+    "orient": "לאורך כיוון היציאה; הכוח מאונך לו.",
+    "source": "Phidgets Load Cell Guide; דף הנתונים 3133"
+   },
+   "daq": {
+    "near": [
+     {
+      "id": "loadcell",
+      "mm": 100,
+      "text": "חוטי התא",
+      "inferred": true
+     }
+    ],
+    "why": "קורא את תא העומס.",
+    "zone": "עד 100 מ\"מ מהתא.",
+    "orient": "לא משנה.",
+    "source": "טופס רותם שורה 6"
+   },
+   "magconn": {
+    "why": "מחבר מגנטי של Rosenberger נצמד לבד, בלי כוח. הוא נכנס בחור של 25 מ\"מ בדופן, ופונה החוצה אל הכלי. מקומו המדויק תלוי במיקום המשטח, ולכן אין לו כלל במגש.",
+    "zone": "בדופן שפונה אל הכלי (לא במגש).",
+    "orient": "פונה החוצה, אל הכלי.",
+    "source": "Rosenberger RoPD (עלון 2016, מקור ישן)"
+   }
+  },
+  "sources": [
+   [
+    "ArduSimple, GNSS antenna installation guide",
+    "https://www.ardusimple.com/gps-gnss-antenna-installation-guide/"
+   ],
+   [
+    "Radxa, AIRbox Q900 fan",
+    "https://docs.radxa.com/en/fogwise/airbox-q900/hardware-design/fan"
+   ],
+   [
+    "Radxa, AIRbox Q900 product page",
+    "https://radxa.com/products/fogwise/airbox-q900"
+   ],
+   [
+    "Electronics Lab, AIRbox Q900",
+    "https://www.electronics-lab.com/radxa-fogwise-airbox-q900-industrial-edge-ai-box-with-200-tops-power/"
+   ],
+   [
+    "Pololu #4753",
+    "https://www.pololu.com/product/4753"
+   ],
+   [
+    "Pololu Jrk G2 21v3",
+    "https://www.pololu.com/product/3143/specs"
+   ],
+   [
+    "Phidgets Load Cell Guide",
+    "https://phidgets.com/docs/Load_Cell_Guide"
+   ],
+   [
+    "Phidgets 3133 datasheet",
+    "https://cdn.robotshop.com/media/p/phi/rb-phi-118/pdf/datasheet-3133.pdf"
+   ],
+   [
+    "TI BQ25756EVM user guide SLUUCT7",
+    "https://www.ti.com/lit/pdf/sluuct7"
+   ],
+   [
+    "TI E2E, BQ25756 heating at 10 A",
+    "https://e2e.ti.com/support/power-management-group/power-management/f/power-management-forum/1549269/bq25756-heating-problems-with-48v-input-and-10s-lithium-ion-battery-charging-at-10a"
+   ],
+   [
+    "Mean Well SKA60C-12 (Bravo Electro)",
+    "https://www.bravoelectro.com/ska60c-12.html"
+   ],
+   [
+    "Tylogy TYMT7921UC",
+    "https://www.tylogy.com/?p=4927"
+   ],
+   [
+    "StarTech US1GC30SFP",
+    "https://www.digikey.com/en/products/detail/startech-com/US1GC30SFP/25697594"
+   ],
+   [
+    "Hercules, fleet angle analysis",
+    "https://www.herculeslifting.com/blogs/news/fleet-angle-analysis-winching-wire-rope-spooling"
+   ],
+   [
+    "KHL, fleet angles",
+    "https://www.khl.com/1082343.article"
+   ],
+   [
+    "URI Fiber Optic Reel System",
+    "https://par.nsf.gov/servlets/purl/10627194"
+   ],
+   [
+    "Molicel M65A (18650battery.com)",
+    "https://18650battery.com/products/molicel-m65a-21700-6500mah-26a-battery"
+   ],
+   [
+    "Dan Energy, thermal runaway",
+    "https://www.danenergy.com/blog-posts/thermal-management-mitigating-thermal-runaway"
+   ],
+   [
+    "Rosenberger RoPD flyer 2016",
+    "https://www.mouser.com/datasheet/2/704/AUTO_RoPD_Flyer_2016-1114354.pdf"
+   ]
+  ]
  }
 }
