@@ -954,7 +954,9 @@ function legPose(c,i,t){const h=hipItem(c,i);if(!h)return null;
 const legGeom=(c,i,st)=>legPose(c,i,(st||c.legs.stance)==='fold'?1:0);
 function autoPos(c,it){
   const segs=shellOf(c);
-  if(it.auto==='joint'){const a=segs[it.gap],b=segs[it.gap+1];if(!a||!b)return[0,0,0];return[(a.cx+a.len/2+b.cx-b.len/2)/2,c.shell.dyn?ext(it)[1]/2:Math.min(a.hei,b.hei)/2,0]}
+  if(it.auto==='joint'){const a=segs[it.gap],b=segs[it.gap+1];if(!a||!b)return[0,0,0];const ym=c.shell.dyn?baseDims(it)[0]/2:Math.min(a.hei,b.hei)/2;
+    /* cardan: both axes cross at (gap centre, ym, 0). Tilt motor (axis across the width) sits on that axis to one side; turn motor (vertical axis) sits on its axis above it. */
+    return[(a.cx+a.len/2+b.cx-b.len/2)/2,it.jax?ym+baseDims(it)[0]/2+baseDims(it)[1]/2:ym,it.jax?0:-(baseDims(it)[1]/2+12)]}
   if(it.auto==='knee'){const g=legGeom(c,it.leg);if(!g)return[0,0,0];return[g.knee[0],g.knee[1]-clearance(c),g.knee[2]]}
   return it.pos;
 }
@@ -1165,11 +1167,11 @@ function syncMotors(c){
     if(!it){it=newItem('legmotor',{role:'hip'});c.items.push(it)}
     if(it.npair!==g.k)it.manual=false;used.add(it);delete it.k;Object.assign(it,{cid:'legmotor',leg:k,seg:g.s,pair:g.j,npair:g.k,side:g.side,rot:[1,0,0]})});
   old.forEach(h=>{if(!used.has(h))c.items.splice(c.items.indexOf(h),1)});
-  const want={knee:legs.length,joint:c.shell.n-1};
+  const want={knee:legs.length,joint:(c.shell.n-1)*2};  /* 19.11 (Sharon, agreed with Rotem): cardan joint = 2 motors per gap, tilt (axis across the width) + turn (vertical axis), axes cross at one point */
   ['knee','joint'].forEach(r=>{const cid=r==='joint'?'jmotor':'legmotor';let m=c.items.filter(i=>i.role===r);
     while(m.length<want[r]){const it=newItem(cid,{role:r,auto:r});c.items.push(it);m.push(it)}
     while(m.length>want[r]){const x=m.pop();c.items.splice(c.items.indexOf(x),1)}
-    m.forEach((it,k)=>{it.cid=cid;it.auto=r;if(r==='knee'){it.leg=k;it.rot=[1,0,0]}else{it.gap=k;it.rot=[0,0,1]}})});
+    m.forEach((it,k)=>{it.cid=cid;it.auto=r;if(r==='knee'){it.leg=k;it.rot=[1,0,0]}else{it.gap=k>>1;it.jax=k&1;it.rot=it.jax?[0,0,0]:[1,0,0]}})});
 }
 const PRIO=['battery','lidar','gimbal','doccam','doclight','computer','safety','backup','navcam','thermal','radar','cliff','imu','drivelight','irled','amber','estop','buzzer','o2','co2','legmotor'];
 function ruleFor(c,it){
@@ -1300,7 +1302,7 @@ function layout(c){
       else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2,0]}
       return}
     if(isMounted(it)){const g=gim();if(g){const gp=g.pos,gi=c.items.filter(x=>x.cid===it.cid&&isMounted(x)).indexOf(it);
-      const off=ext(it)[0]/2+1;it.pos=[gp[0]+(gi?off:-off),gp[1],gp[2]]  /* side by side, touching (was fixed 17 mm for the 32 mm body; 16.11 the size with enclosure is 38) */;it.rot=[0,0,0];return}}
+      it.rot=[0,1,0];const off=ext(it)[2]/2+1;it.pos=[gp[0],gp[1],gp[2]+(gi?off:-off)]  /* 19.11 (Sharon): lenses look forward (along the tool), the two cameras side by side across it, touching (38 each with enclosure) */;return}}
     // hip motors: both motors of a pair at the same spot (left and right walls), so the two legs are symmetric
     if(it.role==='hip'){const sg=segs[segIdx(c,it.seg)],zz=s=>s*(sg.wid/2-e[2]/2),mate=c.items.find(o=>o!==it&&o.role==='hip'&&o.seg===it.seg&&o.pair===it.pair),both=mate&&rest.includes(mate);
       const ax=[],ay=[],L0=sg.cx-sg.len/2+e[0]/2,L1=sg.cx+sg.len/2-e[0]/2,Y0=e[1]/2,Y1=sg.hei-e[1]/2;for(let v=L0;v<=L1+.01;v+=5)ax.push(v);ax.push(L1);for(let v=Y0;v<=Y1+.01;v+=5)ay.push(v);ay.push(Y1);
