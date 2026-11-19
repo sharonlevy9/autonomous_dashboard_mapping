@@ -528,6 +528,35 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
 #ctrl .ctl.wide .seg button{min-width:36px;padding:6px 10px}
 #ctrl .ctl.col{grid-template-columns:1fr}
 #ctrl .hgt{display:none}#ctrl.notes .hgt{display:flex}
+
+/* ---- fit the whole dashboard in one screen, no page scroll (panels scroll inside themselves) ---- */
+.minbox{stroke:var(--t-ok)}svg text[fill="#2e7d54"]{fill:var(--t-ok)}svg [stroke="#2e7d54"]{stroke:var(--t-ok)}
+#freebtn{margin-inline-start:6px;white-space:nowrap}#freebtn.on{background:var(--t-primary);color:var(--t-on-primary)}
+@media (min-width:1101px){
+  html,body{height:100%;overflow:hidden}
+  .app,.app.pres{height:100vh;min-height:0;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;padding:0 14px 8px}
+  header{min-height:0;flex-wrap:nowrap;padding:4px 12px;margin-top:6px;gap:8px}
+  header .brand{font-size:17px}
+  header .seg button{min-height:32px;padding:4px 12px;font-size:14px;min-width:0}
+  header md-filled-tonal-button{--md-filled-tonal-button-container-height:34px}
+  header .hgrp{gap:2px;flex-wrap:nowrap}
+  header .ibtn{width:36px;height:36px}
+  .modesw{font-size:14px;margin-inline-end:2px}
+  main>.editor{padding:108px 316px 8px 396px}
+  .stats{top:8px;inset-inline:8px;padding:4px 18px}
+  .stat{padding-inline-end:22px}
+  .stat .k{font-size:13px}.stat .v{font-size:28px}.stat .v small{font-size:13px}.stat .s{font-size:11.5px}
+  .list,.side{top:108px;bottom:8px}.list{width:290px}.side{width:370px}
+  .checks,.vopts{padding:6px 12px;margin-top:6px;gap:6px}
+  .checks .chip{min-height:30px;padding:2px 10px;font-size:13px}
+  .vopts{font-size:13px}.vopts .seg button,.vopts .pill{min-height:30px;padding:2px 10px;font-size:13px}
+  .stage{margin:6px 8px 0;min-height:0}
+  .pop{min-height:0;padding:8px 14px;margin-top:6px;margin-bottom:0}
+  .strip{padding:4px 8px;height:84px;overflow:hidden;align-items:center}.cfg{width:150px;height:72px}.cfg svg{max-height:40px}.cfg .t{font-size:13px}
+  .m3{height:230px}
+  .row{min-height:38px;padding:4px 10px;font-size:15px}
+}
+@media (min-width:1101px) and (max-width:1320px){main>.editor{padding:108px 276px 8px 346px}.list{width:250px}.side{width:320px}}
 </style>
 </head>
 <body>
@@ -573,7 +602,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     </section>
     <div class="side">
       <section class="card m3"><div class="cardh">איך זה נראה במרחב</div><div id="w3"><canvas id="c3"></canvas><div class="hint3">גרירת רכיב: לאורך ולרוחב. Shift + גרירה: למעלה ולמטה. גרירת הרקע: סיבוב. גלגלת: זום. כפתור ימני: הזזת המבט.</div></div>
-        <div class="st"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button></div></section>
+        <div class="st"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button></div></section>
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
@@ -3022,6 +3051,9 @@ function drawView(c,mode,opt){
         if(per||last)o+=hs(s.cx+s.len/2,side?-(clear+s.hei/2):0,'len',s.i,'ew-resize','גרירה לשינוי אורך');
         if(side&&!c.shell.dyn&&(per||first))o+=hs(s.cx,-(clear+s.hei),'hei',s.i,'ns-resize','גרירה לשינוי גובה');
         if(!side&&(per||first))o+=hs(s.cx,-s.wid/2,'wid',s.i,'ns-resize','גרירה לשינוי רוחב')})}}
+  if(!opt.mini&&V.minBox&&(side||mode==='top')){V.minBox.segs.forEach(q=>{const x=q.cx-q.len/2,y=side?-(clear+q.hei):-q.wid/2,h=side?q.hei:q.wid;
+    o+='<rect class="minbox" pointer-events="none" x="'+x+'" y="'+y+'" width="'+q.len+'" height="'+h+'" rx="6" fill="none" stroke="#2e7d54" stroke-width="2.5" stroke-dasharray="7 6"/>'});
+    const q0=V.minBox.segs[0];o+='<text pointer-events="none" x="'+(q0.cx-q0.len/2)+'" y="'+((side?-(clear+q0.hei):-q0.wid/2)-8)+'" font-size="15" fill="#2e7d54" font-weight="700">מינימום אפשרי</text>'}
   if(!opt.mini)o+=over2D(c,mode,clear);
   if(!opt.mini)o+=dimsSVG(c,mode,segs,clear,{...b},grow);
   return{svg:o,b};
@@ -3092,7 +3124,8 @@ function bind2D(v){const el=v.el;
     const hh=ev.target.closest('.hnd');
     if(hh&&!PRES){const c0=cfg(),s0=c0.shell,i=+hh.dataset.seg,k=hh.dataset.h,q=perOn(c0)?s0.segs[i]:null;
       const v0=k==='len'?(q?q.len:s0.total):k==='hei'?(q?q.hei:s0.hei):(q?q.wid:s0.wid);
-      drag={v,hnd:{k,i,q,v0},p0:svgPt(v,ev),moved:false};el.setPointerCapture(ev.pointerId);ev.preventDefault();return}
+      let mb=null;try{const m=JSON.parse(JSON.stringify(c0));fitShell(m,true);mb={m,segs:shellOf(m)}}catch(e){}
+      V.minBox=mb;drag={v,hnd:{k,i,q,v0,mb},p0:svgPt(v,ev),moved:false};el.setPointerCapture(ev.pointerId);ev.preventDefault();return}
     const vg=ev.target.closest('.vent'),c0=cfg();
     if(vg&&c0.vent&&!PRES){sel='vent';drag={v,vent:true,p0:svgPt(v,ev),pos0:c0.vent.pos.slice(),moved:false,locked:c0.vent.locked};el.setPointerCapture(ev.pointerId);renderLight();return}
     const g=ev.target.closest('.it');
@@ -3107,6 +3140,7 @@ function bind2D(v){const el=v.el;
       const c=cfg(),s=c.shell,{k,q,i,v0}=drag.hnd;
       let nv=k==='len'?v0+2*dx:k==='hei'?v0-dy:v0-2*dy;
       const lim=k==='len'?(q?[40,800]:[100,1400]):k==='hei'?[20,400]:[30,PASSW];nv=Math.round(Math.max(lim[0],Math.min(lim[1],nv))/5)*5;
+      {const mb=drag.hnd.mb;if(mb){const ms=mb.m.shell,mq=q?ms.segs[i]:null,mn=k==='len'?(mq?mq.len:ms.total):k==='hei'?(mq?mq.hei:ms.hei):(mq?mq.wid:ms.wid);if(mn&&Math.abs(nv-mn)<=10&&mn>=lim[0])nv=mn}}
       if(k==='len'){if(q)q.len=nv;else s.total=nv}else if(k==='hei'){if(q)q.hei=nv;else s.hei=nv}else{if(q)q.wid=nv;else s.wid=nv}
       syncTotal(c);layout(c);V.hint={k:k==='len'&&!q?'total':k,seg:q?i:undefined};schedule();return}
     if(drag&&drag.v===v){const p=svgPt(v,ev),dx=p.x-drag.p0.x,dy=p.y-drag.p0.y;
@@ -3120,8 +3154,8 @@ function bind2D(v){const el=v.el;
       computeTops(c);schedule()}
     else if(pan&&pan.v===v){const p=svgPt(v,ev);v.vb.x=pan.vb0.x-(p.x-pan.p0.x);v.vb.y=pan.vb0.y-(p.y-pan.p0.y);pan.vb0={...v.vb};pan.p0=svgPt(v,ev);setVB(v)}
   });
-  const endp=()=>{if(drag&&drag.hnd){const m=drag.moved;drag=null;pan=null;V.hint=null;if(m){layout(cfg());save();refresh(false)}else render2D(false);return}
-    if(drag&&drag.moved){save();refresh();if(drag.it)blockedNote(cfg(),drag.it,drag.want)}drag=null;pan=null};
+  const endp=()=>{if(drag&&drag.hnd){const m=drag.moved;drag=null;pan=null;V.hint=null;V.minBox=null;if(m){layout(cfg());save();refresh(false)}else render2D(false);return}
+    if(drag&&drag.moved){save();refresh();if(drag.it&&!V.free)blockedNote(cfg(),drag.it,drag.want)}drag=null;pan=null};
   el.addEventListener('pointerup',endp);el.addEventListener('pointercancel',endp);
   el.addEventListener('wheel',ev=>{ev.preventDefault();if(v.vb)zoom(v,ev.deltaY<0?.85:1.18,svgPt(v,ev))},{passive:false});
 }
@@ -3139,7 +3173,11 @@ function parentOf(c,it){const d=DEPS.find(q=>q.child===it.cid);if(!d)return null
 function blockedNote(c,it,want){if(!want||!it||it.auto)return;const sg=shellOf(c),a=segAt(sg,want[0]),b=segAt(sg,P(c,it)[0]);if(a.i===b.i||Math.abs(want[0]-it.pos[0])<40||isMounted(it)||it.cid==='gimbal')return;
   const who=[...new Set(c.items.filter(x=>x!==it&&!x.auto&&!x.unfit&&!isMounted(x)&&x.cid!=='gimbal'&&segAt(sg,x.pos[0]).i===a.i).map(x=>name(c,x)))];
   toast('אין מקום ל'+name(c,it)+' בחוליה '+(a.i+1)+'. יושבים בה: '+who.slice(0,6).join(', ')+(who.length>6?' ועוד':'')+'. אפשר להזיז או להקטין אחד מהם, או להגדיל את החוליה.',6000)}
+/* "free" mode: the part goes exactly where it is dragged, no snapping or blocking. Warnings still show. */
+function freeMove(c,it,want,mask){const q=it.pos.slice();[0,1,2].forEach(k=>{if(mask[k])q[k]=Math.round(want[k]*10)/10});
+  const d=[0,1,2].map(k=>q[k]-it.pos[k]);it.pos=q;it.manual=true;kidsOf(c,it).forEach(k=>{k.manual=true;k.pos=k.pos.map((v,i)=>Math.round((v+d[i])*10)/10)})}
 function moveItem(c,it,want,free){
+  if(V.free&&free&&free.length===3&&typeof free[0]==='boolean'){freeMove(c,it,want,free);return}
   const kids=kidsOf(c,it);EXCL=new Set(kids);
   let q=snapPos(c,it,want,free);
   if(!q||dist2(q,want)>1600){const q3=snapPos(c,it,want,[true,true,true]);if(q3&&(!q||dist2(q3,want)<dist2(q,want)))q=q3}
@@ -3879,6 +3917,7 @@ function renderCtrl(){
   el.insertAdjacentHTML('beforeend','<div class="note">סידור אופטימלי: בודק את המקומות שבכרטיסים ועוד הרבה סידורים חוקיים, ובוחר את הטוב ביותר. הסדר שלי: קודם בלי רכיבים שלא נכנסים, אחר כך הכי מעט אזהרות, אחר כך מרכז כובד קרוב לאמצע ונמוך, ואחר כך כבלים קצרים. אם הכלי קטן מדי, נפתח חלון עם דרכים להגדיל אותו.<br>סידור מחדש: בכל לחיצה סידור חוקי אחר, בלי יותר אזהרות מעכשיו. זזים רק רכיבים שהכרטיס לא קובע להם כיוון או קצה (מחשב, בקר בטיחות, סוללות, IMU, חיישני אוויר, נורה, כפתור, זמזם, לוחות). רכיבים נעולים לא זזים בשני הכפתורים.</div>');
   document.querySelectorAll('#stance button').forEach(b=>b.classList.toggle('on',b.dataset.s===c.legs.stance));
 }
+$('#freebtn').onclick=e=>{V.free=!V.free;e.currentTarget.setAttribute('aria-pressed',V.free?'true':'false');e.currentTarget.classList.toggle('on',V.free);toast(V.free?'מצב חופשי: אין הצמדה וחסימה':'חזרה להצמדה')};
 $('#walkbtn').onclick=()=>{const c=cfg();
   if(WALK.on){walkStop();return}
   if(!c.legs.count){toast('אין רגליים בקונפיגורציה');return}
