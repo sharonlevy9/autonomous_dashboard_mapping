@@ -590,6 +590,10 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
 .side .pill{font-size:13px;min-height:32px;padding:4px 12px}.side .pill.sm,#ctrl .cardh .pill.sm{font-size:12px;min-height:24px}
 .side .l,.side .val,.side .nums td{font-size:13px}.side bdi.ltr{font-size:12.5px}.side .note,.side .hint3{font-size:12.5px}.side .ibtn{font-size:16px}.side .fields input{font-size:13px;padding:4px 8px}
 .side input[type=number],.side input[type=text]{font-size:16px;min-height:0}#ctrl input.num,.side input.num{font-size:15px!important;height:32px!important;min-height:0!important;width:68px!important;padding:2px 8px!important}.side .fields{font-size:12.5px}
+/* collapse menus (19.11, Sharon): hide the lists/panels to leave the whole area for moving parts */
+.app.c-list .list{display:none}.app.c-side .side,.app.c-side .rail{display:none}.app.c-top .stats,.app.c-top .checks,.app.c-top .vopts{display:none}.app.c-strip .strip{display:none}
+#colseg{flex:none}#colseg button{font-size:13px;min-height:30px;padding:3px 10px;white-space:nowrap}
+@media (min-width:1101px){.app.c-list main>.editor{padding-right:12px!important}.app.c-side main>.editor{padding-left:12px!important}.app.c-top main>.editor{padding-top:12px!important}}
 </style>
 </head>
 <body>
@@ -599,6 +603,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     <md-filled-tonal-button id="legsbtn">רגליים</md-filled-tonal-button>
     <md-filled-tonal-button id="stbtn">עמדה</md-filled-tonal-button>
     <md-filled-tonal-button id="helpbtn" aria-haspopup="dialog">עזרה</md-filled-tonal-button>
+    <div class="seg small" id="colseg" title="הצגה והסתרה של תפריטים, כדי שיישאר מקום להזזת הרכיבים"><button type="button" id="colall">הסתר הכול</button><button type="button" data-c="list" class="on">רשימה</button><button type="button" data-c="side" class="on">בקרות</button><button type="button" data-c="top" class="on">בדיקות</button><button type="button" data-c="strip" class="on">תחתון</button></div>
     <div class="spacer"></div>
     <div class="seg" id="viewseg"><button data-m="side" class="on">מהצד</button><button data-m="top">מלמעלה</button><button data-m="front">מלפנים</button><button data-m="3d">תלת מימד</button><button data-m="win" title="שלושה היטלים ותלת מימד, יחד">הכול יחד</button></div>
     <div class="spacer"></div>
@@ -4089,8 +4094,8 @@ function renderCtrl(){
   const hL=mk('rsz rsz-v'),hS=mk('rsz rsz-v'),wh=document.getElementById('w3'),hH=document.createElement('div');hH.className='rsz-h';hH.title=hL.title;wh.appendChild(hH);
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),cards=()=>[...side.children].filter(c=>c.classList.contains('card'));
   let splits=[];const roc=new ResizeObserver(()=>apply()),seen=new Set();
-  function apply(){const on=desk();[hL,hS].forEach(h=>h.style.display=on?'block':'none');
-    const cs=cards();cs.forEach(c=>{if(!seen.has(c)){seen.add(c);roc.observe(c)}});while(splits.length<cs.length-1)splits.push(mk('rsz-hz'));splits.forEach((d,i)=>d.style.display=on&&i<cs.length-1?'block':'none');
+  function apply(){const on=desk();[hL,hS].forEach(h=>h.style.display=on?'block':'none');if(on){hL.style.display=list.offsetParent?'block':'none';hS.style.display=side.offsetParent?'block':'none'}
+    const cs=cards();cs.forEach(c=>{if(!seen.has(c)){seen.add(c);roc.observe(c)}});while(splits.length<cs.length-1)splits.push(mk('rsz-hz'));splits.forEach((d,i)=>d.style.display=on&&i<cs.length-1&&side.offsetParent?'block':'none');
     cs.forEach((c,i)=>{const h=on&&RS.ch&&RS.ch[i];c.style.height=h?h+'px':'';c.style.flex=h?'none':'';c.style.overflowY=h?'auto':'';c.classList.toggle('fixh',!!h)});
     if(!on){list.style.width=side.style.width='';ed.style.paddingLeft=ed.style.paddingRight='';return}
     list.style.width=RS.list?clamp(RS.list,200,560)+'px':'';side.style.width=RS.side?clamp(RS.side,260,700)+'px':'';
@@ -4115,6 +4120,15 @@ function renderCtrl(){
   document.body.addEventListener('dblclick',e=>{const d=e.target.closest&&e.target.closest('.rsz-hz');if(d){delete RS.ch;save();apply()}},true);
   new ResizeObserver(apply).observe(document.body);new ResizeObserver(apply).observe(side);addEventListener('resize',apply);setTimeout(apply,300);setTimeout(apply,1500);
   window.__panelSizesApply=apply})();
+/* ---- collapse menus ---- */
+(function(){const app=document.querySelector('.app'),seg=document.getElementById('colseg');if(!app||!seg)return;const KEY='terra-collapsed',names=['list','side','top','strip'];
+  let C={};try{C=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
+  function paint(){names.forEach(n=>{app.classList.toggle('c-'+n,!!C[n]);const b=seg.querySelector('[data-c="'+n+'"]');if(b)b.classList.toggle('on',!C[n])});
+    const all=names.every(n=>C[n]);document.getElementById('colall').textContent=all?'הצג הכול':'הסתר הכול';try{localStorage.setItem(KEY,JSON.stringify(C))}catch(e){}
+    requestAnimationFrame(()=>{try{window.__panelSizesApply&&window.__panelSizesApply()}catch(e){}window.dispatchEvent(new Event('resize'));setTimeout(()=>{try{window.__panelSizesApply&&window.__panelSizesApply()}catch(e){}window.dispatchEvent(new Event('resize'))},250)})}
+  seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='colall'){const all=names.every(n=>C[n]);names.forEach(n=>C[n]=!all)}else if(b.dataset.c)C[b.dataset.c]=!C[b.dataset.c];paint()});
+  paint()})();
+
 document.querySelectorAll('#frameTg button').forEach(b=>b.onclick=()=>{V.frame=b.dataset.f==='1';document.querySelectorAll('#frameTg button').forEach(x=>x.classList.toggle('on',x===b));schedule()});
 $('#freebtn').onclick=e=>{V.free=!V.free;e.currentTarget.setAttribute('aria-pressed',V.free?'true':'false');e.currentTarget.classList.toggle('on',V.free);toast(V.free?'מצב חופשי: אין הצמדה וחסימה':'חזרה להצמדה')};
 $('#walkbtn').onclick=()=>{const c=cfg();
