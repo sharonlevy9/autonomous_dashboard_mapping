@@ -647,7 +647,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     </section>
     <div class="side">
       <section class="card m3"><div class="cardh">איך זה נראה במרחב</div><div id="w3"><canvas id="c3"></canvas><div class="hint3">גרירת רכיב: לאורך ולרוחב. Shift + גרירה: למעלה ולמטה. גרירת הרקע: סיבוב. גלגלת: זום. כפתור ימני: הזזת המבט.</div></div>
-        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><details style="padding:0 14px 10px;font-size:13px;color:var(--muted)"><summary style="cursor:pointer">מידות ומשקל השלד</summary><div id="frameInfo"></div></details></section>
+        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><button class="pill" id="fabbtn" type="button" aria-pressed="false" title="מעטפת שקופה שנמתחת על הרכיבים כמו בד, ומשתנה בכל הזזה">מעטפת שקופה</button><button class="pill" id="svcbtn" type="button" aria-pressed="false" title="הסוללה, המחשב ובקר הבטיחות יוצאים בכיוון ההוצאה שלהם">הוצאה לתחזוקה</button><button class="pill" id="seebtn" type="button" title="כמה הגימבל מסתיר מכל חיישן, וזווית תאורות התיעוד">ראייה ותאורה</button><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><details style="padding:0 14px 10px;font-size:13px;color:var(--muted)"><summary style="cursor:pointer">מידות ומשקל השלד</summary><div id="frameInfo"></div></details></section>
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
@@ -802,6 +802,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
 <script type="application/json" id="meshes">__MESHES__</script>
 <script>__THREE__</script>
 <script>__ORBIT__</script>
+<script>__HULL__</script>
 <script>__MW__</script>
 <script>
 (function(){
@@ -809,10 +810,13 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
 const $=s=>document.querySelector(s);
 const DEF=JSON.parse($('#data-default').textContent);
 const GAP=DEF.segment_defaults.gap, LG=DEF.legs;
+/* 19.11 (Sharon): the gap between segments can differ per configuration (the cardan joint needs about 92 mm, the example in the joint file). Default = data.json */
+const gapOf=c=>(c&&c.shell&&typeof c.shell.gap==='number')?c.shell.gap:GAP;
 const GROUPS={computing:['#59687f'],sensing:['#2f5d8c'],imaging:['#6c86ab'],motion:['#8b919c'],power:['#16263f'],light:['#a9b3c2'],air:['#4c7a8c'],safety:['#b0603f']};
 /* TERRA: component group colours follow the theme (dark/light) from the design-system accent colours. Look only. */
-const TPAL={dark:{computing:'#A3A49A',sensing:'#5C9AD6',imaging:'#8CC5D8',motion:'#C9A275',power:'#9A8F62',light:'#E8D5AE',air:'#A3AB7E',safety:'#D9785A'},
-  light:{computing:'#85867B',sensing:'#2863A3',imaging:'#1F6F8B',motion:'#9C6439',power:'#655C3C',light:'#A98B55',air:'#6E7650',safety:'#A35036'}};
+/* 19.11 (Sharon): groups must contrast more with each other: one clearly different hue per group, motors stay neutral grey so the parts stand out. */
+const TPAL={dark:{computing:'#B07CE8',sensing:'#4C9BFF',imaging:'#3FD0D9',motion:'#7E8794',power:'#F2C230',light:'#F5F0E1',air:'#5FC46A',safety:'#FF5A3C'},
+  light:{computing:'#7A3FC4',sensing:'#1F6FE0',imaging:'#0F9AA6',motion:'#6B7280',power:'#C99700',light:'#A88A3D',air:'#2E9A44',safety:'#E0401F'}};
 window.__terraPaint=t=>{const P=TPAL[t==='light'?'light':'dark'];Object.keys(P).forEach(k=>{if(GROUPS[k])GROUPS[k][0]=P[k]})};
 window.__terraPaint(document.documentElement.getAttribute('data-theme'));
 const STORE='layout-dashboard-v3';
@@ -839,10 +843,10 @@ const MAST=150,MINTOP=20;
    shell.rS / rT = corner radius seen from the side / from above (0 = square). Nothing here is on by default. */
 const PASSW=500;
 function perOn(c){const s=c.shell;return!!s.per&&Array.isArray(s.segs)&&s.segs.length===s.n}
-function segSpec(c){const s=c.shell,n=s.n;if(perOn(c))return s.segs;const len=(s.total-GAP*(n-1))/n;return Array.from({length:n},()=>({len,wid:s.wid,hei:s.hei}))}
-function shellOf(c){const s=c.shell,n=s.n,sp=segSpec(c),dyn=!!s.dyn&&c.tops&&c.tops.length===n,T=sp.reduce((a,q)=>a+q.len,0)+GAP*(n-1),out=[];let x=-T/2;
-  sp.forEach((q,i)=>{out.push({i,cx:x+q.len/2,len:q.len,wid:q.wid,hei:dyn?c.tops[i]:q.hei,hmax:q.hei});x+=q.len+GAP});return out}
-const shellLen=c=>segSpec(c).reduce((a,q)=>a+q.len,0)+GAP*(c.shell.n-1);
+function segSpec(c){const s=c.shell,n=s.n;if(perOn(c))return s.segs;const len=(s.total-gapOf(c)*(n-1))/n;return Array.from({length:n},()=>({len,wid:s.wid,hei:s.hei}))}
+function shellOf(c){const s=c.shell,n=s.n,sp=segSpec(c),dyn=!!s.dyn&&c.tops&&c.tops.length===n,T=sp.reduce((a,q)=>a+q.len,0)+gapOf(c)*(n-1),out=[];let x=-T/2;
+  sp.forEach((q,i)=>{out.push({i,cx:x+q.len/2,len:q.len,wid:q.wid,hei:dyn?c.tops[i]:q.hei,hmax:q.hei});x+=q.len+gapOf(c)});return out}
+const shellLen=c=>segSpec(c).reduce((a,q)=>a+q.len,0)+gapOf(c)*(c.shell.n-1);
 const shellWid=c=>Math.max(...segSpec(c).map(q=>q.wid));
 const shellHei=c=>Math.max(...segSpec(c).map(q=>q.hei));
 /* keep the summary numbers (total/wid/hei) in step with the separate segments */
@@ -954,11 +958,16 @@ function legPose(c,i,t){const h=hipItem(c,i);if(!h)return null;
 const legGeom=(c,i,st)=>legPose(c,i,(st||c.legs.stance)==='fold'?1:0);
 function autoPos(c,it){
   const segs=shellOf(c);
-  if(it.auto==='joint'){const a=segs[it.gap],b=segs[it.gap+1];if(!a||!b)return[0,0,0];return[(a.cx+a.len/2+b.cx-b.len/2)/2,c.shell.dyn?ext(it)[1]/2:Math.min(a.hei,b.hei)/2,0]}
+  if(it.auto==='joint'){const a=segs[it.gap],b=segs[it.gap+1];if(!a||!b)return[0,0,0];const ym=jointY(c,it.gap);
+    /* cardan, option B of joint-options-2026-11-18 (19.11): both axes cross at (gap centre, ym, 0). Turn motor (vertical axis) on the top fork, 74 mm above the centre;
+       tilt motor (axis across the width) 76 mm to the side, it turns with the cross. */
+    return[(a.cx+a.len/2+b.cx-b.len/2)/2,it.jax?ym+74:ym,it.jax?0:Math.min(76,Math.min(a.wid,b.wid)/2-19)]}
   if(it.auto==='knee'){const g=legGeom(c,it.leg);if(!g)return[0,0,0];return[g.knee[0],g.knee[1]-clearance(c),g.knee[2]]}
   return it.pos;
 }
 const P=(c,it)=>it.auto?autoPos(c,it):it.pos;
+/* height of the joint axes between segment g and g+1: the spine height = the hip motors' height in the two segments (19.11 simulation: spine at hip height). No hips: half the lower segment */
+function jointY(c,g){const hs=c.items.filter(i=>i.role==='hip'&&!i.unfit&&(i.seg===g||i.seg===g+1));if(hs.length)return hs.reduce((a,h)=>a+h.pos[1],0)/hs.length;const sg=shellOf(c);return Math.min(sg[g].hei,sg[g+1].hei)/2}
 function aabb(c,it,p){p=p||P(c,it);const e=ext(it);return{min:[p[0]-e[0]/2,p[1]-e[1]/2,p[2]-e[2]/2],max:[p[0]+e[0]/2,p[1]+e[1]/2,p[2]+e[2]/2]}}
 function hit(a,b){const q=.01;for(let k=0;k<3;k++)if(a.max[k]<=b.min[k]+q||b.max[k]<=a.min[k]+q)return false;return true}
 const isMounted=it=>cat[it.cid].mount==='gimbal';
@@ -1019,13 +1028,8 @@ function wallOK(c,it,p){
   if(w==='bottom')return false;
   return b.min[2]<=-s.wid/2+t||b.max[2]>=s.wid/2-t||b.max[1]>=s.hei-t||(s.i===0&&b.min[0]<=L+t)||(s.i===segs.length-1&&b.max[0]>=Rr-t);
 }
-function svcOK(c,it,p){
-  const b=aabb(c,it,p),big=3000,others=c.items.filter(x=>x!==it&&!x.unfit&&x.auto!=='knee'&&!isMounted(x)).map(x=>({o:aabb(c,x),ext:isExternal(x)}));
-  return[{k:2,s:1},{k:2,s:-1},{k:1,s:1}].some(d=>{
-    const r={min:b.min.slice(),max:b.max.slice()};
-    if(d.s>0){r.min[d.k]=b.max[d.k];r.max[d.k]=big}else{r.max[d.k]=b.min[d.k];r.min[d.k]=-big}
-    return!others.some(x=>(d.k===1||!x.ext)&&hit(r,x.o));
-  });
+function svcOK(c,it,p){ /* 19.11: removal by the side, up, or (new) out of the rear/front end; a chosen direction (it.svc, quick-service parts) must itself be free */
+  const old=it.pos;if(p&&!it.auto)it.pos=p;try{if(it.svc&&SVCD[it.svc])return svcFree(c,it,it.svc);return['+z','-z','+y','-x','+x'].some(k=>svcFree(c,it,k))}finally{it.pos=old}
 }
 /* ray helpers: a part blocks a sensor only if it covers at least MINSHARE of the sensor's field of view (my test value, 5%) */
 const MINSHARE=.05;
@@ -1118,6 +1122,7 @@ function powerOf(c){const R=RU().batt,tw=totalWeight(c),t=totals(c),M={walk:{p:0
    No vertical angle in the card: only the plane at the sensor height is checked, like the lidar. Documentation cameras turn with the gimbal: not checked. */
 const SEE_IDS=['radar','navcam','thermal','cliff'];
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+let SHR_LAST={};
 function sensorBlockers(c,s,q){const old=s.pos;if(q)s.pos=q;try{
   const clear=clearance(c),F=faceOf(c,s,clear),fv=cat[s.cid].fov||{};if(!F||!fv.h_deg)return[];
   const d=F.d,up=Math.abs(d[1])>.9?[1,0,0]:[0,1,0],r=norm(cross(d,up)),u=cross(r,d),hh=fv.h_deg/2*Math.PI/180,hv=fv.v_deg?fv.v_deg/2*Math.PI/180:null,o=F.o;
@@ -1129,7 +1134,7 @@ function sensorBlockers(c,s,q){const old=s.pos;if(q)s.pos=q;try{
   const out=new Set(),segs=shellOf(c),own=segAt(segs,P(c,s)[0]).i,sb=aabb(c,s);
   const dirs=[],NH=15,NV=hv===null?1:5;for(let i=0;i<NH;i++)for(let j=0;j<NV;j++){const ah=-hh+2*hh*(i+.5)/NH,av=hv===null?0:-hv+2*hv*(j+.5)/NV,ch=Math.cos(av);
     dirs.push(norm([d[0]*Math.cos(ah)*ch+r[0]*Math.sin(ah)*ch+u[0]*Math.sin(av),d[1]*Math.cos(ah)*ch+r[1]*Math.sin(ah)*ch+u[1]*Math.sin(av),d[2]*Math.cos(ah)*ch+r[2]*Math.sin(ah)*ch+u[2]*Math.sin(av)]))}
-  c.items.forEach(x=>{if(x===s||x.unfit)return;const b=aabb(c,x);if(shareBlocked(o,dirs,[b.min[0],b.min[1]+clear,b.min[2]],[b.max[0],b.max[1]+clear,b.max[2]],3)>=MINSHARE)out.add(isMounted(x)||x.cid==='gimbal'?'הגימבל':name(c,x))});
+  const shr={};c.items.forEach(x=>{if(x===s||x.unfit)return;const b=aabb(c,x),sh=shareBlocked(o,dirs,[b.min[0],b.min[1]+clear,b.min[2]],[b.max[0],b.max[1]+clear,b.max[2]],3);if(sh>=MINSHARE){const lb=isMounted(x)||x.cid==='gimbal'?'הגימבל':name(c,x);out.add(lb);shr[lb]=Math.max(shr[lb]||0,sh)}});SHR_LAST=shr;
   segs.forEach(g=>{if(g.i===own)return;if(boxIn([g.cx-g.len/2,clear,-g.wid/2],[g.cx+g.len/2,clear+g.hei,g.wid/2]))out.add('חוליה '+(g.i+1))});
   stepsOf(c).forEach(st=>{if(st.x1>sb.min[0]-.5&&st.x0<sb.max[0]+.5&&st.z1>sb.min[2]-.5&&st.z0<sb.max[2]+.5)return;if(boxIn([st.x0,clear+st.y0,st.z0],[st.x1,clear+st.top,st.z1]))out.add('מדרגה בחוליה '+(st.i+1))});
   for(let i=0;i<(c.legs.count||0);i++){const g=legGeom(c,i);if(!g)continue;let hitL=false;[[g.hip,g.knee],[g.knee,g.foot]].forEach(([a,b])=>{for(let k=0;k<=8&&!hitL;k++){const pt=a.map((v,m)=>v+(b[m]-v)*k/8);if(inside(pt)&&(hv!==null||Math.abs(pt[1]-o[1])<=legBand(c)/2))hitL=true}});if(hitL)out.add('רגל '+(i+1))}
@@ -1140,7 +1145,7 @@ function seesOthersOK(c,i,q){const old=i.pos,nm=name(c,i);i.pos=q;try{const l=c.
 function seeInfo(c){const rows=[];c.items.filter(i=>!i.unfit&&(SEE_IDS.includes(i.cid)||i.cid==='doccam'||i.cid==='lidar')).forEach(it=>{const fv=cat[it.cid].fov||{};let st,ang;
   if(it.cid==='lidar'){ang='360° סביב הציר';st=lidarBlockers(c,it).length?'מוסתר':'פנוי'}
   else if(it.cid==='doccam'){ang=fv.diag_deg?fv.diag_deg+'° (לא ידוע אם אלכסון או רוחב)':'לא יודע';st='לא נבדק: מסתובבת עם הגימבל'}
-  else{ang=(fv.h_deg?fv.h_deg+'° לרוחב':'רוחב: לא יודע')+', '+(fv.v_deg?fv.v_deg+'° לגובה':'לגובה: לא יודע (נבדק רק בגובה החיישן)');const b=sensorBlockers(c,it);st=b.length?'מוסתר: '+b.join(', '):'פנוי'}
+  else{ang=(fv.h_deg?fv.h_deg+'° לרוחב':'רוחב: לא יודע')+', '+(fv.v_deg?fv.v_deg+'° לגובה':'לגובה: לא יודע (נבדק רק בגובה החיישן)');const b=sensorBlockers(c,it),sh=SHR_LAST;st=b.length?'מוסתר: '+b.map(x=>sh[x]?x+' (כ-'+Math.round(sh[x]*100)+'% מהשדה)':x).join(', '):'פנוי'}
   rows.push([name(c,it),ang,st,fv.source||''])});return rows}
 function totals(c){
   let w=0,wu=0,p=0,pu=0,cap=0,vol=0;
@@ -1165,11 +1170,11 @@ function syncMotors(c){
     if(!it){it=newItem('legmotor',{role:'hip'});c.items.push(it)}
     if(it.npair!==g.k)it.manual=false;used.add(it);delete it.k;Object.assign(it,{cid:'legmotor',leg:k,seg:g.s,pair:g.j,npair:g.k,side:g.side,rot:[1,0,0]})});
   old.forEach(h=>{if(!used.has(h))c.items.splice(c.items.indexOf(h),1)});
-  const want={knee:legs.length,joint:c.shell.n-1};
+  const want={knee:legs.length,joint:(c.shell.n-1)*2};  /* 19.11 (Sharon, agreed with Rotem): cardan joint = 2 motors per gap, tilt (axis across the width) + turn (vertical axis), axes cross at one point */
   ['knee','joint'].forEach(r=>{const cid=r==='joint'?'jmotor':'legmotor';let m=c.items.filter(i=>i.role===r);
     while(m.length<want[r]){const it=newItem(cid,{role:r,auto:r});c.items.push(it);m.push(it)}
     while(m.length>want[r]){const x=m.pop();c.items.splice(c.items.indexOf(x),1)}
-    m.forEach((it,k)=>{it.cid=cid;it.auto=r;if(r==='knee'){it.leg=k;it.rot=[1,0,0]}else{it.gap=k;it.rot=[0,0,1]}})});
+    m.forEach((it,k)=>{it.cid=cid;it.auto=r;if(r==='knee'){it.leg=k;it.rot=[1,0,0]}else{it.gap=k>>1;it.jax=k&1;it.rot=it.jax?[0,0,0]:[1,0,0]}})});
 }
 const PRIO=['battery','lidar','gimbal','doccam','doclight','computer','safety','backup','navcam','thermal','radar','cliff','imu','drivelight','irled','amber','estop','buzzer','o2','co2','legmotor'];
 function ruleFor(c,it){
@@ -1209,7 +1214,7 @@ function zonesFor(c,it,e){
   const segs=shellOf(c),h=(v)=>Math.max(0,v);
   if(it.role==='hip'){const s=segs[segIdx(c,it.seg)],z=it.side*(s.wid/2-e[2]/2),lo=[s.cx-s.len/2+e[0]/2,e[1]/2,z],hi=[s.cx+s.len/2-e[0]/2,s.hmax-e[1]/2,z];return lo[0]<=hi[0]+.01&&lo[1]<=hi[1]+.01?[{lo,hi}]:[]}
   if(it.cid==='gimbal'){const m=c.shell.gAt||'top';
-    if(m!=='top'){const s=m==='front'?segs[segs.length-1]:segs[0],x=s.cx+(m==='front'?1:-1)*(s.len/2+e[0]/2);const gf=gimbalFoot(c,e),fy=Math.min(e[1],c.shell.gFoot||50);return[{lo:[x,fy/2,-h(s.wid/2-gf[1]/2)],hi:[x,Math.max(fy/2,s.hmax-fy/2),h(s.wid/2-gf[1]/2)]}]}
+    if(m!=='top'){const s=m==='front'?segs[segs.length-1]:segs[0],x=s.cx+(m==='front'?1:-1)*(s.len/2+e[0]/2+(c.shell.gArm||0));const gf=gimbalFoot(c,e),fy=Math.min(e[1],c.shell.gFoot||50);return[{lo:[x,fy/2,-h(s.wid/2-gf[1]/2)],hi:[x,Math.max(fy/2,s.hmax-fy/2),h(s.wid/2-gf[1]/2)]}]}
     const gf=gimbalFoot(c,e);return segs.map(s=>({lo:[s.cx-h(s.len/2-gf[0]/2),s.hei+e[1]/2,-h(s.wid/2-gf[1]/2)],hi:[s.cx+h(s.len/2-gf[0]/2),s.hei+e[1]/2,h(s.wid/2-gf[1]/2)]}))}
   if(isMounted(it)){const g=c.items.find(i=>i.cid==='gimbal');if(!g)return[];const ge=ext(g),gp=g.pos;
     const lo=[0,1,2].map(k=>gp[k]-ge[k]/2+e[k]/2),hi=[0,1,2].map(k=>gp[k]+ge[k]/2-e[k]/2);return lo.every((v,k)=>v<=hi[k]+.01)?[{lo,hi}]:[]}
@@ -1296,11 +1301,11 @@ function layout(c){
   const hipDone=new Set();rest.forEach(it=>{if(hipDone.has(it))return;
     const r=tgtFor(c,it);it.rot=(r.rot||[0,0,0]).slice();const e=ext(it),pref=segIdx(c,r.s);
     if(it.cid==='gimbal'){const m=c.shell.gAt||'top';
-      if(m!=='top'){const s2=m==='front'?segs[segs.length-1]:segs[0];it.pos=[s2.cx+(m==='front'?1:-1)*(s2.len/2+e[0]/2),Math.max(e[1]/2,s2.hei/2),0]}
+      if(m!=='top'){const s2=m==='front'?segs[segs.length-1]:segs[0];it.pos=[s2.cx+(m==='front'?1:-1)*(s2.len/2+e[0]/2+(c.shell.gArm||0)),Math.max(e[1]/2,s2.hei/2),0]}
       else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2,0]}
       return}
     if(isMounted(it)){const g=gim();if(g){const gp=g.pos,gi=c.items.filter(x=>x.cid===it.cid&&isMounted(x)).indexOf(it);
-      const off=ext(it)[0]/2+1;it.pos=[gp[0]+(gi?off:-off),gp[1],gp[2]]  /* side by side, touching (was fixed 17 mm for the 32 mm body; 16.11 the size with enclosure is 38) */;it.rot=[0,0,0];return}}
+      it.rot=[0,1,0];const off=ext(it)[2]/2+1;it.pos=[gp[0],gp[1],gp[2]+(gi?off:-off)]  /* 19.11 (Sharon): lenses look forward (along the tool), the two cameras side by side across it, touching (38 each with enclosure) */;return}}
     // hip motors: both motors of a pair at the same spot (left and right walls), so the two legs are symmetric
     if(it.role==='hip'){const sg=segs[segIdx(c,it.seg)],zz=s=>s*(sg.wid/2-e[2]/2),mate=c.items.find(o=>o!==it&&o.role==='hip'&&o.seg===it.seg&&o.pair===it.pair),both=mate&&rest.includes(mate);
       const ax=[],ay=[],L0=sg.cx-sg.len/2+e[0]/2,L1=sg.cx+sg.len/2-e[0]/2,Y0=e[1]/2,Y1=sg.hei-e[1]/2;for(let v=L0;v<=L1+.01;v+=5)ax.push(v);ax.push(L1);for(let v=Y0;v<=Y1+.01;v+=5)ay.push(v);ay.push(Y1);
@@ -1340,7 +1345,7 @@ function layout(c){
 /* smallest body in which every component fits (minimize) or grow only as much as needed */
 function needDims(c){const n=[0,0,0];c.items.filter(i=>!i.auto&&!isExternal(i)).forEach(it=>{const e=ext(it);for(let k=0;k<3;k++)n[k]=Math.max(n[k],e[k])});return n}
 function fitShell(c,minimize){
-  const s=c.shell,nd=needDims(c),n=s.n,minLen=Math.ceil(n*nd[0]+GAP*(n-1));
+  const s=c.shell,nd=needDims(c),n=s.n,minLen=Math.ceil(n*nd[0]+gapOf(c)*(n-1));
   if(perOn(c)){s.segs.forEach(q=>{q.wid=Math.max(q.wid,Math.ceil(nd[2]));if(!s.steps)q.hei=Math.max(q.hei,Math.ceil(nd[1]));if(minimize)q.len=Math.ceil(nd[0])});
     for(let i=0;i<120;i++){layout(c);if(!c.items.some(x=>x.unfit))break;s.segs.forEach(q=>q.len+=10)}
     s.segs.forEach(q=>q.len=Math.ceil(q.len/5)*5);syncTotal(c);layout(c);return}
@@ -1429,7 +1434,7 @@ function fixesFor(c,w){
   else if(w.t==='out'){F.push({label:'החזרה לתוך החוליה',run:()=>moveToFree(c,it)})}
   if(w.t==='nofit'||w.t==='out'){
     const e=ext(it),s=c.shell,n=s.n;
-    if(n>1&&!perOn(c)&&e[0]<=(s.total-GAP*(n-2))/(n-1)-.1)F.push({label:'פחות חוליות ('+(n-1)+')',run:()=>{s.n=n-1;layout(c);return true}});
+    if(n>1&&!perOn(c)&&e[0]<=(s.total-gapOf(c)*(n-2))/(n-1)-.1)F.push({label:'פחות חוליות ('+(n-1)+')',run:()=>{s.n=n-1;layout(c);return true}});
   }
   F.push(grow);return F;
 }
@@ -1698,14 +1703,14 @@ function dimsSVG(c,mode,segs,clear,b,grow){
   if(want('total')){o+=dimLine(L0,top-44,L1,top-44,'אורך כולל '+mm(L1-L0));grow(L0,top-64)}
   segs.forEach(s=>{if(want('len',s.i)&&(all||perOn(c)||h.k==='len')){o+=dimLine(s.cx-s.len/2,top-18,s.cx+s.len/2,top-18,mm(s.len));grow(s.cx,top-38)}});
   if(side){
-    segs.forEach(s=>{if(want('hei',s.i)){const x=s.i===segs.length-1?L1+18:s.cx+s.len/2+GAP/2;o+=dimLine(x,-clear,x,-(clear+s.hei),mm(s.hei),true);grow(x+10,-clear)}});
+    segs.forEach(s=>{if(want('hei',s.i)){const x=s.i===segs.length-1?L1+18:s.cx+s.len/2+gapOf(c)/2;o+=dimLine(x,-clear,x,-(clear+s.hei),mm(s.hei),true);grow(x+10,-clear)}});
     if(want('wid')&&!all)segs.forEach(s=>{if(h.seg!==undefined&&h.seg!==s.i)return;o+=dimNote(s.cx,top-60,'רוחב '+mm(s.wid)+' (רואים מלמעלה)')});
     if(want('clear')&&c.legs.count){const x=left-24,bt=shellTop(c),tt=bodyTop(c),xr=right+44;
       o+=dimLine(x,0,x,-clear,'לבטן '+mm(clear),true)+dimLine(x,-clear,x,-(clear+bt),'גוף '+mm(bt),true)+dimLine(xr,0,xr,-(clear+tt),'כולל '+mm(clear+tt),true);grow(x-24,0);grow(xr+10,0)}
     if(want('steps'))stepsOf(c).forEach(st=>{o+=dimLine(st.x0,-(clear+st.top)-10,st.x1,-(clear+st.top)-10,mm(st.x1-st.x0))+dimLine(st.x1+10,-(clear+st.y0),st.x1+10,-(clear+st.top),mm(st.top-st.y0),true)});
     if(h&&h.k==='rT'&&!all)o+=dimNote(0,top-60,'עיגול מלמעלה רואים במבט מלמעלה');
   }else{
-    segs.forEach(s=>{if(want('wid',s.i)){const x=s.i===segs.length-1?Math.max(L1+18,right+10):s.cx+s.len/2+GAP/2;o+=dimLine(x,-s.wid/2,x,s.wid/2,mm(s.wid),true);grow(x+10,0)}});
+    segs.forEach(s=>{if(want('wid',s.i)){const x=s.i===segs.length-1?Math.max(L1+18,right+10):s.cx+s.len/2+gapOf(c)/2;o+=dimLine(x,-s.wid/2,x,s.wid/2,mm(s.wid),true);grow(x+10,0)}});
     if(h&&h.k==='hei'&&!all)o+=dimNote(0,bot+30,'גובה רואים במבט מהצד');
     if(h&&h.k==='rS'&&!all)o+=dimNote(0,bot+30,'עיגול מהצד רואים במבט מהצד');
   }
@@ -1811,7 +1816,11 @@ const cv=$('#c3'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alp
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(32,1,5,20000);
 const oc=new THREE.OrbitControls(cam,cv);oc.enablePan=false;oc.enableZoom=false;oc.autoRotate=false;oc.autoRotateSpeed=1.4;oc.enableDamping=true;
-scene.add(new THREE.HemisphereLight(0xffffff,0x9aa3b2,1));const dl=new THREE.DirectionalLight(0xffffff,.5);dl.position.set(300,600,400);scene.add(dl);
+/* 19.11 stage 8: light and colour like the simulation (room reflections, filmic tone, soft shadows on the floor) */
+renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.9;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+scene.add(new THREE.HemisphereLight(0xffffff,0x8a8f96,.35));const dl=new THREE.DirectionalLight(0xffffff,1.25);dl.position.set(380,900,520);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);
+Object.assign(dl.shadow.camera,{left:-800,right:800,top:800,bottom:-800,near:100,far:2600});dl.shadow.bias=-.0004;dl.shadow.radius=4;scene.add(dl);
+const shadowFloor=new THREE.Mesh(new THREE.PlaneGeometry(6000,6000),new THREE.ShadowMaterial({opacity:.25}));shadowFloor.rotation.x=-Math.PI/2;shadowFloor.position.y=-.5;shadowFloor.receiveShadow=true;scene.add(shadowFloor);
 const root=new THREE.Group();scene.add(root);let camSet=false;
 function limb(a,b,r,color){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B)||1,m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,12),new THREE.MeshStandardMaterial({color}));
   m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());return m}
@@ -1831,6 +1840,171 @@ function rbox(len,hei,wid,rS,rT){
 function bar3(a,b,w,color){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B)||1,m=new THREE.Mesh(new THREE.BoxGeometry(w,L,w),new THREE.MeshStandardMaterial({color,roughness:.5,metalness:.3}));
   m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());return m}
 function clearRoot(r){while(r.children.length){const o=r.children.pop();o.traverse(x=>{if(x.geometry)x.geometry.dispose()})}}
+/* ===== stage 8 (19.11, Sharon: "the 3D here is excellent, use it"). The look and the frame of the simulation minimal-frame-cardan-sim-2026-11-19:
+   rounded parts, metal materials, room light and soft shadows; the cardan joint exactly as option B of joint-options-2026-11-18; legs with a rubber cap
+   instead of a ball; the gimbal from the manufacturer's STEP (AllXF C-200T, simplified); a minimal frame (one spine per segment at hip height, one hip bar,
+   each part held by one tube, two over 200 g); a removal direction for the quick-service parts (battery, computer, safety controller) with the battery
+   handle on that side; a see-through shell stretched over the parts like fabric, recomputed on every change. Look and checks only: totals and the
+   layout rules are not changed by this block. ===== */
+const LIN=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return c};
+function sm(col,met,rou,extra){const m=new THREE.MeshStandardMaterial(Object.assign({color:LIN(col),metalness:met,roughness:rou},extra||{}));m.userData.lin=1;return m}
+const SMAT={main:sm(0x3a4049,.75,.32),tube:sm(0xc4cad2,.9,.28),rail:sm(0xe08a1e,.6,.35),plate:sm(0xaab2bc,.85,.3),motor:sm(0x2b2f35,.6,.38),rotor:sm(0xb87333,.8,.3),
+  cross:sm(0x2f6fed,.4,.35,{side:THREE.DoubleSide}),link:sm(0x7d8794,.8,.3),rubber:sm(0x1b1d20,0,.9),glass:sm(0x0e1a24,.2,.08),red:sm(0xd0463b,.15,.45),gim:sm(0x7b5cc9,.35,.45,{side:THREE.DoubleSide})};
+const CAP=8,SVC_IDS=['battery','computer','safety'];
+/* rounded box (same method as three.js RoundedBoxGeometry, 3 segments per corner) */
+function rrGeo(w,h,d,r){r=Math.max(.3,Math.min(r==null?Math.min(3,Math.min(w,h,d)/4):r,w/2-.01,h/2-.01,d/2-.01));const seg=7,g=new THREE.BoxGeometry(1,1,1,seg,seg,seg),pa=g.attributes.position,na=g.attributes.normal,hs=.5/seg,bx=[w/2-r,h/2-r,d/2-r];
+  for(let i=0;i<pa.count;i++){const v=[pa.getX(i),pa.getY(i),pa.getZ(i)],q=v.map(x=>x-Math.sign(x)*hs),L=Math.hypot(q[0],q[1],q[2])||1,nn=q.map(x=>x/L);
+    pa.setXYZ(i,bx[0]*Math.sign(v[0])+nn[0]*r,bx[1]*Math.sign(v[1])+nn[1]*r,bx[2]*Math.sign(v[2])+nn[2]*r);na.setXYZ(i,nn[0],nn[1],nn[2])}
+  g.deleteAttribute('uv');return g}
+function cylGeo(d,l,ax,seg,open){const g=new THREE.CylinderGeometry(d/2,d/2,l,seg||40,1,!!open);if(ax==='x')g.rotateZ(Math.PI/2);if(ax==='z')g.rotateX(Math.PI/2);return g}
+const UPV=new THREE.Vector3(0,1,0),V3=a=>new THREE.Vector3(a[0],a[1],a[2]);
+function alongGeo(geo,a,b){const A=V3(a),B=V3(b),m=new THREE.Mesh(geo);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(UPV,B.clone().sub(A).normalize());return m}
+function tubeM(a,b,r,mat){const L=V3(a).distanceTo(V3(b));if(L<.5)return null;const m=alongGeo(new THREE.CylinderGeometry(r,r,L,24),a,b);m.material=mat;return m}
+/* light of a room (port of three.js RoomEnvironment, r128) for reflections on the metal parts */
+function roomEnv(){const sc=new THREE.Scene(),geo=new THREE.BoxGeometry();geo.deleteAttribute('uv');const rm=new THREE.MeshStandardMaterial({side:THREE.BackSide}),bm=new THREE.MeshStandardMaterial();
+  const L=new THREE.PointLight(0xffffff,5,28,2);L.position.set(.418,16.199,.3);sc.add(L);
+  const add=(m,p,ry,s)=>{const o=new THREE.Mesh(geo,m);o.position.set(p[0],p[1],p[2]);o.rotation.set(0,ry,0);o.scale.set(s[0],s[1],s[2]);sc.add(o)};
+  add(rm,[-.757,13.219,.717],0,[31.713,28.305,28.591]);
+  [[[-10.906,2.009,1.846],-.195,[2.328,7.905,4.651]],[[-5.607,-.754,-.758],.994,[1.97,1.534,3.955]],[[6.167,.857,7.803],.561,[3.927,6.285,3.687]],[[-2.017,.018,6.124],.333,[2.002,4.566,2.064]],[[2.291,-.756,-2.621],-.286,[1.546,1.552,1.496]],[[-2.193,-.369,-5.547],.516,[3.875,3.487,2.986]]].forEach(b=>add(bm,b[0],b[1],b[2]));
+  const al=i=>{const m=new THREE.MeshBasicMaterial();m.color.setScalar(i);return m};
+  [[50,[-16.116,14.37,8.208],[.1,2.428,2.739]],[50,[-16.109,18.021,-8.207],[.1,2.425,2.751]],[17,[14.904,12.198,-1.832],[.15,4.265,6.331]],[43,[-.462,8.89,14.52],[4.38,5.441,.088]],[20,[3.235,11.486,-12.541],[2.5,2,.1]],[100,[0,20,0],[1,.1,1]]].forEach(l=>add(al(l[0]),l[1],0,l[2]));
+  return sc}
+/* the gimbal mesh (manufacturer STEP, simplified, from meshes.json) */
+const GM3=(()=>{try{const M=JSON.parse($('#meshes').textContent).gimbal;if(!M)return null;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(M.v,3));g.setIndex(M.i);const n=g.toNonIndexed();n.computeVertexNormals();return n}catch(e){return null}})();
+
+/* removal direction of a quick-service part: the one chosen in its panel (it.svc), else the first free one of: side, other side, up, rear, front */
+const SVCD={'+x':[1,0,0],'-x':[-1,0,0],'+y':[0,1,0],'+z':[0,0,1],'-z':[0,0,-1]};
+const SVC_LAB={'+z':'לצד שמאל','-z':'לצד ימין','+y':'למעלה','-x':'אחורה','+x':'קדימה'};
+function svcFree(c,it,key){const b=aabb(c,it),d=SVCD[key],k=d.findIndex(v=>v!==0),s=d[k],big=3000,r={min:b.min.slice(),max:b.max.slice()};
+  if(s>0){r.min[k]=b.max[k];r.max[k]=big}else{r.max[k]=b.min[k];r.min[k]=-big}
+  return!c.items.some(x=>x!==it&&!x.unfit&&x.auto!=='knee'&&!isMounted(x)&&(k===1||!isExternal(x))&&hit(r,aabb(c,x)))}
+function svcDir(c,it){if(it.svc&&SVCD[it.svc])return it.svc;return['+z','-z','+y','-x','+x'].find(k=>svcFree(c,it,k))||'+y'}
+const svcNeed=it=>SVC_IDS.includes(it.cid);
+
+/* ---- part details: lenses, glass, handle, rotor discs. Added as separate meshes that carry the part id (so a click still selects the part). */
+function detailMeshes(c,it,p,clear){const out=[],k=cat[it.cid],e=ext(it),w=[p[0],p[1]+clear,p[2]],f=facing(c,it),d=f?f.d:null;
+  const put=(geo,mat,pos,dir)=>{const m=new THREE.Mesh(geo,mat);m.position.set(pos[0],pos[1],pos[2]);if(dir)m.quaternion.setFromUnitVectors(UPV,V3(dir).normalize());out.push(m);return m};
+  const faceP=(dd,extra)=>{const hd=(Math.abs(dd[0])*e[0]+Math.abs(dd[1])*e[1]+Math.abs(dd[2])*e[2])/2+(extra||0);return[w[0]+dd[0]*hd,w[1]+dd[1]*hd,w[2]+dd[2]*hd]};
+  const side=dd=>Math.abs(dd[1])>.9?[1,0,0]:[-dd[2],0,dd[0]];
+  if(it.cid==='lidar'){const a=axisOf(it),ax=[a.x,a.y,a.z];put(new THREE.CylinderGeometry(k.dims[0]/2+.4,k.dims[0]/2+.4,26,48,1,true),SMAT.glass,[w[0]+ax[0]*8,w[1]+ax[1]*8,w[2]+ax[2]*8],ax)}
+  if(d&&(it.cid==='navcam')){const s=side(d),q=faceP(d,1);[-40,40].forEach(o=>put(new THREE.CylinderGeometry(6,6,2,28),SMAT.glass,[q[0]+s[0]*o,q[1],q[2]+s[2]*o],d))}
+  if(d&&it.cid==='thermal')put(new THREE.CylinderGeometry(8,8,2,28),SMAT.glass,faceP(d,1),d);
+  if(d&&it.cid==='radar')put(rrGeo(1.2,e[1]*.7,Math.max(e[0],e[2])*.7,.5),SMAT.glass,faceP(d,.6),null).quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0),V3(d));
+  if((it.cid==='drivelight'||it.cid==='doclight')){const a=axisOf(it),ax=[a.x,a.y,a.z],dd=d&&dot(d,ax)<0?ax.map(v=>-v):ax;put(new THREE.CylinderGeometry(k.dims[0]/2-2,k.dims[0]/2-2,2,36),SMAT.glass,faceP(dd,1),dd)}
+  if(d&&it.cid==='estop')put(new THREE.CylinderGeometry(15,15,21.5,32),SMAT.red,faceP(d,10.75),d);
+  if(it.role==='hip'||it.auto==='knee'){const s=it.side||Math.sign(p[2])||1,a=axisOf(it),ax=[a.x,a.y,a.z],dd=dot(ax,[0,0,s])<0?ax.map(v=>-v):ax;put(new THREE.CylinderGeometry(k.dims[0]/2-3,k.dims[0]/2-3,4,36),SMAT.rotor,faceP(dd,2),dd)}
+  if(it.cid==='battery'){const key=svcDir(c,it),dd=SVCD[key],q=faceP(dd,7),m=new THREE.Mesh(key==='+y'?rrGeo(40,14,6,2):Math.abs(dd[0])?rrGeo(14,6,40,2):rrGeo(40,6,14,2),SMAT.rubber);m.position.set(q[0],q[1],q[2]);out.push(m)}
+  if(it.cid==='doccam'&&d){put(new THREE.CylinderGeometry(14,14,20,36),SMAT.motor,faceP(d,10),d);put(new THREE.CylinderGeometry(12,12,1,32),SMAT.glass,faceP(d,20.5),d)}
+  out.forEach(m=>{m.userData.id=it.id;m.userData.det=1});return out}
+/* doc lights turned from "facing sideways" toward the documentation cameras by c.docAim degrees (0 = sideways, 90 = parallel to the tool) */
+function aimQuat(c,it){if(it.cid!=='doclight'||!c.docAim)return null;const p=P(c,it),g=c.items.find(i=>i.cid==='gimbal'&&!i.unfit),gx=g?P(c,g)[0]:shellLen(c)/2,sx=gx>=p[0]?1:-1,sz=p[2]>=0?1:-1;
+  return new THREE.Quaternion().setFromAxisAngle(UPV,sz*sx*c.docAim*Math.PI/180)}
+
+/* ---- the gimbal: manufacturer mesh, base against the body (front/rear) or on top, arm away from the body */
+function gimbalMesh(c,it,p,clear,mat){if(!GM3)return null;const at=c.shell.gAt||'top',m=new THREE.Mesh(GM3,mat),M=new THREE.Matrix4();
+  if(at==='front')M.set(0,1,0,0, 0,0,-1,0, -1,0,0,0, 0,0,0,1);else if(at==='rear')M.set(0,-1,0,0, 0,0,-1,0, 1,0,0,0, 0,0,0,1);else M.set(0,0,1,0, 1,0,0,0, 0,1,0,0, 0,0,0,1);
+  const bb=new THREE.Box3().setFromBufferAttribute(GM3.attributes.position).applyMatrix4(M),e=ext(it),w=[p[0],p[1]+clear,p[2]],T=[0,0,0];
+  for(let k=0;k<3;k++)T[k]=w[k]-(bb.min.getComponent(k)+bb.max.getComponent(k))/2;
+  if(at==='front')T[0]=w[0]-e[0]/2-bb.min.x;else if(at==='rear')T[0]=w[0]+e[0]/2-bb.max.x;else T[1]=w[1]-e[1]/2-bb.min.y;
+  M.premultiply(new THREE.Matrix4().makeTranslation(T[0],T[1],T[2]));m.matrixAutoUpdate=false;m.matrix.copy(M);m.position.setFromMatrixPosition(M);m.userData.gim=1;return m}
+
+/* ---- cardan joint between segment g and g+1 (option B): forks, hollow cross, turn motor on top, tilt motor to the side */
+function cardan(c,g,clear,root,store){const segs=shellOf(c),a=segs[g],b=segs[g+1];if(!a||!b)return;const G=gapOf(c),x0=a.cx+a.len/2,cx=x0+G/2,jy=jointY(c,g),cy=jy+clear,wmin=Math.min(a.wid,b.wid);
+  const fz=Math.min(91,wmin/2-4),tz=Math.min(76,wmin/2-19),fy=Math.min(58,jy-6),hc=G/2,add=(geo,mat,x,y,z)=>{const m=new THREE.Mesh(geo,mat);m.position.set(cx+x,cy+y,z);root.add(m);if(store)store.push(m);return m};
+  [-fy,fy].forEach(y=>add(rrGeo(hc+12,6,50,1.5),SMAT.plate,(hc+12)/2-6-hc,y,0));
+  const ym=add(cylGeo(69,25,'y',48),SMAT.motor,0,74,0);add(cylGeo(28,10,'y',32),SMAT.plate,0,-Math.min(66,jy-4),0);add(cylGeo(52,6,'y',40),SMAT.rotor,0,58,0);
+  add(new THREE.CylinderGeometry(11,11,110,32,1,true),SMAT.cross,0,0,0);add(cylGeo(22,2*(fz-27),'z',32,true),SMAT.cross,0,0,0);
+  const pm=add(cylGeo(69,25,'z',48),SMAT.motor,0,0,tz);add(cylGeo(52,6,'z',40),SMAT.rotor,0,0,tz-15);
+  [-fz,fz].forEach(z=>add(rrGeo(G-hc+14,56,6,1.5),SMAT.plate,(G-hc+14)/2-6,0,z));add(cylGeo(24,10,'z',32),SMAT.plate,0,0,-(fz-23));
+  [ym,pm].forEach((m,j)=>{const ji=c.items.find(i=>i.auto==='joint'&&i.gap===g&&(i.jax?1:0)===(j?0:1));if(ji)m.userData.id=ji.id})}
+
+/* ---- the minimal frame (port of the simulation). Members: per segment a spine at hip height (from the joint plate to the last part),
+   a hip bar between the two hip motors, two rails for each battery along its removal direction, a joint plate at each segment end that faces a gap.
+   Each part: the shortest straight tube from a member of its own segment that passes through no other part and stays out of every removal path;
+   over 200 g two tubes. A part that no member reaches gets a short post on the spine. Tube Ø10×1 and spine Ø16×1.5 aluminium: my assumption. */
+function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group(),gs=segs.map(()=>{const q=new THREE.Group();g.add(q);return q});
+  const RM=8,RA=5,mem=[],plates=[],L3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]),lerp=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+  const inB=(q,b,pad)=>q.every((v,i)=>v>b.mn[i]-pad&&v<b.mx[i]+pad);
+  const parts=[];c.items.forEach(it=>{if(it.unfit||it.auto||isMounted(it)||it.cid==='gimbal')return;const a=aabb(c,it),bb={mn:a.min,mx:a.max},cx=(bb.mn[0]+bb.mx[0])/2;
+    parts.push({it,id:it.id,bb,seg:segAt(segs,cx).i,w:(cat[it.cid].weight||0)*(it.frac||1),hip:it.role==='hip'})});
+  segs.forEach(s=>{const x0=s.cx-s.len/2,x1=s.cx+s.len/2,ps=parts.filter(p=>p.seg===s.i),hips=ps.filter(p=>p.hip);
+    const sy=hips.length?hips.reduce((a,p)=>a+(p.bb.mn[1]+p.bb.mx[1])/2,0)/hips.length:(s.i<n-1?jointY(c,s.i):s.i>0?jointY(c,s.i-1):s.hei/2);s.sy=sy;
+    const xs=ps.map(p=>(p.bb.mn[0]+p.bb.mx[0])/2);let a=xs.length?Math.min(...xs):s.cx-10,b=xs.length?Math.max(...xs):s.cx+10;const hx=hips.length?hips.reduce((q,h)=>q+(h.bb.mn[0]+h.bb.mx[0])/2,0)/hips.length:s.cx,stopAt=(from,to)=>{const st=from<to?2:-2;for(let x=from;st>0?x<=to:x>=to;x+=st){if(ps.some(p=>!p.hip&&inB([x,sy,0],p.bb,RM-1)))return x-st}return to};
+    /* free ends stop before the first part in the way (19.11: the spine must not run through a camera); the ends that face a gap reach the joint plate */
+    a=s.i>0?x0+6:Math.min(hx,stopAt(hx,a));b=s.i<n-1?x1-6:Math.max(hx,stopAt(hx,b));if(b-a<20){a=Math.min(a,hx-10);b=Math.max(b,hx+10)}
+    mem.push({id:'spine'+s.i,seg:s.i,a:[a,sy,0],b:[b,sy,0],r:RM,k:'main'});
+    const byX={};hips.forEach(h=>{const x=Math.round((h.bb.mn[0]+h.bb.mx[0])/2/5)*5;(byX[x]=byX[x]||[]).push(h)});
+    Object.keys(byX).forEach(x=>{const zs=byX[x].map(h=>Math.abs(h.bb.mn[2])<Math.abs(h.bb.mx[2])?h.bb.mn[2]:h.bb.mx[2]);mem.push({id:'hipbar'+s.i+'_'+x,seg:s.i,a:[+x,sy,Math.min(0,...zs)],b:[+x,sy,Math.max(0,...zs)],r:RM,k:'main'})});
+    [[s.i>0,x0+3],[s.i<n-1,x1-3]].forEach(([on,x])=>{if(on){const h=Math.min(125,s.hei*.85);plates.push({seg:s.i,bb:{mn:[x-3,sy-h/2,-25],mx:[x+3,sy+h/2,25]}})}});
+    /* battery rails along the removal direction, on the side of the battery that faces the spine */
+    ps.filter(p=>p.it.cid==='battery').forEach(p=>{p.rails=true;const key=svcDir(c,p.it),bb=p.bb,cy=(bb.mn[1]+bb.mx[1])/2,y=key==='+y'?bb.mn[1]-RA:(cy<sy?bb.mx[1]+RA:bb.mn[1]-RA),W=s.wid/2-20;
+      if(key==='+z'||key==='-z'||key==='+y'){[bb.mn[0]+12,bb.mx[0]-12].forEach((x,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[x,y,-W],b:[x,y,W],r:RA,k:'rail'}))}
+      else{const zc=(bb.mn[2]+bb.mx[2])/2,dz=(bb.mx[2]-bb.mn[2])/2-12;[zc-dz,zc+dz].forEach((z,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[key==='-x'?x0+3:bb.mn[0],y,z],b:[key==='+x'?x1-3:bb.mx[0],y,z],r:RA,k:'rail'}))}})});
+  /* parts touching the spine are bolted straight to it */
+  parts.forEach(p=>{if(p.rails||p.hip)return;const sp=mem.find(m=>m.id==='spine'+p.seg);for(let f=0;f<=20;f++)if(inB(lerp(sp.a,sp.b,f/20),p.bb,RM+.5)){p.direct=true;break}});
+  const svcB=parts.filter(p=>svcNeed(p.it)).map(p=>{const key=svcDir(c,p.it),d=SVCD[key],k=d.findIndex(v=>v!==0),dist=p.bb.mx[k]-p.bb.mn[k]+30;p.svc={key,d,dist};
+    return{id:p.id,b:{mn:p.bb.mn.map((v,i)=>v+Math.min(0,d[i]*dist)),mx:p.bb.mx.map((v,i)=>v+Math.max(0,d[i]*dist))}}});
+  const segHits=(a,b,r,skip)=>{const L=L3(a,b),N=Math.max(2,Math.ceil(L/3));for(let k=1;k<N;k++){const q=lerp(a,b,k/N);if(parts.some(o=>!skip.has(o.id)&&inB(q,o.bb,r-.5)))return true;if(plates.some(pl=>inB(q,pl.bb,r-.5)))return true}return false};
+  const inSvc=(a,b,id)=>svcB.some(s=>s.id!==id&&[.2,.4,.6,.8].some(f=>inB(lerp(a,b,f),s.b,RA)));
+  const tryFrom=(p,mems,want,out)=>{const tb=p.bb,tp=[],N=6;for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)for(let k=0;k<=N;k++){if(i%N&&j%N&&k%N)continue;tp.push([tb.mn[0]+(tb.mx[0]-tb.mn[0])*i/N,tb.mn[1]+(tb.mx[1]-tb.mn[1])*j/N,tb.mn[2]+(tb.mx[2]-tb.mn[2])*k/N])}
+    const cand=[];mems.forEach(m=>{const L=L3(m.a,m.b),ns=Math.max(2,Math.ceil(L/6));for(let s=0;s<=ns;s++){const a=lerp(m.a,m.b,s/ns);tp.forEach(t=>{const l=L3(a,t);if(l<=260)cand.push({a,t,l})})}});
+    cand.sort((x,y)=>x.l-y.l);const skip=new Set([p.id]);
+    for(const q of cand){if(out.length>=want)break;if(out.some(o=>L3(o.b,q.t)<Math.max(30,Math.min(...p.bb.mx.map((v,i)=>v-p.bb.mn[i]))*.6)))continue;
+      const u=q.t.map((v,i)=>(v-q.a[i])/(q.l||1)),a2=q.a.map((v,i)=>v+u[i]*Math.min(RM,q.l));
+      if(L3(a2,q.t)<1){out.push({a:q.a,b:q.t,stub:true});continue}if(segHits(a2,q.t,RA,skip)||inSvc(a2,q.t,p.id))continue;out.push({a:q.a,b:q.t})}};
+  const noTube=[];
+  parts.forEach(p=>{p.tubes=[];if(p.hip||p.rails||p.direct)return;const want=p.w>200?2:1,mems=mem.filter(m=>m.seg===p.seg);tryFrom(p,mems,want,p.tubes);
+    if(!p.tubes.length){const sp=mem.find(m=>m.id==='spine'+p.seg),cy=(p.bb.mn[1]+p.bb.mx[1])/2,cz=(p.bb.mn[2]+p.bb.mx[2])/2,cxp=(p.bb.mn[0]+p.bb.mx[0])/2;
+      const xs=[];for(let k=0;k<=12;k++)xs.push(sp.a[0]+(sp.b[0]-sp.a[0])*k/12);xs.sort((u,v)=>Math.abs(u-cxp)-Math.abs(v-cxp));
+      for(const x of xs){const top=[x,cy,0],post={id:'post'+p.id,seg:p.seg,a:[x,sp.a[1],0],b:top,r:RA,k:'post'};if(L3(post.a,post.b)<6)continue;
+        if(segHits(post.a,post.b,RA,new Set([p.id]))||inSvc(post.a,post.b,p.id))continue;const out=[];tryFrom(p,[post],1,out);if(out.length){mem.push(post);p.tubes=out;break}}
+      /* still nothing: a post up or down from the spine (to the part's height, or just over or under it), then an arm across to the part's side */
+      if(!p.tubes.length){const sg=segs[p.seg],zc=Math.max(-(sg.wid/2-12),Math.min(sg.wid/2-12,cz)),sk=new Set([p.id]),clr=(a,b)=>!segHits(a,b,RA,sk)&&!inSvc(a,b,p.id);
+        out:for(const h of[cy,p.bb.mx[1]+12,p.bb.mn[1]-12])for(const x of xs){if(h<6||h>sg.hei+60)continue;const post={id:'post'+p.id,seg:p.seg,a:[x,sp.a[1],0],b:[x,h,0],r:RA,k:'post'},arm={id:'arm'+p.id,seg:p.seg,a:[x,h,0],b:[x,h,zc],r:RA,k:'post'};
+          if(!clr(post.a,post.b)||!clr(arm.a,arm.b))continue;const o2=[];tryFrom(p,[arm],1,o2);if(o2.length){mem.push(post,arm);p.tubes=o2;break out}}}
+    }
+    if(!p.tubes.length)noTube.push(p)});
+  /* removal paths still blocked (by a part, a member or a tube) */
+  const blocked=[];svcB.forEach(s=>{const p=parts.find(x=>x.id===s.id);
+    parts.forEach(o=>{if(o===p)return;const b=o.bb;if([0,1,2].every(k=>s.b.mn[k]<b.mx[k]-.5&&b.mn[k]<s.b.mx[k]-.5))blocked.push(name(c,p.it)+' / '+name(c,o.it))});
+    mem.forEach(m=>{if(p.rails&&m.id.startsWith('rail'+p.id))return;for(let f=0;f<=20;f++){const q=lerp(m.a,m.b,f/20);if(inB(q,s.b,m.r-.5)&&!inB(q,p.bb,m.r+1)){blocked.push(name(c,p.it)+' / שלד');break}}})});
+  /* draw */
+  mem.forEach(m=>{const t=tubeM(m.a,m.b,m.r,m.k==='rail'?SMAT.rail:SMAT.main);if(t)gs[m.seg].add(t);[m.a,m.b].forEach(e=>{const s=new THREE.Mesh(new THREE.SphereGeometry(m.r,20,14),m.k==='rail'?SMAT.rail:SMAT.main);s.position.set(e[0],e[1],e[2]);gs[m.seg].add(s)})});
+  plates.forEach(pl=>{const b=pl.bb,m=new THREE.Mesh(rrGeo(b.mx[0]-b.mn[0],b.mx[1]-b.mn[1],b.mx[2]-b.mn[2],1.5),SMAT.plate);m.position.set((b.mn[0]+b.mx[0])/2,(b.mn[1]+b.mx[1])/2,0);gs[pl.seg].add(m)});
+  let La=0,nA=0;parts.forEach(p=>p.tubes.forEach(t=>{nA++;if(!t.stub){const m=tubeM(t.a,t.b,RA,SMAT.tube);if(m)gs[p.seg].add(m);La+=L3(t.a,t.b)}
+    const pad=new THREE.Mesh(new THREE.CylinderGeometry(9,9,3,24),SMAT.plate),dv=V3(t.b).sub(V3(t.a));pad.position.set(t.b[0],t.b[1],t.b[2]);if(dv.lengthSq()>.1)pad.quaternion.setFromUnitVectors(UPV,dv.normalize());gs[p.seg].add(pad)}));
+  g.traverse(o=>{o.raycast=()=>{}});g.position.y=clear;
+  const AL=.0027,wT=(r,t,L)=>Math.PI*(r*r-(r-t)*(r-t))*L*AL;let Lm=0,Lr=0;mem.forEach(m=>{const L=L3(m.a,m.b);if(m.k==='rail')Lr+=L;else Lm+=L});
+  const info={tubes:nA,La:Math.round(La),Lm:Math.round(Lm),Lr:Math.round(Lr),w:Math.round(wT(8,1.5,Lm)+wT(5,1,Lr)+wT(5,1,La)),noTube:noTube.map(p=>name(c,p.it)),blocked,direct:parts.filter(p=>p.direct).map(p=>name(c,p.it)),parts};
+  return{g,gs,info}}
+function simFrameNote(f){return'שלד מינימלי (כמו בהדמיה): עמוד שדרה אחד בכל חוליה בגובה מנועי הירך, מוט ירכיים אחד, 2 מסילות לסוללה, ולכל רכיב צינור אחד (2 מעל 200 גרם). '+
+  f.tubes+' צינורות חיבור באורך '+f.La+' מ"מ, שלד ראשי '+f.Lm+' מ"מ, מסילות '+f.Lr+' מ"מ. משקל, חישוב שלי (נפח הדופן × 2.7 גרם לסמ"ק, Ø16×1.5 ו-Ø10×1): כ-'+f.w+' גרם, בלי ברגים, לוחיות ומזלגות הקרדן.'+
+  (f.direct.length?' מוברגים ישר על עמוד השדרה: '+f.direct.join(', ')+'.':'')+(f.noTube.length?' בלי חיבור: '+f.noTube.join(', ')+'.':' לכל רכיב יש חיבור.')+(f.blocked.length?' דרך הוצאה חסומה: '+[...new Set(f.blocked)].join(', ')+'.':' דרכי ההוצאה של הסוללה, המחשב ובקר הבטיחות פנויות.')}
+
+/* ---- see-through shell stretched over the parts like fabric: per segment, the convex hull of all parts (rounded 6 mm at the corners) and of the frame.
+   Not the gimbal, its cameras or the legs (they are outside). Recomputed on every change, so it follows what is dragged. */
+const FAB_DIRS=(()=>{const o=[];for(let i=0;i<26;i++){const x=i%3-1,y=Math.floor(i/3)%3-1,z=Math.floor(i/9)-1;if(x||y||z){const l=Math.hypot(x,y,z);o.push([x/l,y/l,z/l])}}return o})();
+const FABMAT=(()=>{const m=new THREE.MeshStandardMaterial({color:LIN(0xbfd0e0),metalness:0,roughness:.35,transparent:true,opacity:.2,depthWrite:false,side:THREE.DoubleSide});m.userData.lin=1;return m})();
+const FABLINE=(()=>{const m=new THREE.LineBasicMaterial({color:LIN(0x8fa6bd),transparent:true,opacity:.35});m.userData.lin=1;return m})();
+function fabricShell(c,clear){const segs=shellOf(c),out=new THREE.Group();if(!THREE.ConvexHull)return out;const R=6;
+  segs.forEach(s=>{const pts=[];const addBox=(mn,mx)=>{for(let a=0;a<2;a++)for(let b=0;b<2;b++)for(let e=0;e<2;e++){const p=[a?mx[0]:mn[0],b?mx[1]:mn[1],e?mx[2]:mn[2]];FAB_DIRS.forEach(d=>pts.push(new THREE.Vector3(p[0]+d[0]*R,p[1]+clear+d[1]*R,p[2]+d[2]*R)))}};
+    c.items.forEach(it=>{if(it.unfit||it.auto==='knee'||isMounted(it)||it.cid==='gimbal')return;const a=aabb(c,it);
+      if(it.auto==='joint'){if(it.gap!==s.i&&it.gap!==s.i-1)return;const x=it.gap===s.i?s.cx+s.len/2:s.cx-s.len/2;addBox([x-1,a.min[1],a.min[2]],[x,a.max[1],a.max[2]]);return}
+      if(segAt(segs,(a.min[0]+a.max[0])/2).i!==s.i)return;addBox(a.min,a.max)});
+    if(pts.length<4)return;let h;try{h=new THREE.ConvexHull().setFromPoints(pts)}catch(e){return}
+    const idx=new Map(),pos=[],ind=[];const vi=v=>{if(!idx.has(v)){idx.set(v,pos.length/3);pos.push(v.point.x,v.point.y,v.point.z)}return idx.get(v)};
+    h.faces.forEach(f=>{const vs=[];let e=f.edge;do{vs.push(vi(e.head()));e=e.next}while(e!==f.edge);for(let i=1;i+1<vs.length;i++)ind.push(vs[0],vs[i],vs[i+1])});
+    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(ind);geo.computeVertexNormals();
+    const m=new THREE.Mesh(geo,FABMAT);m.renderOrder=5;m.userData.noShadow=1;out.add(m);const ln=new THREE.LineSegments(new THREE.EdgesGeometry(geo,28),FABLINE);ln.userData.noShadow=1;out.add(ln)});
+  out.traverse(o=>{o.raycast=()=>{}});return out}
+
+/* ---- service animation: the quick-service parts slide out along their removal direction (button "הוצאה לתחזוקה") */
+const SVCA={on:false,t:0,list:[],last:0};
+function svcTick(){const now=performance.now(),dt=SVCA.last?Math.min(.05,(now-SVCA.last)/1000):0;SVCA.last=now;const to=SVCA.on?1:0;if(SVCA.t===to&&!SVCA.dirty)return;SVCA.dirty=false;
+  SVCA.t=Math.max(0,Math.min(1,SVCA.t+(SVCA.on?1:-1)*dt*1.4));const e=SVCA.t<.5?2*SVCA.t*SVCA.t:1-Math.pow(-2*SVCA.t+2,2)/2;
+  SVCA.list.forEach(s=>s.objs.forEach(o=>{o.position.set(o.userData.bp.x+s.d[0]*s.dist*e,o.userData.bp.y+s.d[1]*s.dist*e,o.userData.bp.z+s.d[2]*s.dist*e)}))}
+
+{const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromScene(roomEnv(),.04).texture}
 /* the tool in 3D. t: 0 standing ... 1 folded. o.fade: show only motors and legs solid (legs tab) */
 /* walking demo (look only): feet follow a trot gait computed from this tool's own thigh and shin lengths, at the 0.15 m/s used in the battery check. The floor grid slides under the feet. */
 const WALK={on:false,ph:0,dist:0,t:0,h:0};
@@ -1854,19 +2028,29 @@ function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),b
   if(!o.noShell)stepsOf(c).forEach(st=>{const g=new THREE.BoxGeometry(st.x1-st.x0,st.top-st.y0,st.z1-st.z0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
     m.position.set((st.x0+st.x1)/2,clear+(st.y0+st.top)/2,(st.z0+st.z1)/2);root.add(m);const e=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x6d7787}));e.position.copy(m.position);root.add(e)});
   const th=c.legs.thick||THICK0;
-  if(!o.walk)for(let i=0;i<c.legs.count;i++){const g=walkLeg(c,i,t);if(!g)continue;root.add(bar3(g.hip,g.knee,th,0x9aa3af));root.add(bar3(g.knee,g.foot,th,0x9aa3af));
-    const f=new THREE.Mesh(new THREE.SphereGeometry(th/2+2,16,10),new THREE.MeshStandardMaterial({color:0x2b2f33}));f.position.set(g.foot[0],g.foot[1]+th/2+2,g.foot[2]);root.add(f)}
-  c.items.forEach(it=>{if(o.fade&&it.unfit)return;if(o.walk&&it.auto==='knee')return;
-    const k=cat[it.cid],d=baseDims(it),g=k.shape==='cyl'?new THREE.CylinderGeometry(d[0]/2,d[0]/2,d[1],28):new THREE.BoxGeometry(d[0],d[1],d[2]);
+  SVCA.list=[];SVCA.dirty=true;
+  /* 19.11: legs like the simulation: rounded aluminium links, a rubber cap the width of the shin at the foot (no ball) */
+  if(!o.walk)for(let i=0;i<c.legs.count;i++){const g=walkLeg(c,i,t);if(!g)continue;[[g.hip,g.knee],[g.knee,g.foot]].forEach(([a,b])=>{const L=V3(a).distanceTo(V3(b));if(L<1)return;const m=alongGeo(rrGeo(th,L,th,3),a,b);m.material=SMAT.link;root.add(m)});
+    const f=new THREE.Mesh(rrGeo(th+2,CAP+4,th+2,5),SMAT.rubber);f.position.set(g.foot[0],g.foot[1]+(CAP+4)/2,g.foot[2]);root.add(f)}
+  c.items.forEach(it=>{if(o.fade&&it.unfit)return;if(o.walk&&it.auto==='knee')return;if(it.auto==='joint')return; /* joint motors: drawn as the cardan below */
+    const k=cat[it.cid],d=baseDims(it),gim=it.cid==='gimbal'&&GM3,g=gim?null:k.shape==='cyl'?new THREE.CylinderGeometry(d[0]/2,d[0]/2,d[1],48):rrGeo(d[0],d[1],d[2]);
     let p=P(c,it);if(it.auto==='knee'){const q=walkLeg(c,it.leg,t);if(q)p=[q.knee[0],q.knee[1]-clear,q.knee[2]]}
-    const mat=new THREE.MeshStandardMaterial({color:colOf(it),roughness:.6,transparent:true,opacity:.95});
-    if(o.fade&&!isMotor(it)){mat.opacity=.16;mat.depthWrite=false}
+    const mat=isMotor(it)?sm(0x2b2f35,.6,.38):gim?sm(colOf(it),.2,.55,{side:THREE.DoubleSide,envMapIntensity:.45}):sm(colOf(it),.05,.55,{envMapIntensity:.45});
+    if(o.fade&&!isMotor(it)){mat.transparent=true;mat.opacity=.16;mat.depthWrite=false}
     if(bad.has(it.id)){mat.emissive=new THREE.Color(0xc0352b);mat.emissiveIntensity=.5}
-    if(!o.fade&&sel===it.id){mat.emissive=new THREE.Color(0x3a6fb0);mat.emissiveIntensity=.6;mat.opacity=1}
-    else if(!o.fade&&sel){mat.opacity=.25;mat.depthWrite=false}
-    const m=new THREE.Mesh(g,mat);m.rotation.set(it.rot[0]*Math.PI/2,it.rot[1]*Math.PI/2,it.rot[2]*Math.PI/2);m.position.set(p[0],p[1]+clear,p[2]);m.userData.id=it.id;root.add(m);
-    if(!o.fade&&sel===it.id){const e=new THREE.LineSegments(new THREE.EdgesGeometry(g,25),new THREE.LineBasicMaterial({color:0x0a1a30}));e.rotation.copy(m.rotation);e.position.copy(m.position);root.add(e)}
+    if(!o.fade&&sel===it.id){mat.emissive=new THREE.Color(0x3a6fb0);mat.emissiveIntensity=.6}
+    else if(!o.fade&&sel){mat.transparent=true;mat.opacity=.25;mat.depthWrite=false}
+    const m=gim?gimbalMesh(c,it,p,clear,mat):new THREE.Mesh(g,mat);if(!gim){m.rotation.set(it.rot[0]*Math.PI/2,it.rot[1]*Math.PI/2,it.rot[2]*Math.PI/2);m.position.set(p[0],p[1]+clear,p[2])}
+    const aq=aimQuat(c,it);if(aq)m.quaternion.premultiply(aq);
+    if(it.cid==='gimbal'&&(c.shell.gAt||'top')!=='top'){const sg=segs[(c.shell.gAt==='front')?segs.length-1:0],sx=c.shell.gAt==='front'?1:-1,x0=sg.cx+sx*sg.len/2,e=ext(it),x1=p[0]-sx*e[0]/2,arm=Math.abs(x1-x0);
+      const pl=new THREE.Mesh(rrGeo(4,Math.min(76,e[1]),Math.min(94,e[2]),1),SMAT.plate);pl.position.set(x1-sx*2,p[1]+clear,p[2]);root.add(pl);
+      if(arm>3)[[-22,-30],[22,-30],[-22,30],[22,30]].forEach(([dy,dz])=>{const t=tubeM([x0,p[1]+clear+dy,p[2]+dz],[x1-sx*4,p[1]+clear+dy,p[2]+dz],5,SMAT.main);if(t)root.add(t)})}
+    m.userData.id=it.id;root.add(m);const parts=[m];
+    if(!o.fade){const dm=detailMeshes(c,it,p,clear);dm.forEach(x=>{if(aq){x.position.sub(m.position).applyQuaternion(aq).add(m.position);x.quaternion.premultiply(aq)}if(sel&&sel!==it.id){x.material=x.material.clone();x.material.transparent=true;x.material.opacity=.25;x.material.depthWrite=false}root.add(x);parts.push(x)})}
+    if(!o.fade&&sel===it.id&&!gim){const e=new THREE.LineSegments(new THREE.EdgesGeometry(g,25),new THREE.LineBasicMaterial({color:0x0a1a30}));e.quaternion.copy(m.quaternion);e.position.copy(m.position);root.add(e);parts.push(e)}
+    if(svcNeed(it)&&!it.unfit&&!o.fade){const key=svcDir(c,it),dv=SVCD[key],kx=dv.findIndex(v=>v!==0);parts.forEach(x=>{x.userData.bp=x.position.clone()});SVCA.list.push({objs:parts,d:dv,dist:ext(it)[kx]+30})}
   });
+  if(!o.fade)for(let gi=0;gi<segs.length-1;gi++)cardan(c,gi,clear,root);
   if(!o.fade&&c.vent&&ventSensors(c).length){const v=c.vent,h=ventHalf(v),m=new THREE.Mesh(new THREE.BoxGeometry(2*h[0],2*h[1],2*h[2]),new THREE.MeshBasicMaterial({color:sel==='vent'?0x3a6fb0:0x0a1a30,transparent:true,opacity:sel&&sel!=='vent'?.3:.9}));m.position.set(v.pos[0],v.pos[1]+clear,v.pos[2]);root.add(m)}
   return{segs,clear}}
 /* ---------- frame (שלד): light machined-aluminium internal frame. Ported 18.11 from the chassis model of 17.11 (rails, perforated floor, end/joint/middle frames,
@@ -1905,10 +2089,10 @@ function frameGroup(c,clear){
     let xa=Math.min(...its.map(b=>b.mn[0]))-M,xb=Math.max(...its.map(b=>b.mx[0]))+M;
     const seat={},jc=gi=>{const ji=c.items.find(i=>i.auto==='joint'&&i.gap===gi);return ji?{jl:baseDims(ji)[1]/2,jy:P(c,ji)[1],jr:baseDims(ji)[0]/2}:{jl:20.5,jy:sg.hei/2,jr:34.5}};
     const x0=sg.cx-sg.len/2,x1=sg.cx+sg.len/2;
-    if(si<n-1){const j=jc(si),jx=x1+GAP/2;seat.r={X:jx-j.jl-8,j};xb=Math.max(xb,seat.r.X+8)}
-    if(si>0){const j=jc(si-1),jx=x0-GAP/2;seat.l={X:jx+j.jl,j};xa=Math.min(xa,seat.l.X)}
+    if(si<n-1){const j=jc(si),jx=x1+gapOf(c)/2;seat.r={X:jx-j.jl-8,j};xb=Math.max(xb,seat.r.X+8)}
+    if(si>0){const j=jc(si-1),jx=x0-gapOf(c)/2;seat.l={X:jx+j.jl,j};xa=Math.min(xa,seat.l.X)}
     const k=Math.max(1,Math.ceil((xb-xa)/75)),xs=[];for(let i=0;i<=k;i++)xs.push(xa+(xb-xa)*i/k);
-    const polyAt=x=>{let sel=its.filter(b=>b.mn[0]-40<=x&&b.mx[0]+40>=x);if(!sel.length)sel=its;const q=[];sel.forEach(b=>{[b.mn[2]-M,b.mx[2]+M].forEach(z=>[Math.max(0,b.mn[1]-M),b.mx[1]+M].forEach(y=>q.push([z,y])))});return hull(q)};
+    const polyAt=x=>{/* 19.11 (Sharon): the lidar sticks out of the frame, the rings do not wrap it; it is held by a short rod to the nearest ring */const core=its.filter(b=>b.it.cid!=='lidar'),pool=core.length?core:its;let sel=pool.filter(b=>b.mn[0]-40<=x&&b.mx[0]+40>=x);if(!sel.length)sel=pool;const q=[];sel.forEach(b=>{[b.mn[2]-M,b.mx[2]+M].forEach(z=>[Math.max(0,b.mn[1]-M),b.mx[1]+M].forEach(y=>q.push([z,y])))});return hull(q)};
     const polys=xs.map(polyAt);
     polys.forEach((pl,i)=>{ring(xs[i],pl)});
     /* rods between neighbouring rings: every corner joins the nearest corner of the next ring; the lowest run is a bolted tube (it carries the weight) */
@@ -1963,14 +2147,14 @@ function walkBuild(c){
   root.children.slice(1).forEach(k=>{let i=0;while(i<gx.length&&k.position.x>gx[i]+.01)i++;root.remove(k);G[i].add(k)});
   G.forEach(q=>root.add(q));WK.seg=G;
   const fi=$('#frameInfo');fi.textContent='';
-  if(V.frame){const fr=frameGroup(c,clear);fr.gs.forEach((q,i)=>{q.position.y=clear;G[i].add(q)});const f=fr.info;fi.textContent=frameNote(f)}
+  if(V.frame){const fr=simFrame(c,clear);fr.gs.forEach((q,i)=>{q.position.y=clear;G[i].add(q)});fi.textContent=simFrameNote(fr.info)}
   WK.J=[];for(let g=0;g<n-1;g++){const ji=c.items.find(i=>i.auto==='joint'&&i.gap===g);WK.J.push(new THREE.Vector3(gx[g],clear+(ji?P(c,ji)[1]:Math.min(segs[g].hei,segs[g+1].hei)/2),0))}
   const th=c.legs.thick||THICK0,lm=cat.legmotor,bm=new THREE.MeshStandardMaterial({color:0x9aa3af}),fm=new THREE.MeshStandardMaterial({color:0x2b2f33});
   WK.legs=[];
   for(let i=0;i<c.legs.count;i++){const h=hipItem(c,i),pz=legPose(c,i,0);if(!h||!pz)continue;const si=segIdx(c,h.seg),ki=c.items.find(x=>x.auto==='knee'&&x.leg===i);
     const mk=(geo,m)=>{const o=new THREE.Mesh(geo,m);G[si].add(o);return o};
     const kn=mk(new THREE.CylinderGeometry(lm.dims[0]/2,lm.dims[0]/2,lm.dims[1],24),new THREE.MeshStandardMaterial({color:ki?colOf(ki):0x8b919c,roughness:.6}));kn.rotation.x=Math.PI/2;
-    WK.legs.push({si,pz,th,dir:pz.dir,T:c.legs.thigh,Sn:c.legs.shin,ph:(((pz.hip[0]>0?1:0)+(h.side>0?1:0))%2)*.5,a:mk(new THREE.BoxGeometry(th,1,th),bm),b:mk(new THREE.BoxGeometry(th,1,th),bm),f:mk(new THREE.SphereGeometry(th/2+2,14,10),fm),k:kn})}
+    WK.legs.push({si,pz,th,dir:pz.dir,T:c.legs.thigh,Sn:c.legs.shin,ph:(((pz.hip[0]>0?1:0)+(h.side>0?1:0))%2)*.5,a:mk(new THREE.BoxGeometry(th,1,th),bm),b:mk(new THREE.BoxGeometry(th,1,th),bm),f:mk(rrGeo(th+2,CAP+4,th+2,5),SMAT.rubber),k:kn})}
   return{segs,clear}}
 const _wv=new THREE.Vector3(),_wm=new THREE.Matrix4();
 function walkBar(m,a,b){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B)||1;m.position.copy(A).add(B).multiplyScalar(.5);m.scale.set(1,L,1);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize())}
@@ -1992,7 +2176,11 @@ function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.la
     walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)})}
 function build3D(){
   clearRoot(root);const c=cfg(),{segs,clear}=WK.on?walkBuild(c):fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c),noShell:V.frame});
-  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameGroup(c,clear);root.add(fr.g);const f=fr.info;fi.textContent=frameNote(f)}else if(!WK.on)fi.textContent='';
+  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=simFrame(c,clear);root.add(fr.g);fi.textContent=simFrameNote(fr.info)}else if(!WK.on)fi.textContent='';
+  if(V.fab&&!WK.on)root.add(fabricShell(c,clear));
+  /* colours are sRGB, the renderer works in linear light: convert once; parts cast and catch shadows */
+  root.traverse(o=>{if(!o.isMesh&&!o.isLine)return;const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m&&m.color&&!m.userData.lin){m.color.convertSRGBToLinear();m.userData.lin=1}});
+    if(o.isMesh&&!o.userData.noShadow){const op=ms.every(m=>m&&(!m.transparent||m.opacity>.9));o.castShadow=op;o.receiveShadow=op}});
   const HH=Math.max(...segs.map(s=>s.hei))+(c.items.some(i=>i.cid==='gimbal')?95:0),rad=Math.hypot(shellLen(c)/2+60,(clear+HH)/2+30,shellWid(c)/2+40),R=rad/Math.sin(0.28)*.62,t=new THREE.Vector3(0,(clear+HH)/2,0);
   const big=V.mode==='3d'||V.mode==='win';
   if(!camSet){cam.position.set(R*.55,R*.38,R*.7);oc.target.copy(t);camSet=true}else if(!big)oc.target.copy(t);
@@ -2200,7 +2388,7 @@ new ResizeObserver(lresize).observe(lcv);
 function resize3(){const r=cv.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/Math.max(r.height,1);cam.updateProjectionMatrix()}
 new ResizeObserver(()=>{resize3();render2D(false)}).observe($('#stage'));
 new ResizeObserver(resize3).observe(cv);
-(function loop(){if(ST.on){soc.update();sren.render(sscene,scam)}else if(LV.on){loc.update();lren.render(lscene,lcam)}else{if(WK.on)wkTick();oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
+(function loop(){if(ST.on){soc.update();sren.render(sscene,scam)}else if(LV.on){loc.update();lren.render(lscene,lcam)}else{if(WK.on)wkTick();svcTick();oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
 
 /* ---------- step 4: direction of each part, view ranges, cables, 3D editing, view modes ---------- */
 const FACEV={'+x':[1,0,0],'-x':[-1,0,0],'+y':[0,1,0],'-y':[0,-1,0],'+z':[0,0,1],'-z':[0,0,-1]};
@@ -2511,6 +2699,9 @@ function renderPop(){
   const A=document.createElement('div');A.className='a';
   A.innerHTML='<h3>'+name(c,it)+'</h3><div class="m">'+k.model+'</div><div class="why '+(why?'tech':'')+'">'+(why?'למה כאן: '+why:'אין דרישת מיקום. המקום הוא ברירת מחדל זמנית.')+'</div>';
   P_.appendChild(A);
+  if(svcNeed(it)&&!it.auto){const cur=svcDir(c,it),R_=document.createElement('div');R_.className='btns';R_.style.marginTop='6px';
+    R_.innerHTML='<span class="m" style="margin-inline-end:6px">יוצא לתחזוקה'+(it.cid==='battery'?' (הידית בצד הזה)':'')+':</span>'+Object.keys(SVC_LAB).map(k=>'<button class="pill'+(k===cur?' on':'')+'" data-sv="'+k+'" title="'+(svcFree(c,it,k)?'הדרך פנויה':'הדרך חסומה')+'">'+SVC_LAB[k]+(svcFree(c,it,k)?'':' ✕')+'</button>').join('');
+    R_.onclick=e=>{const k=e.target.closest('[data-sv]');if(!k)return;snap();it.svc=k.dataset.sv;save();refresh(false)};P_.appendChild(R_)}
   const B=document.createElement('div');B.className='b';
   const row=document.createElement('div');row.className='btns';
   const lk=it.auto?'':'<button class="pill'+(it.locked?' on':'')+'" data-a="lock">'+(it.locked?'ביטול נעילה':'נעילת מקום')+'</button>';
@@ -2599,13 +2790,16 @@ function renderCtrl(){
     slider('אורך',q.len,40,800,5,applyShell(v=>q.len=v),{k:'len',seg:V.seg});
     slider('רוחב',q.wid,30,PASSW,5,applyShell(v=>q.wid=v),{k:'wid',seg:V.seg});
     slider(hLab,q.hei,20,400,5,applyShell(v=>q.hei=v),{k:'hei',seg:V.seg});
-    el.insertAdjacentHTML('beforeend','<div class="note">אורך כולל <b class="lensum">'+Math.round(shellLen(c))+'</b> מ"מ, כולל רווח של '+GAP+' מ"מ בין חוליות. אפשר לבחור חוליה גם בלחיצה עליה בשרטוט.</div>');
-  }else{
+    el.insertAdjacentHTML('beforeend','<div class="note">אורך כולל <b class="lensum">'+Math.round(shellLen(c))+'</b> מ"מ, כולל רווח של '+gapOf(c)+' מ"מ בין חוליות. אפשר לבחור חוליה גם בלחיצה עליה בשרטוט.</div>');
+  }
+  if(s.n>1)slider('רווח בין חוליות',gapOf(c),20,160,1,applyShell(v=>s.gap=v));  /* 19.11: room for the cardan joint (92 mm in the joint file example) */
+  if(!perOn(c)){
     slider('אורך',s.total,100,1400,5,applyShell(v=>s.total=v),{k:'total'});
     slider('רוחב',s.wid,30,PASSW,5,applyShell(v=>s.wid=v),{k:'wid'});
     slider(hLab,s.hei,20,400,5,applyShell(v=>s.hei=v),{k:'hei'});
   }
   if(c.items.some(i=>i.cid==='gimbal'))segBtns('גימבל',[['top','למעלה'],['front','בחזית'],['rear','מאחור']],s.gAt||'top',v=>{snap();s.gAt=v;c.items.filter(i=>i.cid==='gimbal'||isMounted(i)).forEach(i=>i.manual=false);layout(c);save();refresh(true)});
+  if(c.items.some(i=>i.cid==='gimbal')&&(s.gAt||'top')!=='top')slider('זרוע הגימבל',s.gArm||0,0,150,1,v=>{s.gArm=v;const g=c.items.find(i=>i.cid==='gimbal');if(g){const e=ext(g),sg=shellOf(c),s2=s.gAt==='front'?sg[sg.length-1]:sg[0],nx=s2.cx+(s.gAt==='front'?1:-1)*(s2.len/2+e[0]/2+v),dx=nx-g.pos[0];g.pos[0]=nx;c.items.filter(isMounted).forEach(m=>m.pos[0]+=dx)}schedule();save()});  /* 19.11: the gimbal can stand out of the tool on an arm (configuration "גימבל יוצא מקו הכלי") */
   segBtns('קליפה',[['fix','קבועה'],['dyn','דינמית'],['steps','מדרגות']],s.steps?'steps':s.dyn?'dyn':'fix',v=>{snap();s.dyn=v==='dyn';s.steps=v==='steps';layout(c);growIfNeeded(c,true);save();refresh(true)});
   if(s.steps){segBtns('מדרגה',[['0','רק מעל הרכיב'],['1','לכל הרוחב']],s.sFull?'1':'0',v=>{snap();s.sFull=v==='1';layout(c);save();refresh(true)});
     slider('מרווח מדרגה',s.sPad||0,0,40,1,(v,fin)=>{s.sPad=v;if(!fin){schedule();return}layout(c);save();refresh()},{k:'steps'});
@@ -2703,6 +2897,50 @@ function renderCtrl(){
   paint()})();
 
 document.querySelectorAll('#frameTg button').forEach(b=>b.onclick=()=>{V.frame=b.dataset.f==='1';document.querySelectorAll('#frameTg button').forEach(x=>x.classList.toggle('on',x===b));schedule()});
+/* ---- stage 8 (19.11) buttons: see-through fabric shell, service removal, sight and light checks ---- */
+{const fb=$('#fabbtn'),sb=$('#svcbtn');
+  const setP=(b,on)=>{b.setAttribute('aria-pressed',on?'true':'false');b.classList.toggle('on',on)};
+  try{V.fab=localStorage.getItem('dash-fab')==='1'}catch(e){}setP(fb,!!V.fab);
+  fb.onclick=()=>{V.fab=!V.fab;setP(fb,V.fab);try{localStorage.setItem('dash-fab',V.fab?'1':'0')}catch(e){}build3D()};
+  sb.onclick=()=>{SVCA.on=!SVCA.on;setP(sb,SVCA.on);SVCA.dirty=true;if(SVCA.on&&!(V.mode==='3d'||V.mode==='win'))toast('ההוצאה נראית בתלת מימד')};
+  $('#seebtn').onclick=()=>openSight()}
+/* share of each sensor's field of view that the gimbal (with its cameras) covers, within 60 cm. Rays from the middle of the sensor's front face,
+   against the real gimbal mesh in the 3D view. Fields from the cards (data.json fov); navigation camera height 65° is my assumption (the card has none). */
+function gimbalBlockShares(c){const clear=clearance(c),gim=root.children.filter(o=>{const it=o.userData&&o.userData.id&&c.items.find(i=>i.id===o.userData.id);return it&&(it.cid==='gimbal'||isMounted(it))});
+  if(!gim.length)return null;root.updateMatrixWorld(true);const rc=new THREE.Raycaster();rc.near=.5;rc.far=600;const out=[];
+  const cast=(o,dirs)=>{let h=0,t=0;const O=V3(o);dirs.forEach(([d,w])=>{rc.set(O,V3(d).normalize());t+=w;if(rc.intersectObjects(gim,false).length)h+=w});return t?100*h/t:0};
+  const basis=d=>{const up=Math.abs(d[1])>.9?[1,0,0]:[0,1,0],r=norm(cross(d,up)),u=cross(r,d);return{r,u}};
+  c.items.filter(i=>!i.unfit&&['lidar','navcam','radar','thermal'].includes(i.cid)).forEach(it=>{const fv=cat[it.cid].fov||{},dirs=[];let o,note;
+    if(it.cid==='lidar'){const p=P(c,it),a=axisOf(it),ax=[a.x,a.y,a.z],b=basis(ax);o=[p[0]+ax[0]*8,p[1]+clear+ax[1]*8,p[2]+ax[2]*8];const lo=(fv.from_perp_deg||[-4.4,90.5])[0],hi=(fv.from_perp_deg||[-4.4,90.5])[1];
+      for(let az=0;az<360;az+=6)for(let el=lo;el<=hi;el+=5){const A=az*Math.PI/180,E=el*Math.PI/180,ce=Math.cos(E);dirs.push([[ax[0]*Math.sin(E)+ce*(b.r[0]*Math.cos(A)+b.u[0]*Math.sin(A)),ax[1]*Math.sin(E)+ce*(b.r[1]*Math.cos(A)+b.u[1]*Math.sin(A)),ax[2]*Math.sin(E)+ce*(b.r[2]*Math.cos(A)+b.u[2]*Math.sin(A))],ce+.02])}
+      note='360° סביב, מהמישור שלו ועד '+hi+'° (כרטיס 03)'}
+    else{const F=faceOf(c,it,clear);if(!F)return;o=F.o.map((v,k)=>v+F.d[k]);const b=basis(F.d),H=fv.h_deg||90,Vd=fv.v_deg||65,st=Math.max(2,Math.min(H,Vd)/10);
+      for(let ah=-H/2;ah<=H/2+1e-6;ah+=st)for(let av=-Vd/2;av<=Vd/2+1e-6;av+=st){const A=ah*Math.PI/180,E=av*Math.PI/180,ce=Math.cos(E);dirs.push([[0,1,2].map(k=>F.d[k]*Math.cos(A)*ce+b.r[k]*Math.sin(A)*ce+b.u[k]*Math.sin(E)),1])}
+      note=(fv.h_deg?fv.h_deg+'° לרוחב':'רוחב לא ידוע, בדיקה ב-90°')+' × '+(fv.v_deg?fv.v_deg+'° לגובה':'65° לגובה (הנחה שלי, הכרטיס לא כותב)')}
+    out.push({n:name(c,it),v:cast(o,dirs),note})});return out}
+/* doc-light angle, top view (2D): psi = how far each light is turned from facing sideways toward the front (0 = sideways, 90 = parallel to the tool).
+   Lit share of the camera picture between 30 and 100 cm, and of the dust zone 0-20 cm in front of the lens. Camera 81° (card 07), beam from the card (114° bare). */
+function lightModel(c){const cams=c.items.filter(i=>i.cid==='doccam'&&!i.unfit),lights=c.items.filter(i=>i.cid==='doclight'&&!i.unfit);if(!cams.length||!lights.length)return null;const clear=clearance(c);
+  const fs=cams.map(i=>faceOf(c,i,clear)).filter(Boolean);if(!fs.length)return null;const sg=fs[0].d[0]>=0?1:-1,cx=Math.max(...fs.map(f=>sg*f.o[0])),cz=fs.reduce((a,f)=>a+f.o[2],0)/fs.length;
+  return{cam:{x:cx,z:cz},L:lights.map(l=>{const p=P(c,l);return{x:sg*p[0],z:p[2]}}),A:40.5}}
+function litFrac(M,beta,psi,d0,d1){let n=0,t=0;for(let d=d0;d<=d1;d+=10){const h=d*Math.tan(M.A*Math.PI/180);for(let j=0;j<=20;j++){t++;const z=M.cam.z-h+2*h*j/20;
+  if(M.L.some(l=>{const xp=M.cam.x+d-l.x;if(xp<=0)return false;const side=Math.sign(l.z-M.cam.z)||1,ang=Math.atan2((z-l.z)*side,xp),aim=(90-psi)*Math.PI/180;return Math.abs(ang-aim)<=beta*Math.PI/180}))n++}}return t?100*n/t:0}
+function lightRange(M,beta){const ok=[];for(let psi=0;psi<=150;psi++)if(litFrac(M,beta,psi,300,1000)>=95)ok.push(psi);return ok.length?[ok[0],ok[ok.length-1]]:null}
+function openSight(){const c=cfg();if(!(V.mode==='3d'||V.mode==='win')){/* the rays need the 3D model */}
+  build3D();const sh=gimbalBlockShares(c),M=lightModel(c),beam=(cat.doclight&&cat.doclight.beam_deg)||114;
+  const rows=sh?sh.map(r=>'<tr><td>'+esc(r.n)+'</td><td style="text-align:end">'+(r.v<1?'לא מוסתר':Math.round(r.v)+'%')+'</td><td class="m">'+esc(r.note)+'</td></tr>').join(''):'';
+  const BETAS=[20,30,45,57],LR=M?BETAS.map(b=>{const r=lightRange(M,b);return{b,r,rec:r?[r[0],Math.min(r[0]+20,90)]:null}}):[];
+  $('#mcard').innerHTML='<h2>ראייה ותאורה</h2>'+
+   '<h3 style="margin:8px 0 4px">כמה מהשדה של כל חיישן הגימבל מסתיר</h3>'+(sh?'<table class="it">'+rows+'</table><div class="m" style="margin-top:4px">קרניים מאמצע הפנים של החיישן לתוך שדה הראייה שלו, מול המודל של הגימבל (STEP של היצרן) ומצלמות התיעוד, עד 60 ס"מ. הגימבל ישר קדימה. הטיה למעלה יכולה להסתיר יותר.</div>':'<div class="m">אין גימבל בקונפיגורציה הזאת.</div>')+
+   '<h3 style="margin:14px 0 4px">זווית תאורות התיעוד</h3>'+(M?'<div class="ctl"><span class="l">הטיה קדימה מהצד</span><input type="range" id="aimR" min="0" max="150" step="1" value="'+(c.docAim||0)+'"><b id="aimV">'+(c.docAim||0)+'°</b></div>'+
+   '<div class="ctl"><span class="l">חצי זווית אלומה</span><select id="beamS">'+BETAS.map(b=>'<option value="'+b+'"'+(b===57?' selected':'')+'>'+b+'°'+(b===57?' ('+beam+'° מלאים, בלי עדשה, כרטיס 12)':'')+'</option>').join('')+'</select></div><div id="aimOut"></div>'+
+   '<table class="it"><tr><td><b>חצי אלומה</b></td><td><b>מאיר מספיק</b></td><td><b>טווח מומלץ</b></td></tr>'+LR.map(x=>'<tr><td>'+x.b+'°</td><td>'+(x.r?x.r[0]+'°-'+x.r[1]+'°':'אף זווית')+'</td><td>'+(x.rec?x.rec[0]+'°-'+x.rec[1]+'°':'-')+'</td></tr>').join('')+'</table>'+
+   '<div class="m" style="margin-top:4px">0° = האור פונה ישר הצידה, 90° = מקביל לכלי, מעל 90° נוטה לתוך הציר של המצלמה. "מאיר מספיק" = לפחות 95% מהתמונה מואר בין 30 ל-100 ס"מ. "מומלץ" = מהקצה התחתון עד 20° מעליו ולא מעל 90°: בזווית קטנה פחות אור נכנס לאזור שליד העדשה, ושם האבק מחזיר אור למצלמה (סנוור). האלומה עם עדשה לא ידועה. מצלמה 81° (כרטיס 07, לא ברור אם רוחב או אלכסון). חישוב דו-ממדי מלמעלה, הנחות שלי. הזווית שבוחרים כאן נשמרת בקונפיגורציה ומסובבת את התאורות בתלת מימד.</div>'
+   :'<div class="m">צריך מצלמות תיעוד ותאורות תיעוד בקונפיגורציה.</div>')+'<div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
+  $('#modal').classList.add('on');$('#mc').onclick=closeModal;
+  if(M){const r=$('#aimR'),bs=$('#beamS'),upd=()=>{const psi=+r.value,b=+bs.value;$('#aimV').textContent=psi+'°';
+      $('#aimOut').innerHTML='<div class="m">בזווית הזאת: <b>'+Math.round(litFrac(M,b,psi,300,1000))+'%</b> מהתמונה מואר בין 30 ל-100 ס"מ, <b>'+Math.round(litFrac(M,b,psi,300,300))+'%</b> ב-30 ס"מ. אזור הסנוור (0-20 ס"מ מול העדשה) מואר <b>'+Math.round(litFrac(M,b,psi,10,200))+'%</b>.</div>'};
+    let first=true;r.oninput=()=>{if(first){snap();first=false}c.docAim=+r.value;upd();build3D()};r.onchange=()=>{save();first=true};bs.onchange=upd;upd()}}
 $('#freebtn').onclick=e=>{V.free=!V.free;e.currentTarget.setAttribute('aria-pressed',V.free?'true':'false');e.currentTarget.classList.toggle('on',V.free);toast(V.free?'מצב חופשי: אין הצמדה וחסימה':'חזרה להצמדה')};
 $('#walkbtn').onclick=()=>{const c=cfg();
   if(WALK.on){walkStop();return}
@@ -2902,6 +3140,16 @@ S=load();
 if(!S.configs.every(c=>c.shell&&c.legs&&c.items))S={configs:[newConfig('קונפיגורציה 1')],active:0};
 S.rules=Object.assign(RULE_DEF(),S.rules||{});
 migrate();migrate4();
+/* 19.11 (Sharon): the five configurations of the simulation are added once to the saved ones (positions converted: x - 26, the gap here is 92 mm as in the joint file) */
+const SIM_PRESETS=[{"key":"A","name":"הדמיה 19.11: בסיס, סוללה יוצאת מהצד","segs":[{"len":200,"wid":190,"hei":150},{"len":160,"wid":190,"hei":150}],"gap":92,"arm":0,"hips":[[0,-152,92.5],[1,150,92.5]],"items":[{"cid":"battery","pos":[-82,42,0],"rot":[0,1,0],"svc":"+z"},{"cid":"pdu","pos":[-159,17,0],"rot":[0,0,0]},{"cid":"computer","pos":[-84,125,0],"rot":[0,0,0],"svc":"+y"},{"cid":"safety","pos":[-182,137,-26.5],"rot":[0,0,0],"svc":"+y"},{"cid":"airboard","pos":[-192,137,11.5],"rot":[0,0,0]},{"cid":"leddriver","pos":[-157,137,10],"rot":[0,0,0]},{"cid":"backup","pos":[-185.35,137,34.25],"rot":[0,0,1]},{"cid":"navcam","pos":[-204,68.5,-2.5],"rot":[0,1,0]},{"cid":"thermal","pos":[-206,96.5,-3.2],"rot":[0,1,0]},{"cid":"drivelight","pos":[-214.5,130,-80],"rot":[0,0,1]},{"cid":"cliff","pos":[-213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[-213,7,80],"rot":[0,0,0]},{"cid":"amber","pos":[-205,138,72],"rot":[0,0,0]},{"cid":"estop","pos":[-219.7,135,45],"rot":[0,0,1]},{"cid":"buzzer","pos":[-221,135,-55],"rot":[0,0,1]},{"cid":"fo1","pos":[-207.5,45,-40],"rot":[0,0,1]},{"cid":"netconv","pos":[-157,43,0],"rot":[0,0,0]},{"cid":"radar","pos":[212.1,172,-28],"rot":[0,0,0]},{"cid":"lidar","pos":[169,170.5,-34.2],"rot":[0,0,0]},{"cid":"imu","pos":[148.4,107.15,1.5],"rot":[0,0,0]},{"cid":"thermal","pos":[206,105,-79],"rot":[0,1,0]},{"cid":"navcam","pos":[199,24,2.5],"rot":[0,1,0]},{"cid":"drivelight","pos":[210,138,-80],"rot":[0,0,1]},{"cid":"doclight","pos":[86,135,-81],"rot":[1,0,0]},{"cid":"doclight","pos":[86,135,81],"rot":[1,0,0]},{"cid":"o2","pos":[139,134.5,-87.4],"rot":[0,0,0]},{"cid":"co2","pos":[114,139.3,-86.7],"rot":[1,0,0]},{"cid":"irled","pos":[124,135,85],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,20],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,-30],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,80],"rot":[0,0,0]},{"cid":"gimbal","pos":[null,100,46.6],"rot":[0,0,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,-19.5],"rot":[0,1,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,19.5],"rot":[0,1,0]}]},{"key":"B1","name":"הדמיה 19.11: סוללה יוצאת מלמעלה","segs":[{"len":200,"wid":190,"hei":185},{"len":160,"wid":190,"hei":150}],"gap":92,"arm":0,"hips":[[0,-152,92.5],[1,150,92.5]],"items":[{"cid":"battery","pos":[-82,140.6,0],"rot":[0,1,0],"svc":"+y"},{"cid":"pdu","pos":[-164,17,0],"rot":[0,0,0]},{"cid":"computer","pos":[-78,28,0],"rot":[0,0,0],"svc":"+z"},{"cid":"safety","pos":[-182,137,-26.5],"rot":[0,0,0],"svc":"+y"},{"cid":"airboard","pos":[-192,137,11.5],"rot":[0,0,0]},{"cid":"leddriver","pos":[-157,137,10],"rot":[0,0,0]},{"cid":"backup","pos":[-185.35,137,34.25],"rot":[0,0,1]},{"cid":"navcam","pos":[-204,68.5,-2.5],"rot":[0,1,0]},{"cid":"thermal","pos":[-206,96.5,-3.2],"rot":[0,1,0]},{"cid":"drivelight","pos":[-214.5,130,-80],"rot":[0,0,1]},{"cid":"cliff","pos":[-213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[-213,7,80],"rot":[0,0,0]},{"cid":"amber","pos":[-205,138,72],"rot":[0,0,0]},{"cid":"estop","pos":[-219.7,135,45],"rot":[0,0,1]},{"cid":"buzzer","pos":[-221,135,-55],"rot":[0,0,1]},{"cid":"fo1","pos":[-207.5,45,-40],"rot":[0,0,1]},{"cid":"netconv","pos":[126,44,0],"rot":[0,0,0]},{"cid":"radar","pos":[212.1,172,-28],"rot":[0,0,0]},{"cid":"lidar","pos":[169,170.5,-34.2],"rot":[0,0,0]},{"cid":"imu","pos":[148.4,107.15,1.5],"rot":[0,0,0]},{"cid":"thermal","pos":[206,105,-79],"rot":[0,1,0]},{"cid":"navcam","pos":[199,24,2.5],"rot":[0,1,0]},{"cid":"drivelight","pos":[210,138,-80],"rot":[0,0,1]},{"cid":"doclight","pos":[86,135,-81],"rot":[1,0,0]},{"cid":"doclight","pos":[86,135,81],"rot":[1,0,0]},{"cid":"o2","pos":[139,134.5,-87.4],"rot":[0,0,0]},{"cid":"co2","pos":[114,139.3,-86.7],"rot":[1,0,0]},{"cid":"irled","pos":[124,135,85],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,20],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,-30],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,80],"rot":[0,0,0]},{"cid":"gimbal","pos":[null,100,46.6],"rot":[0,0,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,-19.5],"rot":[0,1,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,19.5],"rot":[0,1,0]}]},{"key":"B2","name":"הדמיה 19.11: סוללה יוצאת מאחור","segs":[{"len":200,"wid":190,"hei":150},{"len":160,"wid":190,"hei":150}],"gap":92,"arm":0,"hips":[[0,-152,92.5],[1,150,92.5]],"items":[{"cid":"battery","pos":[-156,42,0],"rot":[0,0,0],"svc":"-x"},{"cid":"pdu","pos":[126,17,0],"rot":[0,0,0]},{"cid":"computer","pos":[-84,125,0],"rot":[0,0,0],"svc":"+y"},{"cid":"safety","pos":[-182,137,-26.5],"rot":[0,0,0],"svc":"+y"},{"cid":"airboard","pos":[-192,137,11.5],"rot":[0,0,0]},{"cid":"leddriver","pos":[-157,137,10],"rot":[0,0,0]},{"cid":"backup","pos":[-185.35,137,34.25],"rot":[0,0,1]},{"cid":"navcam","pos":[-204,98,-2.5],"rot":[0,1,0]},{"cid":"thermal","pos":[-206,98,81.5],"rot":[0,1,0]},{"cid":"drivelight","pos":[-214.5,130,-80],"rot":[0,0,1]},{"cid":"cliff","pos":[-213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[-213,7,80],"rot":[0,0,0]},{"cid":"amber","pos":[-205,138,72],"rot":[0,0,0]},{"cid":"estop","pos":[-219.7,135,45],"rot":[0,0,1]},{"cid":"buzzer","pos":[-221,135,-55],"rot":[0,0,1]},{"cid":"fo1","pos":[-207.5,45,-60],"rot":[0,0,1]},{"cid":"netconv","pos":[126,44,0],"rot":[0,0,0]},{"cid":"radar","pos":[212.1,172,-28],"rot":[0,0,0]},{"cid":"lidar","pos":[169,170.5,-34.2],"rot":[0,0,0]},{"cid":"imu","pos":[148.4,107.15,1.5],"rot":[0,0,0]},{"cid":"thermal","pos":[206,105,-79],"rot":[0,1,0]},{"cid":"navcam","pos":[199,24,2.5],"rot":[0,1,0]},{"cid":"drivelight","pos":[210,138,-80],"rot":[0,0,1]},{"cid":"doclight","pos":[86,135,-81],"rot":[1,0,0]},{"cid":"doclight","pos":[86,135,81],"rot":[1,0,0]},{"cid":"o2","pos":[139,134.5,-87.4],"rot":[0,0,0]},{"cid":"co2","pos":[114,139.3,-86.7],"rot":[1,0,0]},{"cid":"irled","pos":[124,135,85],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,20],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,-30],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,80],"rot":[0,0,0]},{"cid":"gimbal","pos":[null,100,46.6],"rot":[0,0,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,-19.5],"rot":[0,1,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,19.5],"rot":[0,1,0]}]},{"key":"C3","name":"הדמיה 19.11: ליידאר על מדרגה","segs":[{"len":200,"wid":190,"hei":150},{"len":160,"wid":190,"hei":150}],"gap":92,"arm":0,"hips":[[0,-152,92.5],[1,150,92.5]],"items":[{"cid":"battery","pos":[-82,42,0],"rot":[0,1,0],"svc":"+z"},{"cid":"pdu","pos":[-159,17,0],"rot":[0,0,0]},{"cid":"computer","pos":[-84,125,0],"rot":[0,0,0],"svc":"+y"},{"cid":"safety","pos":[-182,137,-26.5],"rot":[0,0,0],"svc":"+y"},{"cid":"airboard","pos":[-192,137,11.5],"rot":[0,0,0]},{"cid":"leddriver","pos":[-157,137,10],"rot":[0,0,0]},{"cid":"backup","pos":[-185.35,137,34.25],"rot":[0,0,1]},{"cid":"navcam","pos":[-204,68.5,-2.5],"rot":[0,1,0]},{"cid":"thermal","pos":[-206,96.5,-3.2],"rot":[0,1,0]},{"cid":"drivelight","pos":[-214.5,130,-80],"rot":[0,0,1]},{"cid":"cliff","pos":[-213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[-213,7,80],"rot":[0,0,0]},{"cid":"amber","pos":[-205,138,72],"rot":[0,0,0]},{"cid":"estop","pos":[-219.7,135,45],"rot":[0,0,1]},{"cid":"buzzer","pos":[-221,135,-55],"rot":[0,0,1]},{"cid":"fo1","pos":[-207.5,45,-40],"rot":[0,0,1]},{"cid":"netconv","pos":[-157,43,0],"rot":[0,0,0]},{"cid":"radar","pos":[212.1,172,-28],"rot":[0,0,0]},{"cid":"lidar","pos":[169,192,-34.2],"rot":[0,0,0]},{"cid":"imu","pos":[148.4,107.15,1.5],"rot":[0,0,0]},{"cid":"thermal","pos":[206,105,-79],"rot":[0,1,0]},{"cid":"navcam","pos":[199,24,2.5],"rot":[0,1,0]},{"cid":"drivelight","pos":[210,138,-80],"rot":[0,0,1]},{"cid":"doclight","pos":[86,135,-81],"rot":[1,0,0]},{"cid":"doclight","pos":[86,135,81],"rot":[1,0,0]},{"cid":"o2","pos":[139,134.5,-87.4],"rot":[0,0,0]},{"cid":"co2","pos":[114,139.3,-86.7],"rot":[1,0,0]},{"cid":"irled","pos":[124,135,85],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,20],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,-30],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,80],"rot":[0,0,0]},{"cid":"gimbal","pos":[null,100,46.6],"rot":[0,0,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,-19.5],"rot":[0,1,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,19.5],"rot":[0,1,0]}]},{"key":"C4","name":"הדמיה 19.11: גימבל יוצא מקו הכלי","segs":[{"len":200,"wid":190,"hei":150},{"len":160,"wid":190,"hei":150}],"gap":92,"arm":74,"hips":[[0,-152,92.5],[1,150,92.5]],"items":[{"cid":"battery","pos":[-82,42,0],"rot":[0,1,0],"svc":"+z"},{"cid":"pdu","pos":[-159,17,0],"rot":[0,0,0]},{"cid":"computer","pos":[-84,125,0],"rot":[0,0,0],"svc":"+y"},{"cid":"safety","pos":[-182,137,-26.5],"rot":[0,0,0],"svc":"+y"},{"cid":"airboard","pos":[-192,137,11.5],"rot":[0,0,0]},{"cid":"leddriver","pos":[-157,137,10],"rot":[0,0,0]},{"cid":"backup","pos":[-185.35,137,34.25],"rot":[0,0,1]},{"cid":"navcam","pos":[-204,68.5,-2.5],"rot":[0,1,0]},{"cid":"thermal","pos":[-206,96.5,-3.2],"rot":[0,1,0]},{"cid":"drivelight","pos":[-214.5,130,-80],"rot":[0,0,1]},{"cid":"cliff","pos":[-213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[-213,7,80],"rot":[0,0,0]},{"cid":"amber","pos":[-205,138,72],"rot":[0,0,0]},{"cid":"estop","pos":[-219.7,135,45],"rot":[0,0,1]},{"cid":"buzzer","pos":[-221,135,-55],"rot":[0,0,1]},{"cid":"fo1","pos":[-207.5,45,-40],"rot":[0,0,1]},{"cid":"netconv","pos":[-157,43,0],"rot":[0,0,0]},{"cid":"radar","pos":[212.1,172,-28],"rot":[0,0,0]},{"cid":"lidar","pos":[169,170.5,-34.2],"rot":[0,0,0]},{"cid":"imu","pos":[148.4,107.15,1.5],"rot":[0,0,0]},{"cid":"thermal","pos":[206,105,-79],"rot":[0,1,0]},{"cid":"navcam","pos":[199,118,2.5],"rot":[0,1,0]},{"cid":"drivelight","pos":[210,138,-80],"rot":[0,0,1]},{"cid":"doclight","pos":[86,135,-81],"rot":[1,0,0]},{"cid":"doclight","pos":[86,135,81],"rot":[1,0,0]},{"cid":"o2","pos":[139,134.5,-87.4],"rot":[0,0,0]},{"cid":"co2","pos":[114,139.3,-86.7],"rot":[1,0,0]},{"cid":"irled","pos":[124,135,85],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,20],"rot":[0,0,0]},{"cid":"framosad","pos":[96,135,-30],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,-80],"rot":[0,0,0]},{"cid":"cliff","pos":[213,7,80],"rot":[0,0,0]},{"cid":"gimbal","pos":[null,40,-11.9],"rot":[0,0,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,-19.5],"rot":[0,1,0]},{"cid":"doccam","mount":true,"dpos":[20,-10,19.5],"rot":[0,1,0]}]}];
+function simPreset(p){const c={id:uid(),name:p.name,shell:{n:2,per:true,segs:p.segs.map(q=>({...q})),total:0,wid:190,hei:Math.max(...p.segs.map(q=>q.hei)),gap:p.gap,gAt:'front',gArm:p.arm,steps:true,lOut:30},
+    legs:{count:4,stance:'stand',per:[1,1],thigh:105,shin:95,thick:20,knee:'out'},items:[],orient4:true,radar1:true,docAim:48,sim:p.key};syncTotal(c);
+  p.items.filter(i=>!i.mount&&i.cid!=='gimbal').forEach(i=>{const it=newItem(i.cid,{pos:i.pos.slice(),rot:i.rot.slice(),manual:true});if(i.svc)it.svc=i.svc;c.items.push(it)});
+  const gi=p.items.find(i=>i.cid==='gimbal');if(gi){const g=newItem('gimbal',{rot:[0,0,0],manual:true}),e=ext(g),sg=shellOf(c),f=sg[sg.length-1];g.pos=[f.cx+f.len/2+p.arm+e[0]/2,gi.pos[1],gi.pos[2]];c.items.push(g);
+    p.items.filter(i=>i.mount).forEach(i=>c.items.push(newItem(i.cid,{rot:i.rot.slice(),manual:true,pos:[g.pos[0]+i.dpos[0],g.pos[1]+i.dpos[1],g.pos[2]+i.dpos[2]]})))}
+  syncMotors(c);c.items.filter(i=>i.role==='hip').forEach(h=>{const q=p.hips.find(x=>x[0]===h.seg);if(!q)return;const e=ext(h),sg=shellOf(c)[h.seg];h.pos=[q[1],q[2],h.side*(sg.wid/2-e[2]/2)];h.manual=true});
+  layout(c);return c}
+if(!S.sim1911){S.sim1911=true;SIM_PRESETS.forEach(p=>{try{S.configs.push(simPreset(p))}catch(e){console.error('preset',p.key,e)}});save()}
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
 /* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
