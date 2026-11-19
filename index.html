@@ -497,6 +497,37 @@ input[type=range]{accent-color:var(--t-primary)}
   main>.editor{padding:150px 284px 12px 364px}.list{width:260px}.side{width:340px}
 }
 @media (max-width:1100px){.stats{margin:10px 12px 0}.list,.side>.card{margin-bottom:10px}}
+
+/* ---- fixes + compact dimensions panel (19.11, after Sharon's review) ---- */
+:root{--t-text2:rgba(245,239,228,.74)}
+:root[data-theme="light"]{--t-text2:rgba(37,34,38,.72)}
+html body input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=file]),html body select,html body textarea{background:var(--t-surface2);color:var(--t-text);border:1px solid var(--t-line);border-radius:10px}
+html body input::placeholder{color:var(--t-text2)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:var(--t-surface3);accent-color:var(--t-primary)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--t-primary);border:2px solid var(--t-surface);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--t-primary);border:2px solid var(--t-surface)}
+input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;border-radius:3px}
+.stit span,.stsel span,.stsrc,.stleg2{color:var(--t-text2)}
+.stwarn{color:var(--t-danger)}.stok{color:var(--t-ok)}
+.hnd circle:last-child{filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
+#walkbtn{margin-inline-start:10px;white-space:nowrap}
+#walkbtn.on{background:var(--t-primary);color:var(--t-on-primary)}
+.m3 .st{gap:6px;flex-wrap:wrap;align-items:center}
+/* dimensions panel: one number box + slider per row, notes hidden unless "הסברים" is on */
+#ctrl .note{display:none}#ctrl.notes .note{display:block}
+#ctrl .cardh{display:flex;align-items:center;justify-content:space-between}
+#ctrl .cardh .pill.sm{font-size:12px;font-weight:500;min-height:26px;padding:0 10px}
+#ctrl .cardh .pill.sm[aria-pressed=true]{background:var(--t-primary);color:var(--t-on-primary);border-color:var(--t-primary)}
+#ctrl .ctl:has(.num){grid-template-columns:1fr auto;grid-template-areas:"l v" "r r";row-gap:6px;padding:8px 18px}
+#ctrl .ctl:has(.num) .l{grid-area:l;font-weight:600}
+#ctrl .ctl:has(.num) .val{grid-area:v}
+#ctrl .ctl:has(.num) input[type=range]{grid-area:r;width:100%}
+#ctrl .ctl .val .num{width:76px;font-size:18px;font-weight:700;text-align:center}
+#ctrl .ctl.wide{grid-template-columns:auto 1fr;gap:10px}
+#ctrl .ctl.wide .seg{flex-wrap:nowrap;justify-self:end}
+#ctrl .ctl.wide .seg button{min-width:36px;padding:6px 10px}
+#ctrl .ctl.col{grid-template-columns:1fr}
+#ctrl .hgt{display:none}#ctrl.notes .hgt{display:flex}
 </style>
 </head>
 <body>
@@ -542,7 +573,7 @@ input[type=range]{accent-color:var(--t-primary)}
     </section>
     <div class="side">
       <section class="card m3"><div class="cardh">איך זה נראה במרחב</div><div id="w3"><canvas id="c3"></canvas><div class="hint3">גרירת רכיב: לאורך ולרוחב. Shift + גרירה: למעלה ולמטה. גרירת הרקע: סיבוב. גלגלת: זום. כפתור ימני: הזזת המבט.</div></div>
-        <div class="st"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div></div></section>
+        <div class="st"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button></div></section>
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
@@ -2984,6 +3015,13 @@ function drawView(c,mode,opt){
     const r=front?{cx:-p[2],cy:-(p[1]+clear),w:2*h[2],h:2*h[1]}:side?{cx:p[0],cy:-(p[1]+clear),w:2*h[0],h:2*h[1]}:{cx:p[0],cy:p[2],w:2*h[0],h:2*h[2]};
     const g='<rect x="'+(r.cx-r.w/2)+'" y="'+(r.cy-r.h/2)+'" width="'+Math.max(r.w,2)+'" height="'+Math.max(r.h,2)+'" rx="1.5"';
     o+='<g class="vent" data-vent="1" style="cursor:move">'+(isS?g+' fill="none" stroke="#3a6fb0" stroke-opacity=".55" stroke-width="10"/>':'')+g+' fill="#0a1a30" fill-opacity="'+(dm?.3:.85)+'" stroke="'+(vb?'#c0352b':isS?'#0a1a30':'#fff')+'" stroke-width="'+(vb||isS?2.5:1)+'" stroke-dasharray="'+(vb||isS?'':'3 2')+'"/>'+(v.locked?lockG(r.cx+r.w/2,r.cy-r.h/2,.9):'')+'</g>';grow(r.cx-r.w/2,r.cy-r.h/2);grow(r.cx+r.w/2,r.cy+r.h/2)}
+  /* drag handles on the frame (planning mode): right edge = length, top edge = height (side view) or width (top view). Same limits as the sliders. */
+  if(!opt.mini&&!opt.noH&&(side||mode==='top')){let _p=false;try{_p=PRES}catch(e){}
+    if(!_p){const per=perOn(c),hs=(x,y,k,i,cur,t)=>'<g class="hnd" data-h="'+k+'" data-seg="'+i+'" style="cursor:'+cur+'"><title>'+t+'</title><circle cx="'+x+'" cy="'+y+'" r="20" fill="transparent"/><circle cx="'+x+'" cy="'+y+'" r="8" fill="#2f5d8c" stroke="#fff" stroke-width="2.5"/></g>';
+      segs.forEach(s=>{const first=s.i===0,last=s.i===segs.length-1;
+        if(per||last)o+=hs(s.cx+s.len/2,side?-(clear+s.hei/2):0,'len',s.i,'ew-resize','גרירה לשינוי אורך');
+        if(side&&!c.shell.dyn&&(per||first))o+=hs(s.cx,-(clear+s.hei),'hei',s.i,'ns-resize','גרירה לשינוי גובה');
+        if(!side&&(per||first))o+=hs(s.cx,-s.wid/2,'wid',s.i,'ns-resize','גרירה לשינוי רוחב')})}}
   if(!opt.mini)o+=over2D(c,mode,clear);
   if(!opt.mini)o+=dimsSVG(c,mode,segs,clear,{...b},grow);
   return{svg:o,b};
@@ -3051,6 +3089,10 @@ function svgPt(v,ev){const p=v.el.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY
 let drag=null,pan=null;
 function bind2D(v){const el=v.el;
   el.addEventListener('pointerdown',ev=>{
+    const hh=ev.target.closest('.hnd');
+    if(hh&&!PRES){const c0=cfg(),s0=c0.shell,i=+hh.dataset.seg,k=hh.dataset.h,q=perOn(c0)?s0.segs[i]:null;
+      const v0=k==='len'?(q?q.len:s0.total):k==='hei'?(q?q.hei:s0.hei):(q?q.wid:s0.wid);
+      drag={v,hnd:{k,i,q,v0},p0:svgPt(v,ev),moved:false};el.setPointerCapture(ev.pointerId);ev.preventDefault();return}
     const vg=ev.target.closest('.vent'),c0=cfg();
     if(vg&&c0.vent&&!PRES){sel='vent';drag={v,vent:true,p0:svgPt(v,ev),pos0:c0.vent.pos.slice(),moved:false,locked:c0.vent.locked};el.setPointerCapture(ev.pointerId);renderLight();return}
     const g=ev.target.closest('.it');
@@ -3060,6 +3102,13 @@ function bind2D(v){const el=v.el;
     else{const sg=ev.target.closest('[data-seg]');if(sg&&perOn(cfg())&&V.seg!==+sg.dataset.seg){V.seg=+sg.dataset.seg;renderCtrl()}sel=null;pan={v,p0:svgPt(v,ev),vb0:{...v.vb}};el.setPointerCapture(ev.pointerId);renderLight()}
   });
   el.addEventListener('pointermove',ev=>{
+    if(drag&&drag.hnd&&drag.v===v){const p=svgPt(v,ev),dx=p.x-drag.p0.x,dy=p.y-drag.p0.y;if(!drag.moved&&Math.hypot(dx,dy)<2)return;
+      if(!drag.moved){snap();drag.moved=true}
+      const c=cfg(),s=c.shell,{k,q,i,v0}=drag.hnd;
+      let nv=k==='len'?v0+2*dx:k==='hei'?v0-dy:v0-2*dy;
+      const lim=k==='len'?(q?[40,800]:[100,1400]):k==='hei'?[20,400]:[30,PASSW];nv=Math.round(Math.max(lim[0],Math.min(lim[1],nv))/5)*5;
+      if(k==='len'){if(q)q.len=nv;else s.total=nv}else if(k==='hei'){if(q)q.hei=nv;else s.hei=nv}else{if(q)q.wid=nv;else s.wid=nv}
+      syncTotal(c);layout(c);V.hint={k:k==='len'&&!q?'total':k,seg:q?i:undefined};schedule();return}
     if(drag&&drag.v===v){const p=svgPt(v,ev),dx=p.x-drag.p0.x,dy=p.y-drag.p0.y;
       if(!drag.moved&&Math.hypot(dx,dy)<2)return;
       if(drag.locked){if(!drag.told){drag.told=true;toast('נעול. אפשר לבטל את הנעילה בחלון שלמטה')}return}
@@ -3071,7 +3120,8 @@ function bind2D(v){const el=v.el;
       computeTops(c);schedule()}
     else if(pan&&pan.v===v){const p=svgPt(v,ev);v.vb.x=pan.vb0.x-(p.x-pan.p0.x);v.vb.y=pan.vb0.y-(p.y-pan.p0.y);pan.vb0={...v.vb};pan.p0=svgPt(v,ev);setVB(v)}
   });
-  const endp=()=>{if(drag&&drag.moved){save();refresh();if(drag.it)blockedNote(cfg(),drag.it,drag.want)}drag=null;pan=null};
+  const endp=()=>{if(drag&&drag.hnd){const m=drag.moved;drag=null;pan=null;V.hint=null;if(m){layout(cfg());save();refresh(false)}else render2D(false);return}
+    if(drag&&drag.moved){save();refresh();if(drag.it)blockedNote(cfg(),drag.it,drag.want)}drag=null;pan=null};
   el.addEventListener('pointerup',endp);el.addEventListener('pointercancel',endp);
   el.addEventListener('wheel',ev=>{ev.preventDefault();if(v.vb)zoom(v,ev.deltaY<0?.85:1.18,svgPt(v,ev))},{passive:false});
 }
@@ -3126,18 +3176,33 @@ function bar3(a,b,w,color){const A=new THREE.Vector3(...a),B=new THREE.Vector3(.
   m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());return m}
 function clearRoot(r){while(r.children.length){const o=r.children.pop();o.traverse(x=>{if(x.geometry)x.geometry.dispose()})}}
 /* the tool in 3D. t: 0 standing ... 1 folded. o.fade: show only motors and legs solid (legs tab) */
+/* walking demo (look only): feet follow a trot gait computed from this tool's own thigh and shin lengths, at the 0.15 m/s used in the battery check. The floor grid slides under the feet. */
+const WALK={on:false,ph:0,dist:0,t:0,h:0};
+function walkPose(c,i,ph){const g0=legPose(c,i,0);if(!g0)return g0;
+  const T=c.legs.thigh,Sn=c.legs.shin,all=[];for(let j=0;j<c.legs.count;j++){const q=legPose(c,j,0);if(q)all.push({j,side:q.side,x:q.hip[0]})}
+  const same=all.filter(q=>q.side===g0.side).sort((a,b)=>a.x-b.x),rank=same.findIndex(q=>q.j===i);
+  const u=(ph+(g0.side>0?0:.5)+(rank%2?.5:0))%1,duty=.6,R=T+Sn,S=Math.min(R*.22,70),lift=Math.min(R*.16,45);
+  let fx,fy;if(u<duty){fx=S*(1-2*u/duty);fy=0}else{const w=(u-duty)/(1-duty);fx=-S*Math.cos(Math.PI*w);fy=lift*Math.sin(Math.PI*w)}
+  const foot=[g0.foot[0]+fx,fy],knee=ik([g0.hip[0],g0.hip[1]],foot,T,Sn,g0.dir);
+  return{...g0,knee:[knee[0],knee[1],g0.hip[2]],foot:[foot[0],foot[1],g0.hip[2]]}}
+const walkLeg=(c,i,t)=>(WALK.on&&t===0)?walkPose(c,i,WALK.ph):legPose(c,i,t);
+function walkTick(){if(!WALK.on)return;const now=performance.now(),dt=Math.min(.1,(now-WALK.t)/1000);WALK.t=now;
+  const c=cfg();if(!c.legs.count||c.legs.stance==='fold'){walkStop();return}
+  const R=c.legs.thigh+c.legs.shin,S=Math.min(R*.22,70),v=150,Tp=2*S/(.6*v);
+  WALK.ph=(WALK.ph+dt/Tp)%1;WALK.dist+=v*dt;build3D();WALK.h=setTimeout(walkTick,33)}
+function walkStop(){WALK.on=false;clearTimeout(WALK.h);const b=document.getElementById('walkbtn');if(b){b.textContent='▶ הליכה';b.classList.remove('on')}build3D()}
 function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),bad=o.bad||new Set();
-  {const lt=document.documentElement.getAttribute('data-theme')==='light';root.add(new THREE.GridHelper(1600,32,lt?0xb9bfc9:0x6a6470,lt?0xdadde3:0x3f3b44))}
+  {const lt=document.documentElement.getAttribute('data-theme')==='light',gh=new THREE.GridHelper(1600,32,lt?0xb9bfc9:0x6a6470,lt?0xdadde3:0x3f3b44);gh.position.x=-(WALK.on?WALK.dist%50:0);root.add(gh)}
   segs.forEach(s=>{const g=rbox(s.len,s.hei,s.wid,c.shell.rS||0,c.shell.rT||0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
     m.position.set(s.cx,clear+s.hei/2,0);root.add(m);const e=new THREE.LineSegments(new THREE.EdgesGeometry(g,25),new THREE.LineBasicMaterial({color:0x6d7787}));e.position.copy(m.position);root.add(e)});
   stepsOf(c).forEach(st=>{const g=new THREE.BoxGeometry(st.x1-st.x0,st.top-st.y0,st.z1-st.z0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
     m.position.set((st.x0+st.x1)/2,clear+(st.y0+st.top)/2,(st.z0+st.z1)/2);root.add(m);const e=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x6d7787}));e.position.copy(m.position);root.add(e)});
   const th=c.legs.thick||THICK0;
-  for(let i=0;i<c.legs.count;i++){const g=legPose(c,i,t);if(!g)continue;root.add(bar3(g.hip,g.knee,th,0x9aa3af));root.add(bar3(g.knee,g.foot,th,0x9aa3af));
+  for(let i=0;i<c.legs.count;i++){const g=walkLeg(c,i,t);if(!g)continue;root.add(bar3(g.hip,g.knee,th,0x9aa3af));root.add(bar3(g.knee,g.foot,th,0x9aa3af));
     const f=new THREE.Mesh(new THREE.SphereGeometry(th/2+2,16,10),new THREE.MeshStandardMaterial({color:0x2b2f33}));f.position.set(g.foot[0],g.foot[1]+th/2+2,g.foot[2]);root.add(f)}
   c.items.forEach(it=>{if(o.fade&&it.unfit)return;
     const k=cat[it.cid],d=baseDims(it),g=k.shape==='cyl'?new THREE.CylinderGeometry(d[0]/2,d[0]/2,d[1],28):new THREE.BoxGeometry(d[0],d[1],d[2]);
-    let p=P(c,it);if(it.auto==='knee'){const q=legPose(c,it.leg,t);if(q)p=[q.knee[0],q.knee[1]-clear,q.knee[2]]}
+    let p=P(c,it);if(it.auto==='knee'){const q=walkLeg(c,it.leg,t);if(q)p=[q.knee[0],q.knee[1]-clear,q.knee[2]]}
     const mat=new THREE.MeshStandardMaterial({color:colOf(it),roughness:.6,transparent:true,opacity:.95});
     if(o.fade&&!isMotor(it)){mat.opacity=.16;mat.depthWrite=false}
     if(bad.has(it.id)){mat.emissive=new THREE.Color(0xc0352b);mat.emissiveIntensity=.5}
@@ -3730,7 +3795,8 @@ function splitItem(c,it,n){
 }
 function renderCtrl(){
   const c=cfg(),s=c.shell,el=$('#ctrl');
-  el.innerHTML='<div class="cardh">גוף</div>';el._rows=[];
+  el.innerHTML='<div class="cardh">גוף<button class="pill sm" id="notesbtn" type="button" aria-pressed="'+(el.classList.contains('notes')?'true':'false')+'">הסברים</button></div>';el._rows=[];
+  el.querySelector('#notesbtn').onclick=e=>{el.classList.toggle('notes');e.currentTarget.setAttribute('aria-pressed',el.classList.contains('notes')?'true':'false')};
   /* slider + typed number. Pointer over a row draws that dimension on the drawing (V.hint) */
   const sameHint=(a,b)=>a&&b&&a.k===b.k&&a.seg===b.seg;
   const slider=(lab,val,mn,mx,st,apply,hint,unit)=>{unit=unit||'מ"מ';val=Math.round(val*10)/10;
@@ -3813,6 +3879,11 @@ function renderCtrl(){
   el.insertAdjacentHTML('beforeend','<div class="note">סידור אופטימלי: בודק את המקומות שבכרטיסים ועוד הרבה סידורים חוקיים, ובוחר את הטוב ביותר. הסדר שלי: קודם בלי רכיבים שלא נכנסים, אחר כך הכי מעט אזהרות, אחר כך מרכז כובד קרוב לאמצע ונמוך, ואחר כך כבלים קצרים. אם הכלי קטן מדי, נפתח חלון עם דרכים להגדיל אותו.<br>סידור מחדש: בכל לחיצה סידור חוקי אחר, בלי יותר אזהרות מעכשיו. זזים רק רכיבים שהכרטיס לא קובע להם כיוון או קצה (מחשב, בקר בטיחות, סוללות, IMU, חיישני אוויר, נורה, כפתור, זמזם, לוחות). רכיבים נעולים לא זזים בשני הכפתורים.</div>');
   document.querySelectorAll('#stance button').forEach(b=>b.classList.toggle('on',b.dataset.s===c.legs.stance));
 }
+$('#walkbtn').onclick=()=>{const c=cfg();
+  if(WALK.on){walkStop();return}
+  if(!c.legs.count){toast('אין רגליים בקונפיגורציה');return}
+  if(c.legs.stance==='fold'){toast('הכלי מקופל. עברי ל"עומד" כדי לראות הליכה');return}
+  WALK.on=true;WALK.t=performance.now();$('#walkbtn').textContent='⏸ עצירה';$('#walkbtn').classList.add('on');walkTick()};
 document.querySelectorAll('#stance button').forEach(b=>b.onclick=()=>{const c=cfg();if(c.legs.stance===b.dataset.s)return;snap();c.legs.stance=b.dataset.s;save();refresh(true)});
 document.querySelectorAll('#viewseg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function renderStrip(){
