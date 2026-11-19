@@ -557,6 +557,28 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
   .row{min-height:38px;padding:4px 10px;font-size:15px}
 }
 @media (min-width:1101px) and (max-width:1320px){main>.editor{padding:108px 276px 8px 346px}.list{width:250px}.side{width:320px}}
+
+/* ---- category rail (replaces the two header buttons; shows one section of the body/legs panel at a time) ---- */
+.rail{display:none}
+@media (min-width:1101px){
+  #legsbtn,#stbtn{display:none}
+  .rail{display:flex;flex-direction:column;gap:8px;align-items:stretch;position:absolute;z-index:5;top:108px;bottom:8px;inset-inline-end:auto;left:8px;width:64px;padding:8px 6px;
+    background:var(--t-glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:.5px solid var(--t-glass-line);border-radius:var(--t-r);box-shadow:var(--t-shadow)}
+  .rail button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:14px;color:var(--t-text2);font-size:12px;font-weight:600;min-height:56px}
+  .rail button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .rail button:hover{background:var(--t-primary-c);color:var(--t-text)}
+  .rail button.on{background:var(--t-primary);color:var(--t-on-primary)}
+  .side{left:80px;width:340px}
+  main>.editor{padding-left:436px}
+  .app.pres .rail{display:none}.app.pres .side{left:8px}.app.pres main>.editor{padding-left:396px}
+  #ctrl[data-show=body] [data-sec=legs],#ctrl[data-show=legs] [data-sec=body]{display:none}
+}
+@media (min-width:1101px) and (max-width:1320px){.side{left:80px;width:300px}main>.editor{padding-left:396px}}
+
+.rail .rl-h{font-size:10.5px;font-weight:700;color:var(--t-text2);text-align:center;letter-spacing:.04em;padding:2px 0}
+.rail .rl-sep{height:1px;background:var(--t-line);margin:6px 4px}
+.rail button.win{position:relative;border:1.5px dashed var(--t-line);line-height:1.15}
+.rail button.win .out{position:absolute;top:2px;left:5px;font-style:normal;font-size:13px;color:var(--t-primary)}
 </style>
 </head>
 <body>
@@ -582,6 +604,13 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     </div>
   </header>
   <main>
+    <nav class="rail" id="rail" aria-label="קטגוריות"><div class="rl-h">בפאנל</div>
+      <button type="button" data-k="body" class="on" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="9" rx="3"/><path d="M7 16v3M17 16v3"/></svg><span>גוף</span></button>
+      <button type="button" data-k="legs" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v8l-3 9M16 3v8l3 9"/><path d="M8 11l3 9"/></svg><span>רגליים</span></button>
+      <div class="rl-sep"></div><div class="rl-h">חלון נפרד</div>
+      <button type="button" data-k="lab" class="win" aria-pressed="false" title="פותח חלון גדול נפרד לרגליים, עם סגירה בפינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 10a1.5 1.5 0 0 0 1.4 2h11.2a1.5 1.5 0 0 0 1.4-2L14 9V3"/></svg><span>חלון<br>רגליים</span><i class="out" aria-hidden="true">↗</i></button>
+      <button type="button" data-k="st" class="win" aria-pressed="false" title="פותח חלון גדול נפרד לעמדת הכניסה, עם סגירה בפינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg><span>חלון<br>עמדה</span><i class="out" aria-hidden="true">↗</i></button>
+    </nav>
     <section class="card list"><div class="cardh">רכיבים</div><div class="rows" id="rows"></div></section>
     <section class="card editor">
       <div class="stats" id="stats"></div>
@@ -4325,6 +4354,21 @@ function apply(){
 }
 sync();
 if(b)b.addEventListener('click',function(){cur=cur==='light'?'dark':'light';apply()});
+})();
+</script>
+<script>
+/* category rail: shows only the body part or only the legs part of the dimensions panel. Look only. */
+(function(){
+var ctrl=document.getElementById('ctrl'),rail=document.getElementById('rail');if(!ctrl||!rail)return;
+ctrl.setAttribute('data-show','body');
+function mark(){var sec='body';Array.prototype.forEach.call(ctrl.children,function(el){
+  if(el.classList.contains('cardh')&&/^\s*רגליים/.test(el.textContent))sec='legs';el.setAttribute('data-sec',sec)})}
+new MutationObserver(mark).observe(ctrl,{childList:true});mark();
+rail.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var k=b.getAttribute('data-k');
+  if(k==='lab'){var x=document.getElementById('legsbtn');if(x)x.click();return}
+  if(k==='st'){var y=document.getElementById('stbtn');if(y)y.click();return}
+  ctrl.setAttribute('data-show',k);
+  Array.prototype.forEach.call(rail.querySelectorAll('button[data-k=body],button[data-k=legs]'),function(q){var on=q===b;q.classList.toggle('on',on);q.setAttribute('aria-pressed',on?'true':'false')})});
 })();
 </script>
 </body>
