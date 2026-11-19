@@ -103,7 +103,7 @@ button.stat{text-align:start}
 /* right column */
 .side{display:flex;flex-direction:column;gap:12px;min-height:0}
 .m3{min-height:290px;flex:none;display:flex;flex-direction:column}
-.m3 #w3{flex:none;height:230px}.m3.nocv{height:auto;min-height:0}
+.m3 #w3{flex:none;height:var(--w3h,230px)}.m3.nocv{height:auto;min-height:0}
 /* step 4: view modes (single 2D view / 3D / all together), ranges, cables */
 .vopts{display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;padding:8px 22px 0;font-size:14px;color:var(--muted)}
 .vopts .grp{display:inline-flex;gap:6px;align-items:center}
@@ -119,6 +119,9 @@ button.stat{text-align:start}
 .split{position:absolute;top:0;bottom:0;width:12px;cursor:col-resize;display:none;z-index:3;touch-action:none;background:var(--card)}
 .split::after{content:"";position:absolute;top:50%;left:4px;width:4px;height:48px;margin-top:-24px;border-radius:2px;background:#aab0ba}
 #w3{position:relative;width:100%;height:100%}
+.rsz{position:fixed;width:12px;z-index:40;cursor:ew-resize;display:none;touch-action:none}.rsz::after{content:'';position:absolute;left:5px;top:calc(50% - 22px);width:3px;height:44px;border-radius:2px;background:var(--t-text,#888);opacity:.28;transition:opacity .15s}.rsz:hover::after,.rsz.on::after{opacity:.8;background:var(--t-accent,#5b8dd6)}
+.rsz-h{position:absolute;left:0;right:0;bottom:0;height:12px;cursor:ns-resize;z-index:5;touch-action:none}.rsz-h::after{content:'';position:absolute;bottom:3px;left:calc(50% - 22px);width:44px;height:3px;border-radius:2px;background:currentColor;opacity:.28}.rsz-h:hover::after{opacity:.8}
+#pane3 .rsz-h{display:none}
 #w3 canvas{width:100%;height:100%;display:block;touch-action:none}
 .hint3{position:absolute;bottom:8px;left:10px;right:10px;font-size:14px;color:var(--muted);pointer-events:none;text-align:center;display:none}
 .stage.v3d .hint3,.stage.vwin .hint3{display:block}
@@ -4069,6 +4072,31 @@ function renderCtrl(){
   el.insertAdjacentHTML('beforeend','<div class="note">סידור אופטימלי: בודק את המקומות שבכרטיסים ועוד הרבה סידורים חוקיים, ובוחר את הטוב ביותר. הסדר שלי: קודם בלי רכיבים שלא נכנסים, אחר כך הכי מעט אזהרות, אחר כך מרכז כובד קרוב לאמצע ונמוך, ואחר כך כבלים קצרים. אם הכלי קטן מדי, נפתח חלון עם דרכים להגדיל אותו.<br>סידור מחדש: בכל לחיצה סידור חוקי אחר, בלי יותר אזהרות מעכשיו. זזים רק רכיבים שהכרטיס לא קובע להם כיוון או קצה (מחשב, בקר בטיחות, סוללות, IMU, חיישני אוויר, נורה, כפתור, זמזם, לוחות). רכיבים נעולים לא זזים בשני הכפתורים.</div>');
   document.querySelectorAll('#stance button').forEach(b=>b.classList.toggle('on',b.dataset.s===c.legs.stance));
 }
+/* ---------- resizable panels (19.11, Sharon): drag the inner edge of the components list or the side panel to change its width, and the bottom edge of the 3D view
+   to change its height. Sizes are remembered in this browser. Double-click an edge to go back to the default. Desktop layout only (screens 1101 px and wider). ---------- */
+(function(){const KEY='terra-panel-sizes',list=document.querySelector('.list'),side=document.querySelector('.side'),ed=document.querySelector('main>.editor');if(!list||!side||!ed)return;
+  let RS={};try{RS=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(RS))}catch(e){}},desk=()=>window.matchMedia('(min-width:1101px)').matches;
+  const mk=cls=>{const d=document.createElement('div');d.className='rsz '+cls;d.title='גרירה לשינוי גודל. לחיצה כפולה: חזרה לברירת מחדל';document.body.appendChild(d);return d};
+  const hL=mk('rsz-v'),hS=mk('rsz-v'),wh=document.getElementById('w3'),hH=document.createElement('div');hH.className='rsz-h';hH.title=hL.title;wh.appendChild(hH);
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function apply(){const on=desk();[hL,hS].forEach(h=>h.style.display=on?'block':'none');
+    if(!on){list.style.width=side.style.width='';ed.style.paddingLeft=ed.style.paddingRight='';return}
+    list.style.width=RS.list?clamp(RS.list,200,560)+'px':'';side.style.width=RS.side?clamp(RS.side,260,700)+'px':'';
+    wh.style.setProperty('--w3h',RS.h?clamp(RS.h,160,900)+'px':'');
+    const l=list.getBoundingClientRect(),s=side.getBoundingClientRect();
+    if(RS.list||RS.side){ed.style.paddingRight=Math.max(0,innerWidth-l.left+12)+'px';ed.style.paddingLeft=Math.max(0,s.right+12)+'px'}else{ed.style.paddingLeft=ed.style.paddingRight=''}
+    [[hL,l.left-6],[hS,s.right-6]].forEach(([h,x])=>{h.style.left=x+'px'});
+    [[hL,l],[hS,s]].forEach(([h,r])=>{h.style.top=r.top+'px';h.style.height=r.height+'px'});
+    try{resize3()}catch(e){}}
+  const drag=(h,fn)=>h.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();h.setPointerCapture(e.pointerId);h.classList.add('on');
+    const mv=ev=>{fn(ev);apply()},up=()=>{h.classList.remove('on');h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);save()};h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up)});
+  drag(hL,ev=>{RS.list=Math.round(list.getBoundingClientRect().right-ev.clientX)});          /* list is on the right: its inner edge is the left edge */
+  drag(hS,ev=>{RS.side=Math.round(ev.clientX-side.getBoundingClientRect().left)});          /* side panel is on the left: its inner edge is the right edge */
+  drag(hH,ev=>{RS.h=Math.round(ev.clientY-wh.getBoundingClientRect().top)});
+  hL.ondblclick=()=>{delete RS.list;save();apply()};hS.ondblclick=()=>{delete RS.side;save();apply()};hH.ondblclick=()=>{delete RS.h;save();apply()};
+  new ResizeObserver(apply).observe(document.body);addEventListener('resize',apply);setTimeout(apply,300);setTimeout(apply,1500);
+  window.__panelSizesApply=apply})();
 document.querySelectorAll('#frameTg button').forEach(b=>b.onclick=()=>{V.frame=b.dataset.f==='1';document.querySelectorAll('#frameTg button').forEach(x=>x.classList.toggle('on',x===b));schedule()});
 $('#freebtn').onclick=e=>{V.free=!V.free;e.currentTarget.setAttribute('aria-pressed',V.free?'true':'false');e.currentTarget.classList.toggle('on',V.free);toast(V.free?'מצב חופשי: אין הצמדה וחסימה':'חזרה להצמדה')};
 $('#walkbtn').onclick=()=>{const c=cfg();
