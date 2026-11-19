@@ -15,6 +15,7 @@ t = t.replace("__DATA__", d.replace("</", "<\\/"))
 t = t.replace("__MESHES__", (here / "meshes.json").read_text(encoding="utf-8"))
 t = t.replace("__THREE__", pathlib.Path(three).read_text(encoding="utf-8"))
 t = t.replace("__ORBIT__", pathlib.Path(orbit).read_text(encoding="utf-8"))
+t = t.replace("__HULL__", (here / "vendor" / "three-ConvexHull-r128.js").read_text(encoding="utf-8"))  # three.js r128 examples/js/math/ConvexHull.js (MIT), for the see-through shell
 t = t.replace("__MW__", (here / "vendor" / "material-web.min.js").read_text(encoding="utf-8"))
 pathlib.Path(out).write_text(t, encoding="utf-8")
 print("built", out, len(t))
