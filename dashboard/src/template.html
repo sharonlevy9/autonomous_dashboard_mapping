@@ -130,6 +130,7 @@ button.stat{text-align:start}
 .stage.v3d .zoom{display:none}
 .stage.vwin .zoom{inset-inline-end:auto;inset-inline-start:12px;top:12px;bottom:auto}
 .m3 .st{padding:8px 12px 12px;display:flex;justify-content:center}
+.wkp{display:none;padding:0 14px 12px;font-size:13px}.wkp.on{display:block}.wkp .wr{display:flex;align-items:center;gap:8px;margin:3px 0}.wkp .wr label{width:150px;flex:none}.wkp .wr input[type=range]{flex:1}.wkp .wr b{width:92px;flex:none;font-weight:600}.wkp h4{margin:8px 0 2px;font-size:13px}.wkp .wn{color:var(--muted);margin-top:6px}.wkp button{margin-inline-end:6px}
 .ctrl{flex:1;min-height:0;overflow:auto;padding-bottom:12px}
 .ctl{display:grid;grid-template-columns:74px 1fr 66px;align-items:center;gap:10px;padding:5px 18px;font-size:15px}
 .ctl .l{color:var(--muted)}
@@ -631,7 +632,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     </section>
     <div class="side">
       <section class="card m3"><div class="cardh">איך זה נראה במרחב</div><div id="w3"><canvas id="c3"></canvas><div class="hint3">גרירת רכיב: לאורך ולרוחב. Shift + גרירה: למעלה ולמטה. גרירת הרקע: סיבוב. גלגלת: זום. כפתור ימני: הזזת המבט.</div></div>
-        <div class="st"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button></div></section>
+        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><div id="frameInfo" style="padding:0 14px 10px;text-align:center;font-size:13px;color:var(--muted)"></div></section>
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
@@ -813,7 +814,7 @@ function motorCat(){const M=DEF.motors||{},i0=Math.max(0,DEF.catalog.findIndex(k
 motorCat();
 const isMotor=it=>it.cid==='legmotor'||it.cid==='jmotor';
 let S=null,hist=[],fut=[],sel=null,showFields=false;
-const V={mode:'3d',vb:null,seg:0,hint:null,dims:false,rng:'sel',cab:'off',arr:false,rlen:300,w3:0,gTilt:0,gPan:0};
+const V={frame:true,mode:'3d',vb:null,seg:0,hint:null,dims:false,rng:'sel',cab:'off',arr:false,rlen:300,w3:0,gTilt:0,gPan:0};
 const uid=()=>Math.random().toString(36).slice(2,9);
 const cfg=()=>S.configs[S.active];
 
@@ -1833,14 +1834,14 @@ function walkTick(){if(!WALK.on)return;const now=performance.now(),dt=Math.min(.
 function walkStop(){WALK.on=false;clearTimeout(WALK.h);const b=document.getElementById('walkbtn');if(b){b.textContent='▶ הליכה';b.classList.remove('on')}build3D()}
 function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),bad=o.bad||new Set();
   {const lt=document.documentElement.getAttribute('data-theme')==='light',gh=new THREE.GridHelper(1600,32,lt?0xb9bfc9:0x6a6470,lt?0xdadde3:0x3f3b44);gh.position.x=-(WALK.on?WALK.dist%50:0);root.add(gh)}
-  segs.forEach(s=>{const g=rbox(s.len,s.hei,s.wid,c.shell.rS||0,c.shell.rT||0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
+  if(!o.noShell)segs.forEach(s=>{const g=rbox(s.len,s.hei,s.wid,c.shell.rS||0,c.shell.rT||0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
     m.position.set(s.cx,clear+s.hei/2,0);root.add(m);const e=new THREE.LineSegments(new THREE.EdgesGeometry(g,25),new THREE.LineBasicMaterial({color:0x6d7787}));e.position.copy(m.position);root.add(e)});
-  stepsOf(c).forEach(st=>{const g=new THREE.BoxGeometry(st.x1-st.x0,st.top-st.y0,st.z1-st.z0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
+  if(!o.noShell)stepsOf(c).forEach(st=>{const g=new THREE.BoxGeometry(st.x1-st.x0,st.top-st.y0,st.z1-st.z0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
     m.position.set((st.x0+st.x1)/2,clear+(st.y0+st.top)/2,(st.z0+st.z1)/2);root.add(m);const e=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x6d7787}));e.position.copy(m.position);root.add(e)});
   const th=c.legs.thick||THICK0;
-  for(let i=0;i<c.legs.count;i++){const g=walkLeg(c,i,t);if(!g)continue;root.add(bar3(g.hip,g.knee,th,0x9aa3af));root.add(bar3(g.knee,g.foot,th,0x9aa3af));
+  if(!o.walk)for(let i=0;i<c.legs.count;i++){const g=walkLeg(c,i,t);if(!g)continue;root.add(bar3(g.hip,g.knee,th,0x9aa3af));root.add(bar3(g.knee,g.foot,th,0x9aa3af));
     const f=new THREE.Mesh(new THREE.SphereGeometry(th/2+2,16,10),new THREE.MeshStandardMaterial({color:0x2b2f33}));f.position.set(g.foot[0],g.foot[1]+th/2+2,g.foot[2]);root.add(f)}
-  c.items.forEach(it=>{if(o.fade&&it.unfit)return;
+  c.items.forEach(it=>{if(o.fade&&it.unfit)return;if(o.walk&&it.auto==='knee')return;
     const k=cat[it.cid],d=baseDims(it),g=k.shape==='cyl'?new THREE.CylinderGeometry(d[0]/2,d[0]/2,d[1],28):new THREE.BoxGeometry(d[0],d[1],d[2]);
     let p=P(c,it);if(it.auto==='knee'){const q=walkLeg(c,it.leg,t);if(q)p=[q.knee[0],q.knee[1]-clear,q.knee[2]]}
     const mat=new THREE.MeshStandardMaterial({color:colOf(it),roughness:.6,transparent:true,opacity:.95});
@@ -1853,12 +1854,134 @@ function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),b
   });
   if(!o.fade&&c.vent&&ventSensors(c).length){const v=c.vent,h=ventHalf(v),m=new THREE.Mesh(new THREE.BoxGeometry(2*h[0],2*h[1],2*h[2]),new THREE.MeshBasicMaterial({color:sel==='vent'?0x3a6fb0:0x0a1a30,transparent:true,opacity:sel&&sel!=='vent'?.3:.9}));m.position.set(v.pos[0],v.pos[1]+clear,v.pos[2]);root.add(m)}
   return{segs,clear}}
+/* ---------- frame (שלד): light machined-aluminium internal frame. Ported 18.11 from the chassis model of 17.11 (rails, perforated floor, end/joint/middle frames,
+   hip posts, top bridges, wall strips, spacers). Follows the active configuration (segments, items, hips). Display only: does not change totals or warnings.
+   Plate thickness 3 mm in the picture; weight is my estimate for 1.2 and 2 mm sheet (not verified, a structural engineer decides). Charging coil not drawn (station tab). ---------- */
+function frameNote(f){return'שלד מינימלי שעוטף את הרכיבים, בלי קופסה קבועה. מידות לפי מקום הרכיבים (בלי גימבל ורגליים): אורך '+f.L+', רוחב '+f.W+', גובה '+f.H+' מ"מ. קווים חלשים = הגבולות. '+f.bent+' מוטות מכופפים (בהיר), '+f.bolted+' חלקים מוברגים (כהה: מוטות תחתונים, לוחיות ירך, מושב מנוע המפרק, חלקים כבדים מ-300 גרם). משקל, הערכה שלי ולא בדוק: כ-'+(f.w12/1000).toFixed(2)+' ק"ג עם לוחות 1.2 מ"מ, כ-'+(f.w20/1000).toFixed(2)+' ק"ג ב-2 מ"מ, בלי רגליים ובלי ברגים.'}
+function frameGroup(c,clear){
+  /* 19.11 v3 (Sharon): the frame wraps the components, it is NOT a fixed box. No length/width/height limit: it follows where the parts are.
+     Rings = one bent rod each, shaped as the outline (convex hull) of the parts near that spot. Rods join the rings. Each part is held to the nearest ring by a short rod
+     (a bolted, dark rod if the part is heavy, over 300 g). Plates only: hip plate behind each leg, and the joint-motor seat. Limits are drawn as very faint lines. */
+  const g=new THREE.Group(),segs=shellOf(c),n=segs.length,T3=3,AL=0.0027,RR=3,M=6,info={parts:0,bent:0,bolted:0,w12:0,w20:0,L:0,W:0,H:0},gs=segs.map(()=>{const q=new THREE.Group();g.add(q);return q});let cur=gs[0];
+  const mH=new THREE.MeshStandardMaterial({color:0x7f8791,roughness:.45,metalness:.4}),mB=new THREE.MeshStandardMaterial({color:0xe6eaf0,roughness:.4,metalness:.35}),em=new THREE.LineBasicMaterial({color:0x5c6470}),lim=new THREE.LineBasicMaterial({color:0x6d7787,transparent:true,opacity:.22,depthWrite:false});
+  const none=()=>{},UP=new THREE.Vector3(0,1,0);
+  const add=(m,w,heavy,edges)=>{m.raycast=none;if(edges){const e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry,30),em);e.raycast=none;m.add(e)}cur.add(m);info.parts++;if(heavy)info.bolted++;else info.bent++;info.w12+=w[0];info.w20+=w[1]};
+  const wRod=l=>{const w=Math.PI*(RR*RR-(RR-1)*(RR-1))*l*AL;return[w,w]},wTube=l=>{const w=36*l*AL;return[w,w]},wPlate=a=>[a*1.2*AL,a*2*AL];  /* hollow tube Ø6 x 1 mm, heavy = 10x10 tube (my choices) */
+  const rod=(a,b,heavy)=>{const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B);if(L<2)return;const r=heavy?4.5:RR,m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,8),heavy?mH:mB);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(UP,B.clone().sub(A).normalize());add(m,heavy?wTube(L):wRod(L),!!heavy)};
+  const plate=(kind,a,b,th,pos,holes)=>{const s=new THREE.Shape();s.moveTo(a[0],a[1]);s.lineTo(b[0],a[1]);s.lineTo(b[0],b[1]);s.lineTo(a[0],b[1]);s.closePath();
+    holes.forEach(h=>{const q=new THREE.Path();q.absarc(h[0],h[1],h[2],0,Math.PI*2,true);s.holes.push(q)});
+    const geo=new THREE.ExtrudeGeometry(s,{depth:th,bevelEnabled:false,curveSegments:16});
+    if(kind==='xz')geo.rotateX(-Math.PI/2);else if(kind==='yz')geo.rotateY(Math.PI/2);
+    const m=new THREE.Mesh(geo,mH);m.position.set(pos[0],pos[1],pos[2]);add(m,wPlate((b[0]-a[0])*(b[1]-a[1])-holes.reduce((t,h)=>t+Math.PI*h[2]*h[2],0)),true,true)};
+  const bolt=(p,ax)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(4.5,4.5,3,10),mH);if(ax==='z')m.rotation.x=Math.PI/2;else if(ax==='x')m.rotation.z=Math.PI/2;m.position.set(p[0],p[1],p[2]);m.raycast=none;cur.add(m)};
+  const hull=pts=>{const p=pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);if(p.length<3)return p;const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]),lo=[],up=[];
+    p.forEach(q=>{while(lo.length>1&&cr(lo[lo.length-2],lo[lo.length-1],q)<=0)lo.pop();lo.push(q)});for(let i=p.length-1;i>=0;i--){const q=p[i];while(up.length>1&&cr(up[up.length-2],up[up.length-1],q)<=0)up.pop();up.push(q)}lo.pop();up.pop();return lo.concat(up)};
+  const ring=(x,poly)=>{const pts=[];poly.forEach((a,i)=>{const b=poly[(i+1)%poly.length],k=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/12));for(let j=0;j<k;j++)pts.push(new THREE.Vector3(x,a[1]+(b[1]-a[1])*j/k,a[0]+(b[0]-a[0])*j/k))});
+    let per=0;poly.forEach((a,i)=>{const b=poly[(i+1)%poly.length];per+=Math.hypot(b[0]-a[0],b[1]-a[1])});
+    add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true,'catmullrom',.1),pts.length*3,RR,6,true),mB),wRod(per),false)};
+  const near=(poly,q)=>{let best=null,bd=1e9;poly.forEach((a,i)=>{const b=poly[(i+1)%poly.length],dx=b[0]-a[0],dy=b[1]-a[1],l2=dx*dx+dy*dy||1,t=Math.max(0,Math.min(1,((q[0]-a[0])*dx+(q[1]-a[1])*dy)/l2)),p=[a[0]+dx*t,a[1]+dy*t],d=Math.hypot(p[0]-q[0],p[1]-q[1]);if(d<bd){bd=d;best=p}});return best};
+  /* parts: everything inside the body except the gimbal and its cameras (they sit on top), legs and the knee motors */
+  const box=(it,p,e)=>({it,mn:[p[0]-e[0]/2,p[1]-e[1]/2,p[2]-e[2]/2],mx:[p[0]+e[0]/2,p[1]+e[1]/2,p[2]+e[2]/2],w:(cat[it.cid]&&cat[it.cid].weight)||0});
+  const SKIP=new Set(['gimbal','doccam']),segAt=x=>segs.reduce((b,s)=>Math.abs(x-s.cx)<Math.abs(x-b.cx)?s:b,segs[0]);
+  const bodyItems=c.items.filter(it=>!it.unfit&&it.auto!=='knee'&&it.role!=='knee'&&!SKIP.has(it.cid)).map(it=>box(it,P(c,it),ext(it)));
+  const perSeg=segs.map(()=>[]);bodyItems.forEach(b=>{if(b.it.auto==='joint'){const gi=b.it.gap;perSeg[gi]&&perSeg[gi].push(b);perSeg[gi+1]&&perSeg[gi+1].push(b)}else perSeg[segAt((b.mn[0]+b.mx[0])/2).i].push(b)});
+  let gx0=1e9,gx1=-1e9,gy1=0,gz=0,gy0=1e9;
+  segs.forEach((sg,si)=>{cur=gs[si];const its=perSeg[si];if(!its.length)return;
+    let xa=Math.min(...its.map(b=>b.mn[0]))-M,xb=Math.max(...its.map(b=>b.mx[0]))+M;
+    const seat={},jc=gi=>{const ji=c.items.find(i=>i.auto==='joint'&&i.gap===gi);return ji?{jl:baseDims(ji)[1]/2,jy:P(c,ji)[1],jr:baseDims(ji)[0]/2}:{jl:20.5,jy:sg.hei/2,jr:34.5}};
+    const x0=sg.cx-sg.len/2,x1=sg.cx+sg.len/2;
+    if(si<n-1){const j=jc(si),jx=x1+GAP/2;seat.r={X:jx-j.jl-8,j};xb=Math.max(xb,seat.r.X+8)}
+    if(si>0){const j=jc(si-1),jx=x0-GAP/2;seat.l={X:jx+j.jl,j};xa=Math.min(xa,seat.l.X)}
+    const k=Math.max(1,Math.ceil((xb-xa)/75)),xs=[];for(let i=0;i<=k;i++)xs.push(xa+(xb-xa)*i/k);
+    const polyAt=x=>{let sel=its.filter(b=>b.mn[0]-40<=x&&b.mx[0]+40>=x);if(!sel.length)sel=its;const q=[];sel.forEach(b=>{[b.mn[2]-M,b.mx[2]+M].forEach(z=>[Math.max(0,b.mn[1]-M),b.mx[1]+M].forEach(y=>q.push([z,y])))});return hull(q)};
+    const polys=xs.map(polyAt);
+    polys.forEach((pl,i)=>{ring(xs[i],pl)});
+    /* rods between neighbouring rings: every corner joins the nearest corner of the next ring; the lowest run is a bolted tube (it carries the weight) */
+    for(let i=0;i<k;i++){const A=polys[i],B=polys[i+1],seen=new Set(),lowY=Math.min(...A.map(q=>q[1]),...B.map(q=>q[1]));
+      const link=(P1,x1_,Q,x2_)=>{P1.forEach((a,ai)=>{let bi=0,bd=1e9;Q.forEach((q,qi)=>{const d=Math.hypot(a[0]-q[0],a[1]-q[1]);if(d<bd){bd=d;bi=qi}});const key=P1===A?ai+'_'+bi:bi+'_'+ai;if(seen.has(key))return;seen.add(key);const q=Q[bi];
+        const heavy=a[1]<=lowY+25&&q[1]<=lowY+25;rod([x1_,a[1],a[0]],[x2_,q[1],q[0]],heavy)})};
+      link(A,xs[i],B,xs[i+1]);link(B,xs[i+1],A,xs[i])}
+    /* each part held by a short rod to the nearest ring */
+    its.forEach(b=>{if(b.it.auto==='joint'||b.it.role==='hip'&&false)return;const cx=(b.mn[0]+b.mx[0])/2;let bi=0,bd=1e9;xs.forEach((x,i)=>{const d=x>=b.mn[0]&&x<=b.mx[0]?0:Math.min(Math.abs(x-b.mn[0]),Math.abs(x-b.mx[0]));if(d<bd||d===bd&&Math.abs(x-cx)<Math.abs(xs[bi]-cx)){bd=d;bi=i}});
+      const x=Math.min(Math.max(xs[bi],b.mn[0]),b.mx[0]),cz=(b.mn[2]+b.mx[2])/2,cy=(b.mn[1]+b.mx[1])/2,np=near(polys[bi],[cz,cy]);if(!np)return;
+      const sz=Math.min(Math.max(np[0],b.mn[2]),b.mx[2]),sy=Math.min(Math.max(np[1],b.mn[1]),b.mx[1]);if(Math.hypot(np[0]-sz,np[1]-sy)<3)return;
+      const heavy=b.w>300;rod([x,sy,sz],[x,np[1],np[0]],heavy);if(heavy)bolt([x,sy,sz],'z')});
+    /* joint-motor seats (plates) */
+    [['l',seat.l],['r',seat.r]].forEach(([s,q])=>{if(!q)return;const r=q.j.jr+10,ya=Math.max(2,q.j.jy-r),yb=q.j.jy+r;plate('yz',[-r,ya],[r,yb],8,[q.X,0,0],[[0,q.j.jy,Math.min(22,r-8)]]);
+      [[-r,ya],[r,ya],[-r,yb],[r,yb]].forEach(p=>bolt([q.X+4,p[1]+(p[1]===ya?6:-6),p[0]+(p[0]>0?-6:6)],'x'))});
+    /* faint limits of this segment: the tight box around its frame */
+    const ys=polys.flatMap(p=>p.map(q=>q[1])),zs=polys.flatMap(p=>p.map(q=>q[0])),bx=[xa,xb,Math.min(...ys),Math.max(...ys),Math.min(...zs),Math.max(...zs)];
+    const bg=new THREE.BoxGeometry(bx[1]-bx[0],bx[3]-bx[2],bx[5]-bx[4]),bl=new THREE.LineSegments(new THREE.EdgesGeometry(bg),lim);bl.position.set((bx[0]+bx[1])/2,(bx[2]+bx[3])/2,(bx[4]+bx[5])/2);bl.raycast=none;cur.add(bl);
+    gx0=Math.min(gx0,xa);gx1=Math.max(gx1,xb);gy0=Math.min(gy0,bx[2]);gy1=Math.max(gy1,bx[3]);gz=Math.max(gz,Math.abs(bx[4]),Math.abs(bx[5]))});
+  /* hip plate behind each leg: bolted, with 4 bolts. It sits on the outer face of the hip motor. */
+  c.items.filter(i=>i.role==='hip'&&!i.unfit).forEach(h=>{const sg=segs[segIdx(c,h.seg)],hp=P(c,h),e=ext(h),z0=h.side*(Math.abs(hp[2])+e[2]/2);cur=gs[sg.i];
+    const a=hp[0]-32,b=hp[0]+32,ya=Math.max(2,hp[1]-40),yb=hp[1]+40;plate('xy',[a,ya],[b,yb],T3,[0,0,h.side>0?z0-T3:z0],[[hp[0],hp[1],18]]);
+    [[a+9,ya+7],[b-9,ya+7],[a+9,yb-7],[b-9,yb-7]].forEach(q=>bolt([q[0],q[1],z0+h.side*1.5],'z'));gz=Math.max(gz,Math.abs(z0))});
+  info.L=Math.round(gx1-gx0);info.W=Math.round(2*gz);info.H=Math.round(gy1-Math.max(0,gy0));
+  g.position.y=clear;return{g,gs,info}}
+/* ---------- walking simulation (18.11, Sharon): the tool walks in place on a moving floor, and the joint angles between segments can be played with.
+   My assumptions, not decided: trot gait (diagonal legs together), stride 70 mm, foot lift 30 mm, step time 1.4 s, hip angles limits +-45 deg pitch/yaw, +-20 roll (for play only).
+   The real joint has ONE motor per segment gap (data.json motors.joint): the other directions are only to test how the body could move, they have no motor in the configuration.
+   Axes: pitch = around the width axis (+ = front segment up), yaw = around the vertical axis (+ = front goes left), roll = around the length axis (+ = leans right). ---------- */
+const WK={on:false,play:true,auto:false,spd:1,ang:[],t:0,last:0,seg:[],legs:[],J:[],c:null,grid:null,gaps:-1};
+const WK_S=70,WK_LIFT=30,WK_DUTY=.6,WK_T=1.4,WK_LIM={p:45,y:45,r:20},DEG=Math.PI/180;
+function walkLab(k,v){v=Math.round(v);if(!v)return'ישר';const a=Math.abs(v)+'°';return k==='p'?(v>0?'למעלה ':'למטה ')+a:k==='y'?(v>0?'שמאלה ':'ימינה ')+a:(v>0?'לימין ':'לשמאל ')+a}
+function walkPanel(c){const el=$('#walkPanel');el.classList.toggle('on',WK.on);if(!WK.on){el.innerHTML='';return}
+  const n=c.shell.n;WK.gaps=n-1;while(WK.ang.length<n-1)WK.ang.push({p:0,y:0,r:0});WK.ang.length=Math.max(0,n-1);
+  let h='<div class="wr"><button id="wkPlay" class="btn">'+(WK.play?'עצירה':'הליכה')+'</button><button id="wkReset" class="btn">יישור כל הזוויות</button><label style="width:auto"><input type="checkbox" id="wkAuto"'+(WK.auto?' checked':'')+'> תנועה אוטומטית של הזוויות</label></div>'
+    +'<div class="wr"><label>מהירות הליכה</label><input type="range" id="wkSpd" min="0.3" max="2" step="0.1" value="'+WK.spd+'"><b id="wkSpdL">×'+WK.spd+'</b></div>';
+  if(n<2)h+='<div class="wn">יש רק חוליה אחת, אז אין זוויות בין חוליות. אפשר להגדיל ל-2 חוליות ומעלה.</div>';
+  for(let g=0;g<n-1;g++){h+='<h4>מפרק '+(g+1)+' (בין חוליה '+(g+1)+' לחוליה '+(g+2)+')</h4>';
+    [['p','הטיה למעלה / למטה'],['y','פנייה שמאלה / ימינה'],['r','גלגול ימינה / שמאלה']].forEach(([k,l])=>{const m=WK_LIM[k];
+      h+='<div class="wr"><label>'+l+'</label><input type="range" data-g="'+g+'" data-k="'+k+'" min="'+-m+'" max="'+m+'" step="1" value="'+Math.round(WK.ang[g][k])+'"'+(WK.auto?' disabled':'')+'><b id="wl'+g+k+'">'+walkLab(k,WK.ang[g][k])+'</b></div>'})}
+  h+='<div class="wn">מנוע אחד בכל מפרק בקונפיגורציה. הטיה למעלה/למטה היא התנועה הרגילה. פנייה וגלגול הן רק לבדיקה איך הגוף יכול לזוז, ואין להן מנוע. מידות הצעד והמהירות להמחשה, לא חישוב.</div>';
+  el.innerHTML=h}
+$('#walkPanel').addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.k){WK.ang[+t.dataset.g][t.dataset.k]=+t.value;$('#wl'+t.dataset.g+t.dataset.k).textContent=walkLab(t.dataset.k,+t.value)}else if(t.id==='wkSpd'){WK.spd=+t.value;$('#wkSpdL').textContent='×'+WK.spd}else if(t.id==='wkAuto'){WK.auto=t.checked;walkPanel(cfg())}});
+$('#walkPanel').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.id==='wkPlay'){WK.play=!WK.play;t.textContent=WK.play?'עצירה':'הליכה'}else if(t.id==='wkReset'){WK.auto=false;WK.ang.forEach(a=>{a.p=a.y=a.r=0});walkPanel(cfg())}});
+document.querySelectorAll('#walkTg button').forEach(b=>b.onclick=()=>{WK.on=b.dataset.w==='1';document.querySelectorAll('#walkTg button').forEach(x=>x.classList.toggle('on',x===b));walkPanel(cfg());WK.last=0;schedule()});
+function walkBuild(c){
+  const clear=clearAt(c,0),r=fillTool(root,c,0,{bad:badSet(c),walk:true,noShell:V.frame}),segs=r.segs,n=segs.length;
+  if(WK.gaps!==n-1)walkPanel(c);
+  WK.c=c;WK.clear=clear;WK.grid=root.children[0];
+  const gx=[];for(let g=0;g<n-1;g++)gx.push((segs[g].cx+segs[g].len/2+segs[g+1].cx-segs[g+1].len/2)/2);
+  const G=segs.map(()=>{const q=new THREE.Group();q.matrixAutoUpdate=false;return q});
+  root.children.slice(1).forEach(k=>{let i=0;while(i<gx.length&&k.position.x>gx[i]+.01)i++;root.remove(k);G[i].add(k)});
+  G.forEach(q=>root.add(q));WK.seg=G;
+  const fi=$('#frameInfo');fi.textContent='';
+  if(V.frame){const fr=frameGroup(c,clear);fr.gs.forEach((q,i)=>{q.position.y=clear;G[i].add(q)});const f=fr.info;fi.textContent=frameNote(f)}
+  WK.J=[];for(let g=0;g<n-1;g++){const ji=c.items.find(i=>i.auto==='joint'&&i.gap===g);WK.J.push(new THREE.Vector3(gx[g],clear+(ji?P(c,ji)[1]:Math.min(segs[g].hei,segs[g+1].hei)/2),0))}
+  const th=c.legs.thick||THICK0,lm=cat.legmotor,bm=new THREE.MeshStandardMaterial({color:0x9aa3af}),fm=new THREE.MeshStandardMaterial({color:0x2b2f33});
+  WK.legs=[];
+  for(let i=0;i<c.legs.count;i++){const h=hipItem(c,i),pz=legPose(c,i,0);if(!h||!pz)continue;const si=segIdx(c,h.seg),ki=c.items.find(x=>x.auto==='knee'&&x.leg===i);
+    const mk=(geo,m)=>{const o=new THREE.Mesh(geo,m);G[si].add(o);return o};
+    const kn=mk(new THREE.CylinderGeometry(lm.dims[0]/2,lm.dims[0]/2,lm.dims[1],24),new THREE.MeshStandardMaterial({color:ki?colOf(ki):0x8b919c,roughness:.6}));kn.rotation.x=Math.PI/2;
+    WK.legs.push({si,pz,th,dir:pz.dir,T:c.legs.thigh,Sn:c.legs.shin,ph:(((pz.hip[0]>0?1:0)+(h.side>0?1:0))%2)*.5,a:mk(new THREE.BoxGeometry(th,1,th),bm),b:mk(new THREE.BoxGeometry(th,1,th),bm),f:mk(new THREE.SphereGeometry(th/2+2,14,10),fm),k:kn})}
+  return{segs,clear}}
+const _wv=new THREE.Vector3(),_wm=new THREE.Matrix4();
+function walkBar(m,a,b){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B)||1;m.position.copy(A).add(B).multiplyScalar(.5);m.scale.set(1,L,1);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize())}
+function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.last)/1000):0;WK.last=now;const c=WK.c;if(!c||!WK.seg.length)return;
+  WK.t+=dt*WK.spd;
+  if(WK.auto)WK.ang.forEach((a,g)=>{a.p=WK_LIM.p*.55*Math.sin(WK.t*.9+g*1.3);a.y=WK_LIM.y*.55*Math.sin(WK.t*.6+g*.8+1);a.r=WK_LIM.r*.5*Math.sin(WK.t*.45+g)});
+  const M=[new THREE.Matrix4()];
+  WK.J.forEach((J,g)=>{const a=WK.ang[g]||{p:0,y:0,r:0},R=new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(a.r*DEG,a.y*DEG,a.p*DEG,'XYZ'));
+    M.push(M[g].clone().multiply(new THREE.Matrix4().makeTranslation(J.x,J.y,J.z)).multiply(R).multiply(new THREE.Matrix4().makeTranslation(-J.x,-J.y,-J.z)))});
+  WK.seg.forEach((s,i)=>{s.matrix.copy(M[i]);s.matrixWorldNeedsUpdate=true});
+  /* walking direction on the floor = average of the segments' forward directions */
+  const d=new THREE.Vector3();M.forEach(m=>{_wv.set(1,0,0).transformDirection(m);d.x+=_wv.x;d.z+=_wv.z});if(d.lengthSq()<1e-4)d.set(1,0,0);d.y=0;d.normalize();
+  const vg=WK_S/(WK_DUTY*WK_T);
+  if(WK.play&&WK.grid){WK.grid.position.addScaledVector(d,-vg*dt*WK.spd);const w=50;WK.grid.position.x=((WK.grid.position.x%w)+w)%w;WK.grid.position.z=((WK.grid.position.z%w)+w)%w}
+  WK.legs.forEach(L=>{const Mi=M[L.si],hw=new THREE.Vector3(...L.pz.hip).applyMatrix4(Mi);
+    let off=0,lift=0;if(WK.play){const u=(WK.t/WK_T+L.ph)%1;if(u<WK_DUTY){off=WK_S/2-WK_S*(u/WK_DUTY)}else{const s=(u-WK_DUTY)/(1-WK_DUTY);off=-WK_S/2+WK_S*s;lift=WK_LIFT*Math.sin(Math.PI*s)}}
+    const tw=new THREE.Vector3(hw.x+d.x*off,lift,hw.z+d.z*off),tl=tw.applyMatrix4(_wm.copy(Mi).invert()),z=L.pz.hip[2],hp=L.pz.hip;
+    const k=ik([hp[0],hp[1]],[tl.x,tl.y],L.T,L.Sn,L.dir);
+    walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)})}
 function build3D(){
-  clearRoot(root);const c=cfg(),{segs,clear}=fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c)});
+  clearRoot(root);const c=cfg(),{segs,clear}=WK.on?walkBuild(c):fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c),noShell:V.frame});
+  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameGroup(c,clear);root.add(fr.g);const f=fr.info;fi.textContent=frameNote(f)}else if(!WK.on)fi.textContent='';
   const HH=Math.max(...segs.map(s=>s.hei))+(c.items.some(i=>i.cid==='gimbal')?95:0),rad=Math.hypot(shellLen(c)/2+60,(clear+HH)/2+30,shellWid(c)/2+40),R=rad/Math.sin(0.28)*.62,t=new THREE.Vector3(0,(clear+HH)/2,0);
   const big=V.mode==='3d'||V.mode==='win';
   if(!camSet){cam.position.set(R*.55,R*.38,R*.7);oc.target.copy(t);camSet=true}else if(!big)oc.target.copy(t);
-  over3D(c,clear);
+  if(!WK.on)over3D(c,clear);
   oc.update();
 }
 /* ---------- station tab: docking station, choice of the charge point on the tool, and a free layout of the station parts with placement rules ----------
@@ -2062,7 +2185,7 @@ new ResizeObserver(lresize).observe(lcv);
 function resize3(){const r=cv.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/Math.max(r.height,1);cam.updateProjectionMatrix()}
 new ResizeObserver(()=>{resize3();render2D(false)}).observe($('#stage'));
 new ResizeObserver(resize3).observe(cv);
-(function loop(){if(ST.on){soc.update();sren.render(sscene,scam)}else if(LV.on){loc.update();lren.render(lscene,lcam)}else{oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
+(function loop(){if(ST.on){soc.update();sren.render(sscene,scam)}else if(LV.on){loc.update();lren.render(lscene,lcam)}else{if(WK.on)wkTick();oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
 
 /* ---------- step 4: direction of each part, view ranges, cables, 3D editing, view modes ---------- */
 const FACEV={'+x':[1,0,0],'-x':[-1,0,0],'+y':[0,1,0],'-y':[0,-1,0],'+z':[0,0,1],'-z':[0,0,-1]};
@@ -2519,6 +2642,7 @@ function renderCtrl(){
   el.insertAdjacentHTML('beforeend','<div class="note">סידור אופטימלי: בודק את המקומות שבכרטיסים ועוד הרבה סידורים חוקיים, ובוחר את הטוב ביותר. הסדר שלי: קודם בלי רכיבים שלא נכנסים, אחר כך הכי מעט אזהרות, אחר כך מרכז כובד קרוב לאמצע ונמוך, ואחר כך כבלים קצרים. אם הכלי קטן מדי, נפתח חלון עם דרכים להגדיל אותו.<br>סידור מחדש: בכל לחיצה סידור חוקי אחר, בלי יותר אזהרות מעכשיו. זזים רק רכיבים שהכרטיס לא קובע להם כיוון או קצה (מחשב, בקר בטיחות, סוללות, IMU, חיישני אוויר, נורה, כפתור, זמזם, לוחות). רכיבים נעולים לא זזים בשני הכפתורים.</div>');
   document.querySelectorAll('#stance button').forEach(b=>b.classList.toggle('on',b.dataset.s===c.legs.stance));
 }
+document.querySelectorAll('#frameTg button').forEach(b=>b.onclick=()=>{V.frame=b.dataset.f==='1';document.querySelectorAll('#frameTg button').forEach(x=>x.classList.toggle('on',x===b));schedule()});
 $('#freebtn').onclick=e=>{V.free=!V.free;e.currentTarget.setAttribute('aria-pressed',V.free?'true':'false');e.currentTarget.classList.toggle('on',V.free);toast(V.free?'מצב חופשי: אין הצמדה וחסימה':'חזרה להצמדה')};
 $('#walkbtn').onclick=()=>{const c=cfg();
   if(WALK.on){walkStop();return}
