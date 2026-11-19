@@ -814,8 +814,9 @@ const GAP=DEF.segment_defaults.gap, LG=DEF.legs;
 const gapOf=c=>(c&&c.shell&&typeof c.shell.gap==='number')?c.shell.gap:GAP;
 const GROUPS={computing:['#59687f'],sensing:['#2f5d8c'],imaging:['#6c86ab'],motion:['#8b919c'],power:['#16263f'],light:['#a9b3c2'],air:['#4c7a8c'],safety:['#b0603f']};
 /* TERRA: component group colours follow the theme (dark/light) from the design-system accent colours. Look only. */
-const TPAL={dark:{computing:'#A3A49A',sensing:'#5C9AD6',imaging:'#8CC5D8',motion:'#C9A275',power:'#9A8F62',light:'#E8D5AE',air:'#A3AB7E',safety:'#D9785A'},
-  light:{computing:'#85867B',sensing:'#2863A3',imaging:'#1F6F8B',motion:'#9C6439',power:'#655C3C',light:'#A98B55',air:'#6E7650',safety:'#A35036'}};
+/* 19.11 (Sharon): groups must contrast more with each other: one clearly different hue per group, motors stay neutral grey so the parts stand out. */
+const TPAL={dark:{computing:'#B07CE8',sensing:'#4C9BFF',imaging:'#3FD0D9',motion:'#7E8794',power:'#F2C230',light:'#F5F0E1',air:'#5FC46A',safety:'#FF5A3C'},
+  light:{computing:'#7A3FC4',sensing:'#1F6FE0',imaging:'#0F9AA6',motion:'#6B7280',power:'#C99700',light:'#A88A3D',air:'#2E9A44',safety:'#E0401F'}};
 window.__terraPaint=t=>{const P=TPAL[t==='light'?'light':'dark'];Object.keys(P).forEach(k=>{if(GROUPS[k])GROUPS[k][0]=P[k]})};
 window.__terraPaint(document.documentElement.getAttribute('data-theme'));
 const STORE='layout-dashboard-v3';
@@ -1816,8 +1817,8 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(32,1,5,20000);
 const oc=new THREE.OrbitControls(cam,cv);oc.enablePan=false;oc.enableZoom=false;oc.autoRotate=false;oc.autoRotateSpeed=1.4;oc.enableDamping=true;
 /* 19.11 stage 8: light and colour like the simulation (room reflections, filmic tone, soft shadows on the floor) */
-renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-scene.add(new THREE.HemisphereLight(0xffffff,0x8a8f96,.35));const dl=new THREE.DirectionalLight(0xffffff,1.6);dl.position.set(380,900,520);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);
+renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.9;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+scene.add(new THREE.HemisphereLight(0xffffff,0x8a8f96,.35));const dl=new THREE.DirectionalLight(0xffffff,1.25);dl.position.set(380,900,520);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);
 Object.assign(dl.shadow.camera,{left:-800,right:800,top:800,bottom:-800,near:100,far:2600});dl.shadow.bias=-.0004;dl.shadow.radius=4;scene.add(dl);
 const shadowFloor=new THREE.Mesh(new THREE.PlaneGeometry(6000,6000),new THREE.ShadowMaterial({opacity:.25}));shadowFloor.rotation.x=-Math.PI/2;shadowFloor.position.y=-.5;shadowFloor.receiveShadow=true;scene.add(shadowFloor);
 const root=new THREE.Group();scene.add(root);let camSet=false;
@@ -2034,7 +2035,7 @@ function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),b
   c.items.forEach(it=>{if(o.fade&&it.unfit)return;if(o.walk&&it.auto==='knee')return;if(it.auto==='joint')return; /* joint motors: drawn as the cardan below */
     const k=cat[it.cid],d=baseDims(it),gim=it.cid==='gimbal'&&GM3,g=gim?null:k.shape==='cyl'?new THREE.CylinderGeometry(d[0]/2,d[0]/2,d[1],48):rrGeo(d[0],d[1],d[2]);
     let p=P(c,it);if(it.auto==='knee'){const q=walkLeg(c,it.leg,t);if(q)p=[q.knee[0],q.knee[1]-clear,q.knee[2]]}
-    const mat=isMotor(it)?sm(0x2b2f35,.6,.38):gim?sm(colOf(it),.35,.45,{side:THREE.DoubleSide}):sm(colOf(it),.15,.45);
+    const mat=isMotor(it)?sm(0x2b2f35,.6,.38):gim?sm(colOf(it),.2,.55,{side:THREE.DoubleSide,envMapIntensity:.45}):sm(colOf(it),.05,.55,{envMapIntensity:.45});
     if(o.fade&&!isMotor(it)){mat.transparent=true;mat.opacity=.16;mat.depthWrite=false}
     if(bad.has(it.id)){mat.emissive=new THREE.Color(0xc0352b);mat.emissiveIntensity=.5}
     if(!o.fade&&sel===it.id){mat.emissive=new THREE.Color(0x3a6fb0);mat.emissiveIntensity=.6}
