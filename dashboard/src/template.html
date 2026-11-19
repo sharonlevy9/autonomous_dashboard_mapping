@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>פריסת רכיבים</title>
+<script>/* TERRA theme: dark first, saved choice if any */
+try{document.documentElement.setAttribute('data-theme',localStorage.getItem('terra-theme')==='light'?'light':'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}
+</script>
 <style>
 :root{
   color-scheme:light;
@@ -394,6 +397,106 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
 .tour-card .tcb .sp{flex:1;color:var(--muted);font-size:14px}
 .tour-card .pill.main{background:var(--accent);color:#fff;border-color:var(--accent)}
 @media (max-width:700px){.gd-body{padding:6px 18px 28px}.gd-top{padding:14px 18px}.gd-map{grid-template-columns:1fr}.gd-map .t,.gd-map .b{grid-column:auto}}
+/* ===== TERRA layer (19.11): design-system tokens, dark first + light, glass panels. Look only: no data, numbers or checks change. ===== */
+:root{
+  --t-font:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Heebo",system-ui,sans-serif;
+  --t-bg:#171518;--t-surface:#252226;--t-surface2:#322E34;--t-surface3:#413C44;
+  --t-glass:color-mix(in srgb,var(--t-surface) 40%,transparent);--t-glass-line:rgba(255,255,255,.22);
+  --t-text:#F5EFE4;--t-text2:rgba(245,239,228,.64);--t-line:rgba(245,239,228,.14);
+  --t-primary:#5C9AD6;--t-on-primary:#06192E;--t-primary-c:rgba(92,154,214,.2);
+  --t-warn:#E3AE4A;--t-warn-c:rgba(214,158,56,.2);--t-danger:#E5675B;--t-danger-c:rgba(229,103,91,.18);--t-ok:#5DBE8A;--t-ok-c:rgba(93,190,138,.18);
+  --t-map-bg:#121014;--t-map-grid:rgba(245,239,228,.07);--t-shadow:0 12px 36px rgba(0,0,0,.5);--t-r:20px;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --t-bg:#F1EBDD;--t-surface:#FBF8F1;--t-surface2:#EFE8D9;--t-surface3:#E2D9C6;
+  --t-glass:color-mix(in srgb,var(--t-surface) 40%,transparent);--t-glass-line:rgba(255,255,255,.55);
+  --t-text:#252226;--t-text2:rgba(37,34,38,.64);--t-line:rgba(37,34,38,.15);
+  --t-primary:#2863A3;--t-on-primary:#FFFFFF;--t-primary-c:rgba(40,99,163,.14);
+  --t-warn:#8F5E00;--t-warn-c:rgba(214,158,56,.22);--t-danger:#A33B30;--t-danger-c:rgba(163,59,48,.13);--t-ok:#2E7D54;--t-ok-c:rgba(46,125,84,.14);
+  --t-map-bg:#E9E1D0;--t-map-grid:rgba(37,34,38,.08);--t-shadow:0 10px 32px rgba(37,34,38,.16);
+  color-scheme:light;
+}
+/* old variable names now point to the TERRA tokens, so every existing rule follows the theme */
+:root{
+  --bg:var(--t-bg);--card:var(--t-surface2);--card2:var(--t-surface);--line:var(--t-line);--text:var(--t-text);--muted:var(--t-text2);
+  --accent:var(--t-primary);--accent2:var(--t-primary);--warn:var(--t-warn);--bad:var(--t-danger);--ok:var(--t-ok);
+  --head:var(--t-text);--label:var(--t-text);--ink:var(--t-text);--shadow:var(--t-shadow);--r:var(--t-r);
+  --md-sys-color-primary:var(--t-primary);--md-sys-color-on-primary:var(--t-on-primary);
+  --md-sys-color-primary-container:var(--t-primary-c);--md-sys-color-on-primary-container:var(--t-text);
+  --md-sys-color-secondary-container:var(--t-primary-c);--md-sys-color-on-secondary-container:var(--t-text);
+  --md-sys-color-surface:var(--t-surface);--md-sys-color-surface-container:var(--t-surface);--md-sys-color-surface-container-low:var(--t-surface);
+  --md-sys-color-surface-container-highest:var(--t-surface3);--md-sys-color-on-surface:var(--t-text);--md-sys-color-on-surface-variant:var(--t-text2);
+  --md-sys-color-outline:var(--t-text2);--md-sys-color-outline-variant:var(--t-line);
+  --md-sys-typescale-label-large-font:var(--t-font);--md-ref-typeface-brand:var(--t-font);--md-ref-typeface-plain:var(--t-font);
+}
+body{font-family:var(--t-font);background:var(--t-bg);color:var(--t-text)}
+:root[data-theme="dark"] body,body{background:var(--t-bg)}
+:focus-visible{outline:2px solid var(--t-primary)}
+h1,h2,h3,.brand,.cardh,.mcard h2,.pop h3,.ctitle h3{letter-spacing:-.01em}
+/* white leftovers */
+.ibtn:hover,.row:hover,.chip:hover{background:var(--t-primary-c)}
+.info6,.chip,.pill,.fields input,.rl select,.mimg,.stw button,.gd-map .c{background:var(--t-surface2);color:var(--t-text)}
+.mimg{border-color:var(--t-line)}.pvw,.gd .tip,.bx,.gd-quick,.gd-map div,.gd-map .t,.gd-map .b,.stsel,.gd kbd{background:var(--t-surface2);border-color:var(--t-line);color:var(--t-text)}
+.cfg.on{background:var(--t-surface3);border-color:var(--t-primary)}
+.stit.on{background:var(--t-primary-c);border-color:var(--t-primary)}.stit.warn,.stw{background:var(--t-warn-c);border-color:var(--t-warn)}
+.stwarn,.chip.unk{background:var(--t-danger-c);color:var(--t-danger)}.stok{background:var(--t-ok-c);color:var(--t-ok)}.chip.est,dl.gl dt.hit{background:var(--t-warn-c);color:var(--t-warn)}
+.chip.wv,.wl2 .st.wv{border-color:var(--t-warn);color:var(--t-warn)}.chip.wv i,.wl2 .st.wv{background:var(--t-warn)}
+.chip i{color:var(--t-bg)}.chip.bad{color:var(--t-danger)}
+.seg button.on,.row.sel,.pill:hover,.pill.on,.ibtn.dark{color:var(--t-on-primary);background:var(--t-primary);border-color:var(--t-primary)}
+.row.sel .c{color:var(--t-on-primary);opacity:.8}
+.stopts button.on{background:var(--t-warn);border-color:var(--t-warn);color:var(--t-bg)}
+.hint3{background:var(--t-glass);color:var(--t-text);backdrop-filter:blur(8px)}
+.split::after{background:var(--t-text2)}
+.tr{background:var(--t-surface3);border-color:var(--t-text)}.tr.ref{background:var(--t-surface2);border-color:var(--t-text2)}
+.stlab{background:var(--t-surface3);color:var(--t-text)}
+.modal{background:rgba(10,8,12,.55)}
+.stage{background:transparent}
+.card,.cdrawer,.legtab,.sttab,.modal>*{color:var(--t-text)}
+.cdrawer,.legtab,.sttab{background:var(--t-surface);border:.5px solid var(--t-glass-line)}
+/* drawings: drawn by the page with fixed colours, mapped here to theme colours */
+svg [fill="#f2f3f5"]{fill:var(--t-surface2)}svg [stroke="#f2f3f5"]{stroke:var(--t-surface2)}
+svg [stroke="#8c95a5"],svg [stroke="#aab0ba"],svg [stroke="#9aa3af"]{stroke:var(--t-text2)}
+svg [stroke="#8a929f"]{stroke:var(--t-text2)}svg [fill="#8a929f"]{fill:var(--t-text2)}
+svg [stroke="#bcc2cc"]{stroke:var(--t-line)}
+svg [stroke="#0a1a30"],svg [stroke="#1b2433"]{stroke:var(--t-text)}svg [fill="#0a1a30"]{fill:var(--t-text)}
+svg [stroke="#c0352b"]{stroke:var(--t-danger)}svg [stroke="#3a6fb0"],svg [stroke="#2f5d8c"]{stroke:var(--t-primary)}svg [fill="#2f5d8c"]{fill:var(--t-primary)}
+svg [fill="#7b8290"],svg [fill="#8b919c"]{fill:var(--t-text2)}svg [fill="#fff"]{fill:var(--t-surface)}svg [stroke="#fff"]{stroke:var(--t-surface)}svg [fill="#2b2f33"]{fill:var(--t-text)}
+svg text{fill:var(--t-text)}
+/* glass */
+.glassy,header,.stats,.checks,.vopts,.pop,.list,.side>.card,.strip,.cdrawer{background:var(--t-glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:.5px solid var(--t-glass-line);border-radius:var(--t-r);
+  box-shadow:var(--t-shadow),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.07)}
+.cdrawer{background:var(--t-surface)}
+header,.stats,.checks,.vopts,.pop,.list,.side>.card,.strip{--card:color-mix(in srgb,var(--t-text) 7%,transparent);--card2:color-mix(in srgb,var(--t-text) 7%,transparent);--line:color-mix(in srgb,var(--t-text) 16%,transparent)}
+header{padding:6px 14px;margin-top:10px;background:var(--t-glass)}
+.editor{background-color:var(--t-map-bg);background-image:linear-gradient(var(--t-map-grid) 1px,transparent 1px),linear-gradient(90deg,var(--t-map-grid) 1px,transparent 1px);background-size:40px 40px;border:1px solid var(--t-line);box-shadow:none}
+.pop,.stats,.checks,.vopts{margin-inline:12px}
+.stats{margin:0}
+.stat .v{font-weight:600;font-size:38px;color:var(--t-text)}
+.stat.bad .v{color:var(--t-danger)}.stat.ok .v{color:var(--t-ok)}
+.checks,.vopts{padding:10px 16px;margin-top:10px}
+.stage{margin:10px 12px 0}
+.brand{color:var(--t-text)}
+/* switch + inputs */
+input[type=range]{accent-color:var(--t-primary)}
+.ctl .val .num,.fields input,.wvrow input,.lctl select{background:var(--t-surface2);color:var(--t-text);border-color:var(--t-line)}
+#thm{margin-inline-start:4px}
+/* floating panels over the editor (desktop) */
+@media (min-width:1101px){
+  main,.app.pres main{display:block;position:relative;grid-template-columns:none}
+  main>.editor{position:absolute;inset:0;padding:150px 324px 12px 404px}
+  .stats{position:absolute;top:12px;inset-inline:12px;padding:8px 22px;z-index:3;align-items:center;margin:0}
+  .list{position:absolute;z-index:4;top:150px;bottom:12px;inset-inline-start:12px;width:300px}
+  .side{position:absolute;z-index:4;top:150px;bottom:12px;inset-inline-end:12px;width:380px;overflow-y:auto;overflow-x:hidden;border-radius:var(--t-r);padding:0}
+  .side>.card{margin-bottom:10px}
+  .side{scrollbar-width:thin}
+  .stage{flex:1}
+  .zoom{inset-inline-end:12px}
+}
+@media (min-width:1101px) and (max-width:1320px){
+  main>.editor{padding:150px 284px 12px 364px}.list{width:260px}.side{width:340px}
+}
+@media (max-width:1100px){.stats{margin:10px 12px 0}.list,.side>.card{margin-bottom:10px}}
 </style>
 </head>
 <body>
@@ -407,6 +510,7 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
     <div class="seg" id="viewseg"><button data-m="side" class="on">מהצד</button><button data-m="top">מלמעלה</button><button data-m="front">מלפנים</button><button data-m="3d">תלת מימד</button><button data-m="win" title="שלושה היטלים ותלת מימד, יחד">הכול יחד</button></div>
     <div class="spacer"></div>
     <div class="hgrp">
+      <button class="ibtn" id="thm" type="button" title="מעבר בין מצב כהה לבהיר" aria-label="מעבר בין מצב כהה לבהיר">◐</button>
       <label class="modesw"><md-switch id="modesw" aria-label="מצב הצגה"></md-switch><span id="modelab">מצב תכנון</span></label>
       <md-filled-tonal-button id="rulesbtn" class="edit">כללי הנדסה</md-filled-tonal-button>
       <md-icon-button id="undo" class="edit" title="ביטול" aria-label="ביטול"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></md-icon-button>
@@ -601,6 +705,11 @@ const $=s=>document.querySelector(s);
 const DEF=JSON.parse($('#data-default').textContent);
 const GAP=DEF.segment_defaults.gap, LG=DEF.legs;
 const GROUPS={computing:['#59687f'],sensing:['#2f5d8c'],imaging:['#6c86ab'],motion:['#8b919c'],power:['#16263f'],light:['#a9b3c2'],air:['#4c7a8c'],safety:['#b0603f']};
+/* TERRA: component group colours follow the theme (dark/light) from the design-system accent colours. Look only. */
+const TPAL={dark:{computing:'#A3A49A',sensing:'#5C9AD6',imaging:'#8CC5D8',motion:'#C9A275',power:'#9A8F62',light:'#E8D5AE',air:'#A3AB7E',safety:'#D9785A'},
+  light:{computing:'#85867B',sensing:'#2863A3',imaging:'#1F6F8B',motion:'#9C6439',power:'#655C3C',light:'#A98B55',air:'#6E7650',safety:'#A35036'}};
+window.__terraPaint=t=>{const P=TPAL[t==='light'?'light':'dark'];Object.keys(P).forEach(k=>{if(GROUPS[k])GROUPS[k][0]=P[k]})};
+window.__terraPaint(document.documentElement.getAttribute('data-theme'));
 const STORE='layout-dashboard-v3';
 let cat={};DEF.catalog.forEach(c=>cat[c.id]=c);
 /* step 3: leg and joint motors come from data.json "motors" (card 10, 14.11): every leg has 1 hip + 1 knee motor (AKE40-6), no side motor;
@@ -1562,7 +1671,7 @@ function moveItem(c,it,want,free){
   kids.forEach(k=>{k.manual=true;k.pos=k.pos.map((v,i)=>Math.round((v+d[i])*10)/10);if(!isLegal(c,k)){const s=snapPos(c,k,k.pos,[true,true,true]);if(s){k.pos=s;k.unfit=false}else k.unfit=true}});
 }
 let raf=0;function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;renderLight()})}
-function renderLight(){computeTops(cfg());render2D(false);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard()}
+function renderLight(){computeTops(cfg());render2D(false);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard();if(window.__syncCtl)window.__syncCtl()}
 
 /* ---------- 3D mini ---------- */
 const cv=$('#c3'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
@@ -1591,7 +1700,7 @@ function bar3(a,b,w,color){const A=new THREE.Vector3(...a),B=new THREE.Vector3(.
 function clearRoot(r){while(r.children.length){const o=r.children.pop();o.traverse(x=>{if(x.geometry)x.geometry.dispose()})}}
 /* the tool in 3D. t: 0 standing ... 1 folded. o.fade: show only motors and legs solid (legs tab) */
 function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),bad=o.bad||new Set();
-  root.add(new THREE.GridHelper(1600,32,0xb9bfc9,0xdadde3));
+  {const lt=document.documentElement.getAttribute('data-theme')==='light';root.add(new THREE.GridHelper(1600,32,lt?0xb9bfc9:0x6a6470,lt?0xdadde3:0x3f3b44))}
   segs.forEach(s=>{const g=rbox(s.len,s.hei,s.wid,c.shell.rS||0,c.shell.rT||0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
     m.position.set(s.cx,clear+s.hei/2,0);root.add(m);const e=new THREE.LineSegments(new THREE.EdgesGeometry(g,25),new THREE.LineBasicMaterial({color:0x6d7787}));e.position.copy(m.position);root.add(e)});
   stepsOf(c).forEach(st=>{const g=new THREE.BoxGeometry(st.x1-st.x0,st.top-st.y0,st.z1-st.z0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
@@ -2194,7 +2303,7 @@ function splitItem(c,it,n){
 }
 function renderCtrl(){
   const c=cfg(),s=c.shell,el=$('#ctrl');
-  el.innerHTML='<div class="cardh">גוף</div>';
+  el.innerHTML='<div class="cardh">גוף</div>';el._rows=[];
   /* slider + typed number. Pointer over a row draws that dimension on the drawing (V.hint) */
   const sameHint=(a,b)=>a&&b&&a.k===b.k&&a.seg===b.seg;
   const slider=(lab,val,mn,mx,st,apply,hint,unit)=>{unit=unit||'מ"מ';val=Math.round(val*10)/10;
@@ -2207,7 +2316,7 @@ function renderCtrl(){
     inp.onchange=()=>{start=false;apply(+inp.value,true)};
     num.onchange=()=>{const v=parseFloat(num.value);if(!(v>=mn)){num.value=inp.value;toast('המינימום הוא '+mn+' '+unit);return}snap();apply(v,true)};
     num.onkeydown=e=>{if(e.key==='Enter')num.blur()};
-    el.appendChild(r);return r};
+    el._rows.push({inp,num,lab});el.appendChild(r);return r};
   const applyShell=set=>(v,fin)=>{set(v);syncTotal(c);clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)};
   const segBtns=(lab,opts,cur,fn)=>{const d=document.createElement('div');d.className='ctl wide';d.innerHTML='<span class="l">'+lab+'</span><div class="seg small">'+opts.map(([v,l])=>'<button data-v="'+v+'" class="'+(cur===v?'on':'')+'">'+l+'</button>').join('')+'</div>';
     d.onclick=e=>{const v=e.target.dataset.v;if(v===undefined||v===cur)return;fn(v)};el.appendChild(d);return d};
@@ -2219,7 +2328,7 @@ function renderCtrl(){
     slider('אורך',q.len,40,800,5,applyShell(v=>q.len=v),{k:'len',seg:V.seg});
     slider('רוחב',q.wid,30,PASSW,5,applyShell(v=>q.wid=v),{k:'wid',seg:V.seg});
     slider(hLab,q.hei,20,400,5,applyShell(v=>q.hei=v),{k:'hei',seg:V.seg});
-    el.insertAdjacentHTML('beforeend','<div class="note">אורך כולל '+Math.round(shellLen(c))+' מ"מ, כולל רווח של '+GAP+' מ"מ בין חוליות. אפשר לבחור חוליה גם בלחיצה עליה בשרטוט.</div>');
+    el.insertAdjacentHTML('beforeend','<div class="note">אורך כולל <b class="lensum">'+Math.round(shellLen(c))+'</b> מ"מ, כולל רווח של '+GAP+' מ"מ בין חוליות. אפשר לבחור חוליה גם בלחיצה עליה בשרטוט.</div>');
   }else{
     slider('אורך',s.total,100,1400,5,applyShell(v=>s.total=v),{k:'total'});
     slider('רוחב',s.wid,30,PASSW,5,applyShell(v=>s.wid=v),{k:'wid'});
@@ -2296,6 +2405,24 @@ function renderStrip(){
   add.onclick=()=>{snap();S.configs.push(newConfig('קונפיגורציה '+(S.configs.length+1)));S.active=S.configs.length-1;sel=null;save();refresh(true)};st.appendChild(add);
 }
 function refresh(refit){if(refit)camSet=false;computeTops(cfg());renderCtrl();render2D(!!refit);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard();updUndo();if(LV.on)renderLab()}
+window.__terraRefresh=()=>refresh(false);
+/* linked values: while one slider is dragged, every other control that depends on it (and the number notes) follows at once, not only after release */
+window.__syncCtl=()=>{const el=document.getElementById('ctrl');if(!el||!el._rows||!S)return;
+  const c=cfg(),s=c.shell,q=perOn(c)?s.segs[Math.min(V.seg||0,s.n-1)]:null,LL=c.legs.count?legsOf(c):null;
+  const val=lab=>{switch(lab){
+    case'אורך':return q?q.len:s.total;case'רוחב':return q?q.wid:s.wid;
+    case'גובה':case'גובה בסיס':case'גובה מקס׳':return q?q.hei:s.hei;
+    case'ירך':return LL&&LL.thigh;case'שוק':return LL&&LL.shin;case'עובי הרגל':return LL&&LL.thick;
+    case'גובה מהרצפה':return c.legs.count?Math.round(clearance(c,'stand')):undefined;
+    case'עיגול פינות מהצד':return s.rS||0;case'עיגול פינות מלמעלה':return s.rT||0;
+    case'מרווח מדרגה':return s.sPad||0;case'בליטת הליידאר מהגוף':return s.lOut||0;
+    default:return /^נקודת ההשקה/.test(lab)?(s.gFoot||50):undefined}};
+  el._rows.forEach(w=>{if(document.activeElement===w.inp||document.activeElement===w.num)return;
+    const v=val(w.lab);if(v===undefined||v===null||!isFinite(v))return;const r=Math.round(v*10)/10;
+    if(w.lab==='גובה מהרצפה'){try{const CI=clearInfo(c);w.inp.min=CI.mn;w.inp.max=Math.max(CI.mn,CI.mx,r);w.num.min=CI.mn}catch(e){}}
+    else if(+w.inp.max<r)w.inp.max=r;
+    w.inp.value=r;w.num.value=r});
+  el.querySelectorAll('.lensum').forEach(e=>{e.textContent=Math.round(shellLen(c))})};
 function toast(t,ms){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),ms||2200)}
 
 function openRules(){
@@ -2646,5 +2773,22 @@ fix(document.body);mo.observe(document.body,{childList:true,subtree:true,charact
 })();
 </script>
 
+<script>
+/* TERRA theme switch. Look only: nothing here touches data, numbers or checks. */
+(function(){
+'use strict';
+var cur=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark',b=document.getElementById('thm');
+function sync(){if(b){b.setAttribute('aria-pressed',cur==='light'?'true':'false');b.title=cur==='light'?'מעבר למצב כהה':'מעבר למצב בהיר'}}
+function apply(){
+  document.documentElement.setAttribute('data-theme',cur);
+  try{localStorage.setItem('terra-theme',cur)}catch(e){}
+  if(window.__terraPaint)window.__terraPaint(cur);
+  if(window.__terraRefresh){try{window.__terraRefresh()}catch(e){}}
+  sync();
+}
+sync();
+if(b)b.addEventListener('click',function(){cur=cur==='light'?'dark':'light';apply()});
+})();
+</script>
 </body>
 </html>
