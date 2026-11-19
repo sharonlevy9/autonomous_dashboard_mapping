@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>פריסת רכיבים</title>
+<script>/* TERRA theme: dark first, saved choice if any */
+try{document.documentElement.setAttribute('data-theme',localStorage.getItem('terra-theme')==='light'?'light':'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}
+</script>
 <style>
 :root{
   color-scheme:light;
@@ -127,6 +130,7 @@ button.stat{text-align:start}
 .stage.v3d .zoom{display:none}
 .stage.vwin .zoom{inset-inline-end:auto;inset-inline-start:12px;top:12px;bottom:auto}
 .m3 .st{padding:8px 12px 12px;display:flex;justify-content:center}
+.wkp{display:none;padding:0 14px 12px;font-size:13px}.wkp.on{display:block}.wkp .wr{display:flex;align-items:center;gap:8px;margin:3px 0}.wkp .wr label{width:150px;flex:none}.wkp .wr input[type=range]{flex:1}.wkp .wr b{width:92px;flex:none;font-weight:600}.wkp h4{margin:8px 0 2px;font-size:13px}.wkp .wn{color:var(--muted);margin-top:6px}.wkp button{margin-inline-end:6px}
 .ctrl{flex:1;min-height:0;overflow:auto;padding-bottom:12px}
 .ctl{display:grid;grid-template-columns:74px 1fr 66px;align-items:center;gap:10px;padding:5px 18px;font-size:15px}
 .ctl .l{color:var(--muted)}
@@ -394,6 +398,188 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
 .tour-card .tcb .sp{flex:1;color:var(--muted);font-size:14px}
 .tour-card .pill.main{background:var(--accent);color:#fff;border-color:var(--accent)}
 @media (max-width:700px){.gd-body{padding:6px 18px 28px}.gd-top{padding:14px 18px}.gd-map{grid-template-columns:1fr}.gd-map .t,.gd-map .b{grid-column:auto}}
+/* ===== TERRA layer (19.11): design-system tokens, dark first + light, glass panels. Look only: no data, numbers or checks change. ===== */
+:root{
+  --t-font:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Heebo",system-ui,sans-serif;
+  --t-bg:#171518;--t-surface:#252226;--t-surface2:#322E34;--t-surface3:#413C44;
+  --t-glass:color-mix(in srgb,var(--t-surface) 40%,transparent);--t-glass-line:rgba(255,255,255,.22);
+  --t-text:#F5EFE4;--t-text2:rgba(245,239,228,.64);--t-line:rgba(245,239,228,.14);
+  --t-primary:#5C9AD6;--t-on-primary:#06192E;--t-primary-c:rgba(92,154,214,.2);
+  --t-warn:#E3AE4A;--t-warn-c:rgba(214,158,56,.2);--t-danger:#E5675B;--t-danger-c:rgba(229,103,91,.18);--t-ok:#5DBE8A;--t-ok-c:rgba(93,190,138,.18);
+  --t-map-bg:#121014;--t-map-grid:rgba(245,239,228,.07);--t-shadow:0 12px 36px rgba(0,0,0,.5);--t-r:20px;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --t-bg:#F1EBDD;--t-surface:#FBF8F1;--t-surface2:#EFE8D9;--t-surface3:#E2D9C6;
+  --t-glass:color-mix(in srgb,var(--t-surface) 40%,transparent);--t-glass-line:rgba(255,255,255,.55);
+  --t-text:#252226;--t-text2:rgba(37,34,38,.64);--t-line:rgba(37,34,38,.15);
+  --t-primary:#2863A3;--t-on-primary:#FFFFFF;--t-primary-c:rgba(40,99,163,.14);
+  --t-warn:#8F5E00;--t-warn-c:rgba(214,158,56,.22);--t-danger:#A33B30;--t-danger-c:rgba(163,59,48,.13);--t-ok:#2E7D54;--t-ok-c:rgba(46,125,84,.14);
+  --t-map-bg:#E9E1D0;--t-map-grid:rgba(37,34,38,.08);--t-shadow:0 10px 32px rgba(37,34,38,.16);
+  color-scheme:light;
+}
+/* old variable names now point to the TERRA tokens, so every existing rule follows the theme */
+:root{
+  --bg:var(--t-bg);--card:var(--t-surface2);--card2:var(--t-surface);--line:var(--t-line);--text:var(--t-text);--muted:var(--t-text2);
+  --accent:var(--t-primary);--accent2:var(--t-primary);--warn:var(--t-warn);--bad:var(--t-danger);--ok:var(--t-ok);
+  --head:var(--t-text);--label:var(--t-text);--ink:var(--t-text);--shadow:var(--t-shadow);--r:var(--t-r);
+  --md-sys-color-primary:var(--t-primary);--md-sys-color-on-primary:var(--t-on-primary);
+  --md-sys-color-primary-container:var(--t-primary-c);--md-sys-color-on-primary-container:var(--t-text);
+  --md-sys-color-secondary-container:var(--t-primary-c);--md-sys-color-on-secondary-container:var(--t-text);
+  --md-sys-color-surface:var(--t-surface);--md-sys-color-surface-container:var(--t-surface);--md-sys-color-surface-container-low:var(--t-surface);
+  --md-sys-color-surface-container-highest:var(--t-surface3);--md-sys-color-on-surface:var(--t-text);--md-sys-color-on-surface-variant:var(--t-text2);
+  --md-sys-color-outline:var(--t-text2);--md-sys-color-outline-variant:var(--t-line);
+  --md-sys-typescale-label-large-font:var(--t-font);--md-ref-typeface-brand:var(--t-font);--md-ref-typeface-plain:var(--t-font);
+}
+body{font-family:var(--t-font);background:var(--t-bg);color:var(--t-text)}
+:root[data-theme="dark"] body,body{background:var(--t-bg)}
+:focus-visible{outline:2px solid var(--t-primary)}
+h1,h2,h3,.brand,.cardh,.mcard h2,.pop h3,.ctitle h3{letter-spacing:-.01em}
+/* white leftovers */
+.ibtn:hover,.row:hover,.chip:hover{background:var(--t-primary-c)}
+.info6,.chip,.pill,.fields input,.rl select,.mimg,.stw button,.gd-map .c{background:var(--t-surface2);color:var(--t-text)}
+.mimg{border-color:var(--t-line)}.pvw,.gd .tip,.bx,.gd-quick,.gd-map div,.gd-map .t,.gd-map .b,.stsel,.gd kbd{background:var(--t-surface2);border-color:var(--t-line);color:var(--t-text)}
+.cfg.on{background:var(--t-surface3);border-color:var(--t-primary)}
+.stit.on{background:var(--t-primary-c);border-color:var(--t-primary)}.stit.warn,.stw{background:var(--t-warn-c);border-color:var(--t-warn)}
+.stwarn,.chip.unk{background:var(--t-danger-c);color:var(--t-danger)}.stok{background:var(--t-ok-c);color:var(--t-ok)}.chip.est,dl.gl dt.hit{background:var(--t-warn-c);color:var(--t-warn)}
+.chip.wv,.wl2 .st.wv{border-color:var(--t-warn);color:var(--t-warn)}.chip.wv i,.wl2 .st.wv{background:var(--t-warn)}
+.chip i{color:var(--t-bg)}.chip.bad{color:var(--t-danger)}
+.seg button.on,.row.sel,.pill:hover,.pill.on,.ibtn.dark{color:var(--t-on-primary);background:var(--t-primary);border-color:var(--t-primary)}
+.row.sel .c{color:var(--t-on-primary);opacity:.8}
+.stopts button.on{background:var(--t-warn);border-color:var(--t-warn);color:var(--t-bg)}
+.hint3{background:var(--t-glass);color:var(--t-text);backdrop-filter:blur(8px)}
+.split::after{background:var(--t-text2)}
+.tr{background:var(--t-surface3);border-color:var(--t-text)}.tr.ref{background:var(--t-surface2);border-color:var(--t-text2)}
+.stlab{background:var(--t-surface3);color:var(--t-text)}
+.modal{background:rgba(10,8,12,.55)}
+.stage{background:transparent}
+.card,.cdrawer,.legtab,.sttab,.modal>*{color:var(--t-text)}
+.cdrawer,.legtab,.sttab{background:var(--t-surface);border:.5px solid var(--t-glass-line)}
+/* drawings: drawn by the page with fixed colours, mapped here to theme colours */
+svg [fill="#f2f3f5"]{fill:var(--t-surface2)}svg [stroke="#f2f3f5"]{stroke:var(--t-surface2)}
+svg [stroke="#8c95a5"],svg [stroke="#aab0ba"],svg [stroke="#9aa3af"]{stroke:var(--t-text2)}
+svg [stroke="#8a929f"]{stroke:var(--t-text2)}svg [fill="#8a929f"]{fill:var(--t-text2)}
+svg [stroke="#bcc2cc"]{stroke:var(--t-line)}
+svg [stroke="#0a1a30"],svg [stroke="#1b2433"]{stroke:var(--t-text)}svg [fill="#0a1a30"]{fill:var(--t-text)}
+svg [stroke="#c0352b"]{stroke:var(--t-danger)}svg [stroke="#3a6fb0"],svg [stroke="#2f5d8c"]{stroke:var(--t-primary)}svg [fill="#2f5d8c"]{fill:var(--t-primary)}
+svg [fill="#7b8290"],svg [fill="#8b919c"]{fill:var(--t-text2)}svg [fill="#fff"]{fill:var(--t-surface)}svg [stroke="#fff"]{stroke:var(--t-surface)}svg [fill="#2b2f33"]{fill:var(--t-text)}
+svg text{fill:var(--t-text)}
+/* glass */
+.glassy,header,.stats,.checks,.vopts,.pop,.list,.side>.card,.strip,.cdrawer{background:var(--t-glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:.5px solid var(--t-glass-line);border-radius:var(--t-r);
+  box-shadow:var(--t-shadow),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.07)}
+.cdrawer{background:var(--t-surface)}
+header,.stats,.checks,.vopts,.pop,.list,.side>.card,.strip{--card:color-mix(in srgb,var(--t-text) 7%,transparent);--card2:color-mix(in srgb,var(--t-text) 7%,transparent);--line:color-mix(in srgb,var(--t-text) 16%,transparent)}
+header{padding:6px 14px;margin-top:10px;background:var(--t-glass)}
+.editor{background-color:var(--t-map-bg);background-image:linear-gradient(var(--t-map-grid) 1px,transparent 1px),linear-gradient(90deg,var(--t-map-grid) 1px,transparent 1px);background-size:40px 40px;border:1px solid var(--t-line);box-shadow:none}
+.pop,.stats,.checks,.vopts{margin-inline:12px}
+.stats{margin:0}
+.stat .v{font-weight:600;font-size:38px;color:var(--t-text)}
+.stat.bad .v{color:var(--t-danger)}.stat.ok .v{color:var(--t-ok)}
+.checks,.vopts{padding:10px 16px;margin-top:10px}
+.stage{margin:10px 12px 0}
+.brand{color:var(--t-text)}
+/* switch + inputs */
+input[type=range]{accent-color:var(--t-primary)}
+.ctl .val .num,.fields input,.wvrow input,.lctl select{background:var(--t-surface2);color:var(--t-text);border-color:var(--t-line)}
+#thm{margin-inline-start:4px}
+/* floating panels over the editor (desktop) */
+@media (min-width:1101px){
+  main,.app.pres main{display:block;position:relative;grid-template-columns:none}
+  main>.editor{position:absolute;inset:0;padding:150px 324px 12px 404px}
+  .stats{position:absolute;top:12px;inset-inline:12px;padding:8px 22px;z-index:3;align-items:center;margin:0}
+  .list{position:absolute;z-index:4;top:150px;bottom:12px;inset-inline-start:12px;width:300px}
+  .side{position:absolute;z-index:4;top:150px;bottom:12px;inset-inline-end:12px;width:380px;overflow-y:auto;overflow-x:hidden;border-radius:var(--t-r);padding:0}
+  .side>.card{margin-bottom:10px}
+  .side{scrollbar-width:thin}
+  .stage{flex:1}
+  .zoom{inset-inline-end:12px}
+}
+@media (min-width:1101px) and (max-width:1320px){
+  main>.editor{padding:150px 284px 12px 364px}.list{width:260px}.side{width:340px}
+}
+@media (max-width:1100px){.stats{margin:10px 12px 0}.list,.side>.card{margin-bottom:10px}}
+
+/* ---- fixes + compact dimensions panel (19.11, after Sharon's review) ---- */
+:root{--t-text2:rgba(245,239,228,.74)}
+:root[data-theme="light"]{--t-text2:rgba(37,34,38,.72)}
+html body input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=file]),html body select,html body textarea{background:var(--t-surface2);color:var(--t-text);border:1px solid var(--t-line);border-radius:10px}
+html body input::placeholder{color:var(--t-text2)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:var(--t-surface3);accent-color:var(--t-primary)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--t-primary);border:2px solid var(--t-surface);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--t-primary);border:2px solid var(--t-surface)}
+input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;border-radius:3px}
+.stit span,.stsel span,.stsrc,.stleg2{color:var(--t-text2)}
+.stwarn{color:var(--t-danger)}.stok{color:var(--t-ok)}
+.hnd circle:last-child{filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
+#walkbtn{margin-inline-start:10px;white-space:nowrap}
+#walkbtn.on{background:var(--t-primary);color:var(--t-on-primary)}
+.m3 .st{gap:6px;flex-wrap:wrap;align-items:center}
+/* dimensions panel: one number box + slider per row, notes hidden unless "הסברים" is on */
+#ctrl .note{display:none}#ctrl.notes .note{display:block}
+#ctrl .cardh{display:flex;align-items:center;justify-content:space-between}
+#ctrl .cardh .pill.sm{font-size:12px;font-weight:500;min-height:26px;padding:0 10px}
+#ctrl .cardh .pill.sm[aria-pressed=true]{background:var(--t-primary);color:var(--t-on-primary);border-color:var(--t-primary)}
+#ctrl .ctl:has(.num){grid-template-columns:1fr auto;grid-template-areas:"l v" "r r";row-gap:6px;padding:8px 18px}
+#ctrl .ctl:has(.num) .l{grid-area:l;font-weight:600}
+#ctrl .ctl:has(.num) .val{grid-area:v}
+#ctrl .ctl:has(.num) input[type=range]{grid-area:r;width:100%}
+#ctrl .ctl .val .num{width:76px;font-size:18px;font-weight:700;text-align:center}
+#ctrl .ctl.wide{grid-template-columns:auto 1fr;gap:10px}
+#ctrl .ctl.wide .seg{flex-wrap:nowrap;justify-self:end}
+#ctrl .ctl.wide .seg button{min-width:36px;padding:6px 10px}
+#ctrl .ctl.col{grid-template-columns:1fr}
+#ctrl .hgt{display:none}#ctrl.notes .hgt{display:flex}
+
+/* ---- fit the whole dashboard in one screen, no page scroll (panels scroll inside themselves) ---- */
+.minbox{stroke:var(--t-ok)}svg text[fill="#2e7d54"]{fill:var(--t-ok)}svg [stroke="#2e7d54"]{stroke:var(--t-ok)}
+#freebtn{margin-inline-start:6px;white-space:nowrap}#freebtn.on{background:var(--t-primary);color:var(--t-on-primary)}
+@media (min-width:1101px){
+  html,body{height:100%;overflow:hidden}
+  .app,.app.pres{height:100vh;min-height:0;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;padding:0 14px 8px}
+  header{min-height:0;flex-wrap:nowrap;padding:4px 12px;margin-top:6px;gap:8px}
+  header .brand{font-size:17px}
+  header .seg button{min-height:32px;padding:4px 12px;font-size:14px;min-width:0}
+  header md-filled-tonal-button{--md-filled-tonal-button-container-height:34px}
+  header .hgrp{gap:2px;flex-wrap:nowrap}
+  header .ibtn{width:36px;height:36px}
+  .modesw{font-size:14px;margin-inline-end:2px}
+  main>.editor{padding:108px 316px 8px 396px}
+  .stats{top:8px;inset-inline:8px;padding:4px 18px}
+  .stat{padding-inline-end:22px}
+  .stat .k{font-size:13px}.stat .v{font-size:28px}.stat .v small{font-size:13px}.stat .s{font-size:11.5px}
+  .list,.side{top:108px;bottom:8px}.list{width:290px}.side{width:370px}
+  .checks,.vopts{padding:6px 12px;margin-top:6px;gap:6px}
+  .checks .chip{min-height:30px;padding:2px 10px;font-size:13px}
+  .vopts{font-size:13px}.vopts .seg button,.vopts .pill{min-height:30px;padding:2px 10px;font-size:13px}
+  .stage{margin:6px 8px 0;min-height:0}
+  .pop{min-height:0;padding:8px 14px;margin-top:6px;margin-bottom:0}
+  .strip{padding:4px 8px;height:84px;overflow:hidden;align-items:center}.cfg{width:150px;height:72px}.cfg svg{max-height:40px}.cfg .t{font-size:13px}
+  .m3{height:230px}
+  .row{min-height:38px;padding:4px 10px;font-size:15px}
+}
+@media (min-width:1101px) and (max-width:1320px){main>.editor{padding:108px 276px 8px 346px}.list{width:250px}.side{width:320px}}
+
+/* ---- category rail (replaces the two header buttons; shows one section of the body/legs panel at a time) ---- */
+.rail{display:none}
+@media (min-width:1101px){
+  #legsbtn,#stbtn{display:none}
+  .rail{display:flex;flex-direction:column;gap:8px;align-items:stretch;position:absolute;z-index:5;top:108px;bottom:8px;inset-inline-end:auto;left:8px;width:64px;padding:8px 6px;
+    background:var(--t-glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:.5px solid var(--t-glass-line);border-radius:var(--t-r);box-shadow:var(--t-shadow)}
+  .rail button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:14px;color:var(--t-text2);font-size:12px;font-weight:600;min-height:56px}
+  .rail button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .rail button:hover{background:var(--t-primary-c);color:var(--t-text)}
+  .rail button.on{background:var(--t-primary);color:var(--t-on-primary)}
+  .side{left:80px;width:340px}
+  main>.editor{padding-left:436px}
+  .app.pres .rail{display:none}.app.pres .side{left:8px}.app.pres main>.editor{padding-left:396px}
+  #ctrl[data-show=body] [data-sec=legs],#ctrl[data-show=legs] [data-sec=body]{display:none}
+}
+@media (min-width:1101px) and (max-width:1320px){.side{left:80px;width:300px}main>.editor{padding-left:396px}}
+
+.rail .rl-h{font-size:10.5px;font-weight:700;color:var(--t-text2);text-align:center;letter-spacing:.04em;padding:2px 0}
+.rail .rl-sep{height:1px;background:var(--t-line);margin:6px 4px}
+.rail button.win{position:relative;border:1.5px dashed var(--t-line);line-height:1.15}
+.rail button.win .out{position:absolute;top:2px;left:5px;font-style:normal;font-size:13px;color:var(--t-primary)}
 </style>
 </head>
 <body>
@@ -407,6 +593,7 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
     <div class="seg" id="viewseg"><button data-m="side" class="on">מהצד</button><button data-m="top">מלמעלה</button><button data-m="front">מלפנים</button><button data-m="3d">תלת מימד</button><button data-m="win" title="שלושה היטלים ותלת מימד, יחד">הכול יחד</button></div>
     <div class="spacer"></div>
     <div class="hgrp">
+      <button class="ibtn" id="thm" type="button" title="מעבר בין מצב כהה לבהיר" aria-label="מעבר בין מצב כהה לבהיר">◐</button>
       <label class="modesw"><md-switch id="modesw" aria-label="מצב הצגה"></md-switch><span id="modelab">מצב תכנון</span></label>
       <md-filled-tonal-button id="rulesbtn" class="edit">כללי הנדסה</md-filled-tonal-button>
       <md-icon-button id="undo" class="edit" title="ביטול" aria-label="ביטול"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg></md-icon-button>
@@ -418,6 +605,13 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
     </div>
   </header>
   <main>
+    <nav class="rail" id="rail" aria-label="קטגוריות"><div class="rl-h">בפאנל</div>
+      <button type="button" data-k="body" class="on" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="9" rx="3"/><path d="M7 16v3M17 16v3"/></svg><span>גוף</span></button>
+      <button type="button" data-k="legs" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v8l-3 9M16 3v8l3 9"/><path d="M8 11l3 9"/></svg><span>רגליים</span></button>
+      <div class="rl-sep"></div><div class="rl-h">חלון נפרד</div>
+      <button type="button" data-k="lab" class="win" aria-pressed="false" title="פותח חלון גדול נפרד לרגליים, עם סגירה בפינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 10a1.5 1.5 0 0 0 1.4 2h11.2a1.5 1.5 0 0 0 1.4-2L14 9V3"/></svg><span>חלון<br>רגליים</span><i class="out" aria-hidden="true">↗</i></button>
+      <button type="button" data-k="st" class="win" aria-pressed="false" title="פותח חלון גדול נפרד לעמדת הכניסה, עם סגירה בפינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg><span>חלון<br>עמדה</span><i class="out" aria-hidden="true">↗</i></button>
+    </nav>
     <section class="card list"><div class="cardh">רכיבים</div><div class="rows" id="rows"></div></section>
     <section class="card editor">
       <div class="stats" id="stats"></div>
@@ -438,7 +632,7 @@ header md-icon-button{width:44px;height:44px;--md-icon-button-state-layer-width:
     </section>
     <div class="side">
       <section class="card m3"><div class="cardh">איך זה נראה במרחב</div><div id="w3"><canvas id="c3"></canvas><div class="hint3">גרירת רכיב: לאורך ולרוחב. Shift + גרירה: למעלה ולמטה. גרירת הרקע: סיבוב. גלגלת: זום. כפתור ימני: הזזת המבט.</div></div>
-        <div class="st"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div></div></section>
+        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><div id="frameInfo" style="padding:0 14px 10px;text-align:center;font-size:13px;color:var(--muted)"></div></section>
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
@@ -2028,6 +2222,11 @@ const $=s=>document.querySelector(s);
 const DEF=JSON.parse($('#data-default').textContent);
 const GAP=DEF.segment_defaults.gap, LG=DEF.legs;
 const GROUPS={computing:['#59687f'],sensing:['#2f5d8c'],imaging:['#6c86ab'],motion:['#8b919c'],power:['#16263f'],light:['#a9b3c2'],air:['#4c7a8c'],safety:['#b0603f']};
+/* TERRA: component group colours follow the theme (dark/light) from the design-system accent colours. Look only. */
+const TPAL={dark:{computing:'#A3A49A',sensing:'#5C9AD6',imaging:'#8CC5D8',motion:'#C9A275',power:'#9A8F62',light:'#E8D5AE',air:'#A3AB7E',safety:'#D9785A'},
+  light:{computing:'#85867B',sensing:'#2863A3',imaging:'#1F6F8B',motion:'#9C6439',power:'#655C3C',light:'#A98B55',air:'#6E7650',safety:'#A35036'}};
+window.__terraPaint=t=>{const P=TPAL[t==='light'?'light':'dark'];Object.keys(P).forEach(k=>{if(GROUPS[k])GROUPS[k][0]=P[k]})};
+window.__terraPaint(document.documentElement.getAttribute('data-theme'));
 const STORE='layout-dashboard-v3';
 let cat={};DEF.catalog.forEach(c=>cat[c.id]=c);
 /* step 3: leg and joint motors come from data.json "motors" (card 10, 14.11): every leg has 1 hip + 1 knee motor (AKE40-6), no side motor;
@@ -2042,7 +2241,7 @@ function motorCat(){const M=DEF.motors||{},i0=Math.max(0,DEF.catalog.findIndex(k
 motorCat();
 const isMotor=it=>it.cid==='legmotor'||it.cid==='jmotor';
 let S=null,hist=[],fut=[],sel=null,showFields=false;
-const V={mode:'3d',vb:null,seg:0,hint:null,dims:false,rng:'sel',cab:'off',arr:false,rlen:300,w3:0,gTilt:0,gPan:0};
+const V={frame:true,mode:'3d',vb:null,seg:0,hint:null,dims:false,rng:'sel',cab:'off',arr:false,rlen:300,w3:0,gTilt:0,gPan:0};
 const uid=()=>Math.random().toString(36).slice(2,9);
 const cfg=()=>S.configs[S.active];
 
@@ -2875,6 +3074,16 @@ function drawView(c,mode,opt){
     const r=front?{cx:-p[2],cy:-(p[1]+clear),w:2*h[2],h:2*h[1]}:side?{cx:p[0],cy:-(p[1]+clear),w:2*h[0],h:2*h[1]}:{cx:p[0],cy:p[2],w:2*h[0],h:2*h[2]};
     const g='<rect x="'+(r.cx-r.w/2)+'" y="'+(r.cy-r.h/2)+'" width="'+Math.max(r.w,2)+'" height="'+Math.max(r.h,2)+'" rx="1.5"';
     o+='<g class="vent" data-vent="1" style="cursor:move">'+(isS?g+' fill="none" stroke="#3a6fb0" stroke-opacity=".55" stroke-width="10"/>':'')+g+' fill="#0a1a30" fill-opacity="'+(dm?.3:.85)+'" stroke="'+(vb?'#c0352b':isS?'#0a1a30':'#fff')+'" stroke-width="'+(vb||isS?2.5:1)+'" stroke-dasharray="'+(vb||isS?'':'3 2')+'"/>'+(v.locked?lockG(r.cx+r.w/2,r.cy-r.h/2,.9):'')+'</g>';grow(r.cx-r.w/2,r.cy-r.h/2);grow(r.cx+r.w/2,r.cy+r.h/2)}
+  /* drag handles on the frame (planning mode): right edge = length, top edge = height (side view) or width (top view). Same limits as the sliders. */
+  if(!opt.mini&&!opt.noH&&(side||mode==='top')){let _p=false;try{_p=PRES}catch(e){}
+    if(!_p){const per=perOn(c),hs=(x,y,k,i,cur,t)=>'<g class="hnd" data-h="'+k+'" data-seg="'+i+'" style="cursor:'+cur+'"><title>'+t+'</title><circle cx="'+x+'" cy="'+y+'" r="20" fill="transparent"/><circle cx="'+x+'" cy="'+y+'" r="8" fill="#2f5d8c" stroke="#fff" stroke-width="2.5"/></g>';
+      segs.forEach(s=>{const first=s.i===0,last=s.i===segs.length-1;
+        if(per||last)o+=hs(s.cx+s.len/2,side?-(clear+s.hei/2):0,'len',s.i,'ew-resize','גרירה לשינוי אורך');
+        if(side&&!c.shell.dyn&&(per||first))o+=hs(s.cx,-(clear+s.hei),'hei',s.i,'ns-resize','גרירה לשינוי גובה');
+        if(!side&&(per||first))o+=hs(s.cx,-s.wid/2,'wid',s.i,'ns-resize','גרירה לשינוי רוחב')})}}
+  if(!opt.mini&&V.minBox&&(side||mode==='top')){V.minBox.segs.forEach(q=>{const x=q.cx-q.len/2,y=side?-(clear+q.hei):-q.wid/2,h=side?q.hei:q.wid;
+    o+='<rect class="minbox" pointer-events="none" x="'+x+'" y="'+y+'" width="'+q.len+'" height="'+h+'" rx="6" fill="none" stroke="#2e7d54" stroke-width="2.5" stroke-dasharray="7 6"/>'});
+    const q0=V.minBox.segs[0];o+='<text pointer-events="none" x="'+(q0.cx-q0.len/2)+'" y="'+((side?-(clear+q0.hei):-q0.wid/2)-8)+'" font-size="15" fill="#2e7d54" font-weight="700">מינימום אפשרי</text>'}
   if(!opt.mini)o+=over2D(c,mode,clear);
   if(!opt.mini)o+=dimsSVG(c,mode,segs,clear,{...b},grow);
   return{svg:o,b};
@@ -2942,6 +3151,11 @@ function svgPt(v,ev){const p=v.el.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY
 let drag=null,pan=null;
 function bind2D(v){const el=v.el;
   el.addEventListener('pointerdown',ev=>{
+    const hh=ev.target.closest('.hnd');
+    if(hh&&!PRES){const c0=cfg(),s0=c0.shell,i=+hh.dataset.seg,k=hh.dataset.h,q=perOn(c0)?s0.segs[i]:null;
+      const v0=k==='len'?(q?q.len:s0.total):k==='hei'?(q?q.hei:s0.hei):(q?q.wid:s0.wid);
+      let mb=null;try{const m=JSON.parse(JSON.stringify(c0));fitShell(m,true);mb={m,segs:shellOf(m)}}catch(e){}
+      V.minBox=mb;drag={v,hnd:{k,i,q,v0,mb},p0:svgPt(v,ev),moved:false};el.setPointerCapture(ev.pointerId);ev.preventDefault();return}
     const vg=ev.target.closest('.vent'),c0=cfg();
     if(vg&&c0.vent&&!PRES){sel='vent';drag={v,vent:true,p0:svgPt(v,ev),pos0:c0.vent.pos.slice(),moved:false,locked:c0.vent.locked};el.setPointerCapture(ev.pointerId);renderLight();return}
     const g=ev.target.closest('.it');
@@ -2951,6 +3165,14 @@ function bind2D(v){const el=v.el;
     else{const sg=ev.target.closest('[data-seg]');if(sg&&perOn(cfg())&&V.seg!==+sg.dataset.seg){V.seg=+sg.dataset.seg;renderCtrl()}sel=null;pan={v,p0:svgPt(v,ev),vb0:{...v.vb}};el.setPointerCapture(ev.pointerId);renderLight()}
   });
   el.addEventListener('pointermove',ev=>{
+    if(drag&&drag.hnd&&drag.v===v){const p=svgPt(v,ev),dx=p.x-drag.p0.x,dy=p.y-drag.p0.y;if(!drag.moved&&Math.hypot(dx,dy)<2)return;
+      if(!drag.moved){snap();drag.moved=true}
+      const c=cfg(),s=c.shell,{k,q,i,v0}=drag.hnd;
+      let nv=k==='len'?v0+2*dx:k==='hei'?v0-dy:v0-2*dy;
+      const lim=k==='len'?(q?[40,800]:[100,1400]):k==='hei'?[20,400]:[30,PASSW];nv=Math.round(Math.max(lim[0],Math.min(lim[1],nv))/5)*5;
+      {const mb=drag.hnd.mb;if(mb){const ms=mb.m.shell,mq=q?ms.segs[i]:null,mn=k==='len'?(mq?mq.len:ms.total):k==='hei'?(mq?mq.hei:ms.hei):(mq?mq.wid:ms.wid);if(mn&&Math.abs(nv-mn)<=10&&mn>=lim[0])nv=mn}}
+      if(k==='len'){if(q)q.len=nv;else s.total=nv}else if(k==='hei'){if(q)q.hei=nv;else s.hei=nv}else{if(q)q.wid=nv;else s.wid=nv}
+      syncTotal(c);layout(c);V.hint={k:k==='len'&&!q?'total':k,seg:q?i:undefined};schedule();return}
     if(drag&&drag.v===v){const p=svgPt(v,ev),dx=p.x-drag.p0.x,dy=p.y-drag.p0.y;
       if(!drag.moved&&Math.hypot(dx,dy)<2)return;
       if(drag.locked){if(!drag.told){drag.told=true;toast('נעול. אפשר לבטל את הנעילה בחלון שלמטה')}return}
@@ -2962,7 +3184,8 @@ function bind2D(v){const el=v.el;
       computeTops(c);schedule()}
     else if(pan&&pan.v===v){const p=svgPt(v,ev);v.vb.x=pan.vb0.x-(p.x-pan.p0.x);v.vb.y=pan.vb0.y-(p.y-pan.p0.y);pan.vb0={...v.vb};pan.p0=svgPt(v,ev);setVB(v)}
   });
-  const endp=()=>{if(drag&&drag.moved){save();refresh();if(drag.it)blockedNote(cfg(),drag.it,drag.want)}drag=null;pan=null};
+  const endp=()=>{if(drag&&drag.hnd){const m=drag.moved;drag=null;pan=null;V.hint=null;V.minBox=null;if(m){layout(cfg());save();refresh(false)}else render2D(false);return}
+    if(drag&&drag.moved){save();refresh();if(drag.it&&!V.free)blockedNote(cfg(),drag.it,drag.want)}drag=null;pan=null};
   el.addEventListener('pointerup',endp);el.addEventListener('pointercancel',endp);
   el.addEventListener('wheel',ev=>{ev.preventDefault();if(v.vb)zoom(v,ev.deltaY<0?.85:1.18,svgPt(v,ev))},{passive:false});
 }
@@ -2980,7 +3203,11 @@ function parentOf(c,it){const d=DEPS.find(q=>q.child===it.cid);if(!d)return null
 function blockedNote(c,it,want){if(!want||!it||it.auto)return;const sg=shellOf(c),a=segAt(sg,want[0]),b=segAt(sg,P(c,it)[0]);if(a.i===b.i||Math.abs(want[0]-it.pos[0])<40||isMounted(it)||it.cid==='gimbal')return;
   const who=[...new Set(c.items.filter(x=>x!==it&&!x.auto&&!x.unfit&&!isMounted(x)&&x.cid!=='gimbal'&&segAt(sg,x.pos[0]).i===a.i).map(x=>name(c,x)))];
   toast('אין מקום ל'+name(c,it)+' בחוליה '+(a.i+1)+'. יושבים בה: '+who.slice(0,6).join(', ')+(who.length>6?' ועוד':'')+'. אפשר להזיז או להקטין אחד מהם, או להגדיל את החוליה.',6000)}
+/* "free" mode: the part goes exactly where it is dragged, no snapping or blocking. Warnings still show. */
+function freeMove(c,it,want,mask){const q=it.pos.slice();[0,1,2].forEach(k=>{if(mask[k])q[k]=Math.round(want[k]*10)/10});
+  const d=[0,1,2].map(k=>q[k]-it.pos[k]);it.pos=q;it.manual=true;kidsOf(c,it).forEach(k=>{k.manual=true;k.pos=k.pos.map((v,i)=>Math.round((v+d[i])*10)/10)})}
 function moveItem(c,it,want,free){
+  if(V.free&&free&&free.length===3&&typeof free[0]==='boolean'){freeMove(c,it,want,free);return}
   const kids=kidsOf(c,it);EXCL=new Set(kids);
   let q=snapPos(c,it,want,free);
   if(!q||dist2(q,want)>1600){const q3=snapPos(c,it,want,[true,true,true]);if(q3&&(!q||dist2(q3,want)<dist2(q,want)))q=q3}
@@ -2989,7 +3216,7 @@ function moveItem(c,it,want,free){
   kids.forEach(k=>{k.manual=true;k.pos=k.pos.map((v,i)=>Math.round((v+d[i])*10)/10);if(!isLegal(c,k)){const s=snapPos(c,k,k.pos,[true,true,true]);if(s){k.pos=s;k.unfit=false}else k.unfit=true}});
 }
 let raf=0;function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;renderLight()})}
-function renderLight(){computeTops(cfg());render2D(false);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard()}
+function renderLight(){computeTops(cfg());render2D(false);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard();if(window.__syncCtl)window.__syncCtl()}
 
 /* ---------- 3D mini ---------- */
 const cv=$('#c3'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
@@ -3017,18 +3244,33 @@ function bar3(a,b,w,color){const A=new THREE.Vector3(...a),B=new THREE.Vector3(.
   m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());return m}
 function clearRoot(r){while(r.children.length){const o=r.children.pop();o.traverse(x=>{if(x.geometry)x.geometry.dispose()})}}
 /* the tool in 3D. t: 0 standing ... 1 folded. o.fade: show only motors and legs solid (legs tab) */
+/* walking demo (look only): feet follow a trot gait computed from this tool's own thigh and shin lengths, at the 0.15 m/s used in the battery check. The floor grid slides under the feet. */
+const WALK={on:false,ph:0,dist:0,t:0,h:0};
+function walkPose(c,i,ph){const g0=legPose(c,i,0);if(!g0)return g0;
+  const T=c.legs.thigh,Sn=c.legs.shin,all=[];for(let j=0;j<c.legs.count;j++){const q=legPose(c,j,0);if(q)all.push({j,side:q.side,x:q.hip[0]})}
+  const same=all.filter(q=>q.side===g0.side).sort((a,b)=>a.x-b.x),rank=same.findIndex(q=>q.j===i);
+  const u=(ph+(g0.side>0?0:.5)+(rank%2?.5:0))%1,duty=.6,R=T+Sn,S=Math.min(R*.22,70),lift=Math.min(R*.16,45);
+  let fx,fy;if(u<duty){fx=S*(1-2*u/duty);fy=0}else{const w=(u-duty)/(1-duty);fx=-S*Math.cos(Math.PI*w);fy=lift*Math.sin(Math.PI*w)}
+  const foot=[g0.foot[0]+fx,fy],knee=ik([g0.hip[0],g0.hip[1]],foot,T,Sn,g0.dir);
+  return{...g0,knee:[knee[0],knee[1],g0.hip[2]],foot:[foot[0],foot[1],g0.hip[2]]}}
+const walkLeg=(c,i,t)=>(WALK.on&&t===0)?walkPose(c,i,WALK.ph):legPose(c,i,t);
+function walkTick(){if(!WALK.on)return;const now=performance.now(),dt=Math.min(.1,(now-WALK.t)/1000);WALK.t=now;
+  const c=cfg();if(!c.legs.count||c.legs.stance==='fold'){walkStop();return}
+  const R=c.legs.thigh+c.legs.shin,S=Math.min(R*.22,70),v=150,Tp=2*S/(.6*v);
+  WALK.ph=(WALK.ph+dt/Tp)%1;WALK.dist+=v*dt;build3D();WALK.h=setTimeout(walkTick,33)}
+function walkStop(){WALK.on=false;clearTimeout(WALK.h);const b=document.getElementById('walkbtn');if(b){b.textContent='▶ הליכה';b.classList.remove('on')}build3D()}
 function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),bad=o.bad||new Set();
-  root.add(new THREE.GridHelper(1600,32,0xb9bfc9,0xdadde3));
-  segs.forEach(s=>{const g=rbox(s.len,s.hei,s.wid,c.shell.rS||0,c.shell.rT||0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
+  {const lt=document.documentElement.getAttribute('data-theme')==='light',gh=new THREE.GridHelper(1600,32,lt?0xb9bfc9:0x6a6470,lt?0xdadde3:0x3f3b44);gh.position.x=-(WALK.on?WALK.dist%50:0);root.add(gh)}
+  if(!o.noShell)segs.forEach(s=>{const g=rbox(s.len,s.hei,s.wid,c.shell.rS||0,c.shell.rT||0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
     m.position.set(s.cx,clear+s.hei/2,0);root.add(m);const e=new THREE.LineSegments(new THREE.EdgesGeometry(g,25),new THREE.LineBasicMaterial({color:0x6d7787}));e.position.copy(m.position);root.add(e)});
-  stepsOf(c).forEach(st=>{const g=new THREE.BoxGeometry(st.x1-st.x0,st.top-st.y0,st.z1-st.z0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
+  if(!o.noShell)stepsOf(c).forEach(st=>{const g=new THREE.BoxGeometry(st.x1-st.x0,st.top-st.y0,st.z1-st.z0),m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x16263f,transparent:true,opacity:.07,depthWrite:false}));
     m.position.set((st.x0+st.x1)/2,clear+(st.y0+st.top)/2,(st.z0+st.z1)/2);root.add(m);const e=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x6d7787}));e.position.copy(m.position);root.add(e)});
   const th=c.legs.thick||THICK0;
-  for(let i=0;i<c.legs.count;i++){const g=legPose(c,i,t);if(!g)continue;root.add(bar3(g.hip,g.knee,th,0x9aa3af));root.add(bar3(g.knee,g.foot,th,0x9aa3af));
+  if(!o.walk)for(let i=0;i<c.legs.count;i++){const g=walkLeg(c,i,t);if(!g)continue;root.add(bar3(g.hip,g.knee,th,0x9aa3af));root.add(bar3(g.knee,g.foot,th,0x9aa3af));
     const f=new THREE.Mesh(new THREE.SphereGeometry(th/2+2,16,10),new THREE.MeshStandardMaterial({color:0x2b2f33}));f.position.set(g.foot[0],g.foot[1]+th/2+2,g.foot[2]);root.add(f)}
-  c.items.forEach(it=>{if(o.fade&&it.unfit)return;
+  c.items.forEach(it=>{if(o.fade&&it.unfit)return;if(o.walk&&it.auto==='knee')return;
     const k=cat[it.cid],d=baseDims(it),g=k.shape==='cyl'?new THREE.CylinderGeometry(d[0]/2,d[0]/2,d[1],28):new THREE.BoxGeometry(d[0],d[1],d[2]);
-    let p=P(c,it);if(it.auto==='knee'){const q=legPose(c,it.leg,t);if(q)p=[q.knee[0],q.knee[1]-clear,q.knee[2]]}
+    let p=P(c,it);if(it.auto==='knee'){const q=walkLeg(c,it.leg,t);if(q)p=[q.knee[0],q.knee[1]-clear,q.knee[2]]}
     const mat=new THREE.MeshStandardMaterial({color:colOf(it),roughness:.6,transparent:true,opacity:.95});
     if(o.fade&&!isMotor(it)){mat.opacity=.16;mat.depthWrite=false}
     if(bad.has(it.id)){mat.emissive=new THREE.Color(0xc0352b);mat.emissiveIntensity=.5}
@@ -3039,12 +3281,134 @@ function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),b
   });
   if(!o.fade&&c.vent&&ventSensors(c).length){const v=c.vent,h=ventHalf(v),m=new THREE.Mesh(new THREE.BoxGeometry(2*h[0],2*h[1],2*h[2]),new THREE.MeshBasicMaterial({color:sel==='vent'?0x3a6fb0:0x0a1a30,transparent:true,opacity:sel&&sel!=='vent'?.3:.9}));m.position.set(v.pos[0],v.pos[1]+clear,v.pos[2]);root.add(m)}
   return{segs,clear}}
+/* ---------- frame (שלד): light machined-aluminium internal frame. Ported 18.11 from the chassis model of 17.11 (rails, perforated floor, end/joint/middle frames,
+   hip posts, top bridges, wall strips, spacers). Follows the active configuration (segments, items, hips). Display only: does not change totals or warnings.
+   Plate thickness 3 mm in the picture; weight is my estimate for 1.2 and 2 mm sheet (not verified, a structural engineer decides). Charging coil not drawn (station tab). ---------- */
+function frameNote(f){return'שלד מינימלי שעוטף את הרכיבים, בלי קופסה קבועה. מידות לפי מקום הרכיבים (בלי גימבל ורגליים): אורך '+f.L+', רוחב '+f.W+', גובה '+f.H+' מ"מ. קווים חלשים = הגבולות. '+f.bent+' מוטות מכופפים (בהיר), '+f.bolted+' חלקים מוברגים (כהה: מוטות תחתונים, לוחיות ירך, מושב מנוע המפרק, חלקים כבדים מ-300 גרם). משקל, הערכה שלי ולא בדוק: כ-'+(f.w12/1000).toFixed(2)+' ק"ג עם לוחות 1.2 מ"מ, כ-'+(f.w20/1000).toFixed(2)+' ק"ג ב-2 מ"מ, בלי רגליים ובלי ברגים.'}
+function frameGroup(c,clear){
+  /* 19.11 v3 (Sharon): the frame wraps the components, it is NOT a fixed box. No length/width/height limit: it follows where the parts are.
+     Rings = one bent rod each, shaped as the outline (convex hull) of the parts near that spot. Rods join the rings. Each part is held to the nearest ring by a short rod
+     (a bolted, dark rod if the part is heavy, over 300 g). Plates only: hip plate behind each leg, and the joint-motor seat. Limits are drawn as very faint lines. */
+  const g=new THREE.Group(),segs=shellOf(c),n=segs.length,T3=3,AL=0.0027,RR=3,M=6,info={parts:0,bent:0,bolted:0,w12:0,w20:0,L:0,W:0,H:0},gs=segs.map(()=>{const q=new THREE.Group();g.add(q);return q});let cur=gs[0];
+  const mH=new THREE.MeshStandardMaterial({color:0x7f8791,roughness:.45,metalness:.4}),mB=new THREE.MeshStandardMaterial({color:0xe6eaf0,roughness:.4,metalness:.35}),em=new THREE.LineBasicMaterial({color:0x5c6470}),lim=new THREE.LineBasicMaterial({color:0x6d7787,transparent:true,opacity:.22,depthWrite:false});
+  const none=()=>{},UP=new THREE.Vector3(0,1,0);
+  const add=(m,w,heavy,edges)=>{m.raycast=none;if(edges){const e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry,30),em);e.raycast=none;m.add(e)}cur.add(m);info.parts++;if(heavy)info.bolted++;else info.bent++;info.w12+=w[0];info.w20+=w[1]};
+  const wRod=l=>{const w=Math.PI*(RR*RR-(RR-1)*(RR-1))*l*AL;return[w,w]},wTube=l=>{const w=36*l*AL;return[w,w]},wPlate=a=>[a*1.2*AL,a*2*AL];  /* hollow tube Ø6 x 1 mm, heavy = 10x10 tube (my choices) */
+  const rod=(a,b,heavy)=>{const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B);if(L<2)return;const r=heavy?4.5:RR,m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,8),heavy?mH:mB);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(UP,B.clone().sub(A).normalize());add(m,heavy?wTube(L):wRod(L),!!heavy)};
+  const plate=(kind,a,b,th,pos,holes)=>{const s=new THREE.Shape();s.moveTo(a[0],a[1]);s.lineTo(b[0],a[1]);s.lineTo(b[0],b[1]);s.lineTo(a[0],b[1]);s.closePath();
+    holes.forEach(h=>{const q=new THREE.Path();q.absarc(h[0],h[1],h[2],0,Math.PI*2,true);s.holes.push(q)});
+    const geo=new THREE.ExtrudeGeometry(s,{depth:th,bevelEnabled:false,curveSegments:16});
+    if(kind==='xz')geo.rotateX(-Math.PI/2);else if(kind==='yz')geo.rotateY(Math.PI/2);
+    const m=new THREE.Mesh(geo,mH);m.position.set(pos[0],pos[1],pos[2]);add(m,wPlate((b[0]-a[0])*(b[1]-a[1])-holes.reduce((t,h)=>t+Math.PI*h[2]*h[2],0)),true,true)};
+  const bolt=(p,ax)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(4.5,4.5,3,10),mH);if(ax==='z')m.rotation.x=Math.PI/2;else if(ax==='x')m.rotation.z=Math.PI/2;m.position.set(p[0],p[1],p[2]);m.raycast=none;cur.add(m)};
+  const hull=pts=>{const p=pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);if(p.length<3)return p;const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]),lo=[],up=[];
+    p.forEach(q=>{while(lo.length>1&&cr(lo[lo.length-2],lo[lo.length-1],q)<=0)lo.pop();lo.push(q)});for(let i=p.length-1;i>=0;i--){const q=p[i];while(up.length>1&&cr(up[up.length-2],up[up.length-1],q)<=0)up.pop();up.push(q)}lo.pop();up.pop();return lo.concat(up)};
+  const ring=(x,poly)=>{const pts=[];poly.forEach((a,i)=>{const b=poly[(i+1)%poly.length],k=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/12));for(let j=0;j<k;j++)pts.push(new THREE.Vector3(x,a[1]+(b[1]-a[1])*j/k,a[0]+(b[0]-a[0])*j/k))});
+    let per=0;poly.forEach((a,i)=>{const b=poly[(i+1)%poly.length];per+=Math.hypot(b[0]-a[0],b[1]-a[1])});
+    add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true,'catmullrom',.1),pts.length*3,RR,6,true),mB),wRod(per),false)};
+  const near=(poly,q)=>{let best=null,bd=1e9;poly.forEach((a,i)=>{const b=poly[(i+1)%poly.length],dx=b[0]-a[0],dy=b[1]-a[1],l2=dx*dx+dy*dy||1,t=Math.max(0,Math.min(1,((q[0]-a[0])*dx+(q[1]-a[1])*dy)/l2)),p=[a[0]+dx*t,a[1]+dy*t],d=Math.hypot(p[0]-q[0],p[1]-q[1]);if(d<bd){bd=d;best=p}});return best};
+  /* parts: everything inside the body except the gimbal and its cameras (they sit on top), legs and the knee motors */
+  const box=(it,p,e)=>({it,mn:[p[0]-e[0]/2,p[1]-e[1]/2,p[2]-e[2]/2],mx:[p[0]+e[0]/2,p[1]+e[1]/2,p[2]+e[2]/2],w:(cat[it.cid]&&cat[it.cid].weight)||0});
+  const SKIP=new Set(['gimbal','doccam']),segAt=x=>segs.reduce((b,s)=>Math.abs(x-s.cx)<Math.abs(x-b.cx)?s:b,segs[0]);
+  const bodyItems=c.items.filter(it=>!it.unfit&&it.auto!=='knee'&&it.role!=='knee'&&!SKIP.has(it.cid)).map(it=>box(it,P(c,it),ext(it)));
+  const perSeg=segs.map(()=>[]);bodyItems.forEach(b=>{if(b.it.auto==='joint'){const gi=b.it.gap;perSeg[gi]&&perSeg[gi].push(b);perSeg[gi+1]&&perSeg[gi+1].push(b)}else perSeg[segAt((b.mn[0]+b.mx[0])/2).i].push(b)});
+  let gx0=1e9,gx1=-1e9,gy1=0,gz=0,gy0=1e9;
+  segs.forEach((sg,si)=>{cur=gs[si];const its=perSeg[si];if(!its.length)return;
+    let xa=Math.min(...its.map(b=>b.mn[0]))-M,xb=Math.max(...its.map(b=>b.mx[0]))+M;
+    const seat={},jc=gi=>{const ji=c.items.find(i=>i.auto==='joint'&&i.gap===gi);return ji?{jl:baseDims(ji)[1]/2,jy:P(c,ji)[1],jr:baseDims(ji)[0]/2}:{jl:20.5,jy:sg.hei/2,jr:34.5}};
+    const x0=sg.cx-sg.len/2,x1=sg.cx+sg.len/2;
+    if(si<n-1){const j=jc(si),jx=x1+GAP/2;seat.r={X:jx-j.jl-8,j};xb=Math.max(xb,seat.r.X+8)}
+    if(si>0){const j=jc(si-1),jx=x0-GAP/2;seat.l={X:jx+j.jl,j};xa=Math.min(xa,seat.l.X)}
+    const k=Math.max(1,Math.ceil((xb-xa)/75)),xs=[];for(let i=0;i<=k;i++)xs.push(xa+(xb-xa)*i/k);
+    const polyAt=x=>{let sel=its.filter(b=>b.mn[0]-40<=x&&b.mx[0]+40>=x);if(!sel.length)sel=its;const q=[];sel.forEach(b=>{[b.mn[2]-M,b.mx[2]+M].forEach(z=>[Math.max(0,b.mn[1]-M),b.mx[1]+M].forEach(y=>q.push([z,y])))});return hull(q)};
+    const polys=xs.map(polyAt);
+    polys.forEach((pl,i)=>{ring(xs[i],pl)});
+    /* rods between neighbouring rings: every corner joins the nearest corner of the next ring; the lowest run is a bolted tube (it carries the weight) */
+    for(let i=0;i<k;i++){const A=polys[i],B=polys[i+1],seen=new Set(),lowY=Math.min(...A.map(q=>q[1]),...B.map(q=>q[1]));
+      const link=(P1,x1_,Q,x2_)=>{P1.forEach((a,ai)=>{let bi=0,bd=1e9;Q.forEach((q,qi)=>{const d=Math.hypot(a[0]-q[0],a[1]-q[1]);if(d<bd){bd=d;bi=qi}});const key=P1===A?ai+'_'+bi:bi+'_'+ai;if(seen.has(key))return;seen.add(key);const q=Q[bi];
+        const heavy=a[1]<=lowY+25&&q[1]<=lowY+25;rod([x1_,a[1],a[0]],[x2_,q[1],q[0]],heavy)})};
+      link(A,xs[i],B,xs[i+1]);link(B,xs[i+1],A,xs[i])}
+    /* each part held by a short rod to the nearest ring */
+    its.forEach(b=>{if(b.it.auto==='joint'||b.it.role==='hip'&&false)return;const cx=(b.mn[0]+b.mx[0])/2;let bi=0,bd=1e9;xs.forEach((x,i)=>{const d=x>=b.mn[0]&&x<=b.mx[0]?0:Math.min(Math.abs(x-b.mn[0]),Math.abs(x-b.mx[0]));if(d<bd||d===bd&&Math.abs(x-cx)<Math.abs(xs[bi]-cx)){bd=d;bi=i}});
+      const x=Math.min(Math.max(xs[bi],b.mn[0]),b.mx[0]),cz=(b.mn[2]+b.mx[2])/2,cy=(b.mn[1]+b.mx[1])/2,np=near(polys[bi],[cz,cy]);if(!np)return;
+      const sz=Math.min(Math.max(np[0],b.mn[2]),b.mx[2]),sy=Math.min(Math.max(np[1],b.mn[1]),b.mx[1]);if(Math.hypot(np[0]-sz,np[1]-sy)<3)return;
+      const heavy=b.w>300;rod([x,sy,sz],[x,np[1],np[0]],heavy);if(heavy)bolt([x,sy,sz],'z')});
+    /* joint-motor seats (plates) */
+    [['l',seat.l],['r',seat.r]].forEach(([s,q])=>{if(!q)return;const r=q.j.jr+10,ya=Math.max(2,q.j.jy-r),yb=q.j.jy+r;plate('yz',[-r,ya],[r,yb],8,[q.X,0,0],[[0,q.j.jy,Math.min(22,r-8)]]);
+      [[-r,ya],[r,ya],[-r,yb],[r,yb]].forEach(p=>bolt([q.X+4,p[1]+(p[1]===ya?6:-6),p[0]+(p[0]>0?-6:6)],'x'))});
+    /* faint limits of this segment: the tight box around its frame */
+    const ys=polys.flatMap(p=>p.map(q=>q[1])),zs=polys.flatMap(p=>p.map(q=>q[0])),bx=[xa,xb,Math.min(...ys),Math.max(...ys),Math.min(...zs),Math.max(...zs)];
+    const bg=new THREE.BoxGeometry(bx[1]-bx[0],bx[3]-bx[2],bx[5]-bx[4]),bl=new THREE.LineSegments(new THREE.EdgesGeometry(bg),lim);bl.position.set((bx[0]+bx[1])/2,(bx[2]+bx[3])/2,(bx[4]+bx[5])/2);bl.raycast=none;cur.add(bl);
+    gx0=Math.min(gx0,xa);gx1=Math.max(gx1,xb);gy0=Math.min(gy0,bx[2]);gy1=Math.max(gy1,bx[3]);gz=Math.max(gz,Math.abs(bx[4]),Math.abs(bx[5]))});
+  /* hip plate behind each leg: bolted, with 4 bolts. It sits on the outer face of the hip motor. */
+  c.items.filter(i=>i.role==='hip'&&!i.unfit).forEach(h=>{const sg=segs[segIdx(c,h.seg)],hp=P(c,h),e=ext(h),z0=h.side*(Math.abs(hp[2])+e[2]/2);cur=gs[sg.i];
+    const a=hp[0]-32,b=hp[0]+32,ya=Math.max(2,hp[1]-40),yb=hp[1]+40;plate('xy',[a,ya],[b,yb],T3,[0,0,h.side>0?z0-T3:z0],[[hp[0],hp[1],18]]);
+    [[a+9,ya+7],[b-9,ya+7],[a+9,yb-7],[b-9,yb-7]].forEach(q=>bolt([q[0],q[1],z0+h.side*1.5],'z'));gz=Math.max(gz,Math.abs(z0))});
+  info.L=Math.round(gx1-gx0);info.W=Math.round(2*gz);info.H=Math.round(gy1-Math.max(0,gy0));
+  g.position.y=clear;return{g,gs,info}}
+/* ---------- walking simulation (18.11, Sharon): the tool walks in place on a moving floor, and the joint angles between segments can be played with.
+   My assumptions, not decided: trot gait (diagonal legs together), stride 70 mm, foot lift 30 mm, step time 1.4 s, hip angles limits +-45 deg pitch/yaw, +-20 roll (for play only).
+   The real joint has ONE motor per segment gap (data.json motors.joint): the other directions are only to test how the body could move, they have no motor in the configuration.
+   Axes: pitch = around the width axis (+ = front segment up), yaw = around the vertical axis (+ = front goes left), roll = around the length axis (+ = leans right). ---------- */
+const WK={on:false,play:true,auto:false,spd:1,ang:[],t:0,last:0,seg:[],legs:[],J:[],c:null,grid:null,gaps:-1};
+const WK_S=70,WK_LIFT=30,WK_DUTY=.6,WK_T=1.4,WK_LIM={p:45,y:45,r:20},DEG=Math.PI/180;
+function walkLab(k,v){v=Math.round(v);if(!v)return'ישר';const a=Math.abs(v)+'°';return k==='p'?(v>0?'למעלה ':'למטה ')+a:k==='y'?(v>0?'שמאלה ':'ימינה ')+a:(v>0?'לימין ':'לשמאל ')+a}
+function walkPanel(c){const el=$('#walkPanel');el.classList.toggle('on',WK.on);if(!WK.on){el.innerHTML='';return}
+  const n=c.shell.n;WK.gaps=n-1;while(WK.ang.length<n-1)WK.ang.push({p:0,y:0,r:0});WK.ang.length=Math.max(0,n-1);
+  let h='<div class="wr"><button id="wkPlay" class="btn">'+(WK.play?'עצירה':'הליכה')+'</button><button id="wkReset" class="btn">יישור כל הזוויות</button><label style="width:auto"><input type="checkbox" id="wkAuto"'+(WK.auto?' checked':'')+'> תנועה אוטומטית של הזוויות</label></div>'
+    +'<div class="wr"><label>מהירות הליכה</label><input type="range" id="wkSpd" min="0.3" max="2" step="0.1" value="'+WK.spd+'"><b id="wkSpdL">×'+WK.spd+'</b></div>';
+  if(n<2)h+='<div class="wn">יש רק חוליה אחת, אז אין זוויות בין חוליות. אפשר להגדיל ל-2 חוליות ומעלה.</div>';
+  for(let g=0;g<n-1;g++){h+='<h4>מפרק '+(g+1)+' (בין חוליה '+(g+1)+' לחוליה '+(g+2)+')</h4>';
+    [['p','הטיה למעלה / למטה'],['y','פנייה שמאלה / ימינה'],['r','גלגול ימינה / שמאלה']].forEach(([k,l])=>{const m=WK_LIM[k];
+      h+='<div class="wr"><label>'+l+'</label><input type="range" data-g="'+g+'" data-k="'+k+'" min="'+-m+'" max="'+m+'" step="1" value="'+Math.round(WK.ang[g][k])+'"'+(WK.auto?' disabled':'')+'><b id="wl'+g+k+'">'+walkLab(k,WK.ang[g][k])+'</b></div>'})}
+  h+='<div class="wn">מנוע אחד בכל מפרק בקונפיגורציה. הטיה למעלה/למטה היא התנועה הרגילה. פנייה וגלגול הן רק לבדיקה איך הגוף יכול לזוז, ואין להן מנוע. מידות הצעד והמהירות להמחשה, לא חישוב.</div>';
+  el.innerHTML=h}
+$('#walkPanel').addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.k){WK.ang[+t.dataset.g][t.dataset.k]=+t.value;$('#wl'+t.dataset.g+t.dataset.k).textContent=walkLab(t.dataset.k,+t.value)}else if(t.id==='wkSpd'){WK.spd=+t.value;$('#wkSpdL').textContent='×'+WK.spd}else if(t.id==='wkAuto'){WK.auto=t.checked;walkPanel(cfg())}});
+$('#walkPanel').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.id==='wkPlay'){WK.play=!WK.play;t.textContent=WK.play?'עצירה':'הליכה'}else if(t.id==='wkReset'){WK.auto=false;WK.ang.forEach(a=>{a.p=a.y=a.r=0});walkPanel(cfg())}});
+document.querySelectorAll('#walkTg button').forEach(b=>b.onclick=()=>{WK.on=b.dataset.w==='1';document.querySelectorAll('#walkTg button').forEach(x=>x.classList.toggle('on',x===b));walkPanel(cfg());WK.last=0;schedule()});
+function walkBuild(c){
+  const clear=clearAt(c,0),r=fillTool(root,c,0,{bad:badSet(c),walk:true,noShell:V.frame}),segs=r.segs,n=segs.length;
+  if(WK.gaps!==n-1)walkPanel(c);
+  WK.c=c;WK.clear=clear;WK.grid=root.children[0];
+  const gx=[];for(let g=0;g<n-1;g++)gx.push((segs[g].cx+segs[g].len/2+segs[g+1].cx-segs[g+1].len/2)/2);
+  const G=segs.map(()=>{const q=new THREE.Group();q.matrixAutoUpdate=false;return q});
+  root.children.slice(1).forEach(k=>{let i=0;while(i<gx.length&&k.position.x>gx[i]+.01)i++;root.remove(k);G[i].add(k)});
+  G.forEach(q=>root.add(q));WK.seg=G;
+  const fi=$('#frameInfo');fi.textContent='';
+  if(V.frame){const fr=frameGroup(c,clear);fr.gs.forEach((q,i)=>{q.position.y=clear;G[i].add(q)});const f=fr.info;fi.textContent=frameNote(f)}
+  WK.J=[];for(let g=0;g<n-1;g++){const ji=c.items.find(i=>i.auto==='joint'&&i.gap===g);WK.J.push(new THREE.Vector3(gx[g],clear+(ji?P(c,ji)[1]:Math.min(segs[g].hei,segs[g+1].hei)/2),0))}
+  const th=c.legs.thick||THICK0,lm=cat.legmotor,bm=new THREE.MeshStandardMaterial({color:0x9aa3af}),fm=new THREE.MeshStandardMaterial({color:0x2b2f33});
+  WK.legs=[];
+  for(let i=0;i<c.legs.count;i++){const h=hipItem(c,i),pz=legPose(c,i,0);if(!h||!pz)continue;const si=segIdx(c,h.seg),ki=c.items.find(x=>x.auto==='knee'&&x.leg===i);
+    const mk=(geo,m)=>{const o=new THREE.Mesh(geo,m);G[si].add(o);return o};
+    const kn=mk(new THREE.CylinderGeometry(lm.dims[0]/2,lm.dims[0]/2,lm.dims[1],24),new THREE.MeshStandardMaterial({color:ki?colOf(ki):0x8b919c,roughness:.6}));kn.rotation.x=Math.PI/2;
+    WK.legs.push({si,pz,th,dir:pz.dir,T:c.legs.thigh,Sn:c.legs.shin,ph:(((pz.hip[0]>0?1:0)+(h.side>0?1:0))%2)*.5,a:mk(new THREE.BoxGeometry(th,1,th),bm),b:mk(new THREE.BoxGeometry(th,1,th),bm),f:mk(new THREE.SphereGeometry(th/2+2,14,10),fm),k:kn})}
+  return{segs,clear}}
+const _wv=new THREE.Vector3(),_wm=new THREE.Matrix4();
+function walkBar(m,a,b){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B)||1;m.position.copy(A).add(B).multiplyScalar(.5);m.scale.set(1,L,1);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize())}
+function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.last)/1000):0;WK.last=now;const c=WK.c;if(!c||!WK.seg.length)return;
+  WK.t+=dt*WK.spd;
+  if(WK.auto)WK.ang.forEach((a,g)=>{a.p=WK_LIM.p*.55*Math.sin(WK.t*.9+g*1.3);a.y=WK_LIM.y*.55*Math.sin(WK.t*.6+g*.8+1);a.r=WK_LIM.r*.5*Math.sin(WK.t*.45+g)});
+  const M=[new THREE.Matrix4()];
+  WK.J.forEach((J,g)=>{const a=WK.ang[g]||{p:0,y:0,r:0},R=new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(a.r*DEG,a.y*DEG,a.p*DEG,'XYZ'));
+    M.push(M[g].clone().multiply(new THREE.Matrix4().makeTranslation(J.x,J.y,J.z)).multiply(R).multiply(new THREE.Matrix4().makeTranslation(-J.x,-J.y,-J.z)))});
+  WK.seg.forEach((s,i)=>{s.matrix.copy(M[i]);s.matrixWorldNeedsUpdate=true});
+  /* walking direction on the floor = average of the segments' forward directions */
+  const d=new THREE.Vector3();M.forEach(m=>{_wv.set(1,0,0).transformDirection(m);d.x+=_wv.x;d.z+=_wv.z});if(d.lengthSq()<1e-4)d.set(1,0,0);d.y=0;d.normalize();
+  const vg=WK_S/(WK_DUTY*WK_T);
+  if(WK.play&&WK.grid){WK.grid.position.addScaledVector(d,-vg*dt*WK.spd);const w=50;WK.grid.position.x=((WK.grid.position.x%w)+w)%w;WK.grid.position.z=((WK.grid.position.z%w)+w)%w}
+  WK.legs.forEach(L=>{const Mi=M[L.si],hw=new THREE.Vector3(...L.pz.hip).applyMatrix4(Mi);
+    let off=0,lift=0;if(WK.play){const u=(WK.t/WK_T+L.ph)%1;if(u<WK_DUTY){off=WK_S/2-WK_S*(u/WK_DUTY)}else{const s=(u-WK_DUTY)/(1-WK_DUTY);off=-WK_S/2+WK_S*s;lift=WK_LIFT*Math.sin(Math.PI*s)}}
+    const tw=new THREE.Vector3(hw.x+d.x*off,lift,hw.z+d.z*off),tl=tw.applyMatrix4(_wm.copy(Mi).invert()),z=L.pz.hip[2],hp=L.pz.hip;
+    const k=ik([hp[0],hp[1]],[tl.x,tl.y],L.T,L.Sn,L.dir);
+    walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)})}
 function build3D(){
-  clearRoot(root);const c=cfg(),{segs,clear}=fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c)});
+  clearRoot(root);const c=cfg(),{segs,clear}=WK.on?walkBuild(c):fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c),noShell:V.frame});
+  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameGroup(c,clear);root.add(fr.g);const f=fr.info;fi.textContent=frameNote(f)}else if(!WK.on)fi.textContent='';
   const HH=Math.max(...segs.map(s=>s.hei))+(c.items.some(i=>i.cid==='gimbal')?95:0),rad=Math.hypot(shellLen(c)/2+60,(clear+HH)/2+30,shellWid(c)/2+40),R=rad/Math.sin(0.28)*.62,t=new THREE.Vector3(0,(clear+HH)/2,0);
   const big=V.mode==='3d'||V.mode==='win';
   if(!camSet){cam.position.set(R*.55,R*.38,R*.7);oc.target.copy(t);camSet=true}else if(!big)oc.target.copy(t);
-  over3D(c,clear);
+  if(!WK.on)over3D(c,clear);
   oc.update();
 }
 /* ---------- station tab: docking station, choice of the charge point on the tool, and a free layout of the station parts with placement rules ----------
@@ -3248,7 +3612,7 @@ new ResizeObserver(lresize).observe(lcv);
 function resize3(){const r=cv.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/Math.max(r.height,1);cam.updateProjectionMatrix()}
 new ResizeObserver(()=>{resize3();render2D(false)}).observe($('#stage'));
 new ResizeObserver(resize3).observe(cv);
-(function loop(){if(ST.on){soc.update();sren.render(sscene,scam)}else if(LV.on){loc.update();lren.render(lscene,lcam)}else{oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
+(function loop(){if(ST.on){soc.update();sren.render(sscene,scam)}else if(LV.on){loc.update();lren.render(lscene,lcam)}else{if(WK.on)wkTick();oc.update();renderer.render(scene,cam)}requestAnimationFrame(loop)})();
 
 /* ---------- step 4: direction of each part, view ranges, cables, 3D editing, view modes ---------- */
 const FACEV={'+x':[1,0,0],'-x':[-1,0,0],'+y':[0,1,0],'-y':[0,-1,0],'+z':[0,0,1],'-z':[0,0,-1]};
@@ -3621,7 +3985,8 @@ function splitItem(c,it,n){
 }
 function renderCtrl(){
   const c=cfg(),s=c.shell,el=$('#ctrl');
-  el.innerHTML='<div class="cardh">גוף</div>';
+  el.innerHTML='<div class="cardh">גוף<button class="pill sm" id="notesbtn" type="button" aria-pressed="'+(el.classList.contains('notes')?'true':'false')+'">הסברים</button></div>';el._rows=[];
+  el.querySelector('#notesbtn').onclick=e=>{el.classList.toggle('notes');e.currentTarget.setAttribute('aria-pressed',el.classList.contains('notes')?'true':'false')};
   /* slider + typed number. Pointer over a row draws that dimension on the drawing (V.hint) */
   const sameHint=(a,b)=>a&&b&&a.k===b.k&&a.seg===b.seg;
   const slider=(lab,val,mn,mx,st,apply,hint,unit)=>{unit=unit||'מ"מ';val=Math.round(val*10)/10;
@@ -3634,7 +3999,7 @@ function renderCtrl(){
     inp.onchange=()=>{start=false;apply(+inp.value,true)};
     num.onchange=()=>{const v=parseFloat(num.value);if(!(v>=mn)){num.value=inp.value;toast('המינימום הוא '+mn+' '+unit);return}snap();apply(v,true)};
     num.onkeydown=e=>{if(e.key==='Enter')num.blur()};
-    el.appendChild(r);return r};
+    el._rows.push({inp,num,lab});el.appendChild(r);return r};
   const applyShell=set=>(v,fin)=>{set(v);syncTotal(c);clearTimeout(el._t);if(!fin){el._t=setTimeout(()=>{layout(c);schedule()},60);return}layout(c);save();refresh(true)};
   const segBtns=(lab,opts,cur,fn)=>{const d=document.createElement('div');d.className='ctl wide';d.innerHTML='<span class="l">'+lab+'</span><div class="seg small">'+opts.map(([v,l])=>'<button data-v="'+v+'" class="'+(cur===v?'on':'')+'">'+l+'</button>').join('')+'</div>';
     d.onclick=e=>{const v=e.target.dataset.v;if(v===undefined||v===cur)return;fn(v)};el.appendChild(d);return d};
@@ -3646,7 +4011,7 @@ function renderCtrl(){
     slider('אורך',q.len,40,800,5,applyShell(v=>q.len=v),{k:'len',seg:V.seg});
     slider('רוחב',q.wid,30,PASSW,5,applyShell(v=>q.wid=v),{k:'wid',seg:V.seg});
     slider(hLab,q.hei,20,400,5,applyShell(v=>q.hei=v),{k:'hei',seg:V.seg});
-    el.insertAdjacentHTML('beforeend','<div class="note">אורך כולל '+Math.round(shellLen(c))+' מ"מ, כולל רווח של '+GAP+' מ"מ בין חוליות. אפשר לבחור חוליה גם בלחיצה עליה בשרטוט.</div>');
+    el.insertAdjacentHTML('beforeend','<div class="note">אורך כולל <b class="lensum">'+Math.round(shellLen(c))+'</b> מ"מ, כולל רווח של '+GAP+' מ"מ בין חוליות. אפשר לבחור חוליה גם בלחיצה עליה בשרטוט.</div>');
   }else{
     slider('אורך',s.total,100,1400,5,applyShell(v=>s.total=v),{k:'total'});
     slider('רוחב',s.wid,30,PASSW,5,applyShell(v=>s.wid=v),{k:'wid'});
@@ -3704,6 +4069,13 @@ function renderCtrl(){
   el.insertAdjacentHTML('beforeend','<div class="note">סידור אופטימלי: בודק את המקומות שבכרטיסים ועוד הרבה סידורים חוקיים, ובוחר את הטוב ביותר. הסדר שלי: קודם בלי רכיבים שלא נכנסים, אחר כך הכי מעט אזהרות, אחר כך מרכז כובד קרוב לאמצע ונמוך, ואחר כך כבלים קצרים. אם הכלי קטן מדי, נפתח חלון עם דרכים להגדיל אותו.<br>סידור מחדש: בכל לחיצה סידור חוקי אחר, בלי יותר אזהרות מעכשיו. זזים רק רכיבים שהכרטיס לא קובע להם כיוון או קצה (מחשב, בקר בטיחות, סוללות, IMU, חיישני אוויר, נורה, כפתור, זמזם, לוחות). רכיבים נעולים לא זזים בשני הכפתורים.</div>');
   document.querySelectorAll('#stance button').forEach(b=>b.classList.toggle('on',b.dataset.s===c.legs.stance));
 }
+document.querySelectorAll('#frameTg button').forEach(b=>b.onclick=()=>{V.frame=b.dataset.f==='1';document.querySelectorAll('#frameTg button').forEach(x=>x.classList.toggle('on',x===b));schedule()});
+$('#freebtn').onclick=e=>{V.free=!V.free;e.currentTarget.setAttribute('aria-pressed',V.free?'true':'false');e.currentTarget.classList.toggle('on',V.free);toast(V.free?'מצב חופשי: אין הצמדה וחסימה':'חזרה להצמדה')};
+$('#walkbtn').onclick=()=>{const c=cfg();
+  if(WALK.on){walkStop();return}
+  if(!c.legs.count){toast('אין רגליים בקונפיגורציה');return}
+  if(c.legs.stance==='fold'){toast('הכלי מקופל. עברי ל"עומד" כדי לראות הליכה');return}
+  WALK.on=true;WALK.t=performance.now();$('#walkbtn').textContent='⏸ עצירה';$('#walkbtn').classList.add('on');walkTick()};
 document.querySelectorAll('#stance button').forEach(b=>b.onclick=()=>{const c=cfg();if(c.legs.stance===b.dataset.s)return;snap();c.legs.stance=b.dataset.s;save();refresh(true)});
 document.querySelectorAll('#viewseg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function renderStrip(){
@@ -3723,6 +4095,24 @@ function renderStrip(){
   add.onclick=()=>{snap();S.configs.push(newConfig('קונפיגורציה '+(S.configs.length+1)));S.active=S.configs.length-1;sel=null;save();refresh(true)};st.appendChild(add);
 }
 function refresh(refit){if(refit)camSet=false;computeTops(cfg());renderCtrl();render2D(!!refit);build3D();renderStats();renderRows();renderPop();renderStrip();renderCard();updUndo();if(LV.on)renderLab()}
+window.__terraRefresh=()=>refresh(false);
+/* linked values: while one slider is dragged, every other control that depends on it (and the number notes) follows at once, not only after release */
+window.__syncCtl=()=>{const el=document.getElementById('ctrl');if(!el||!el._rows||!S)return;
+  const c=cfg(),s=c.shell,q=perOn(c)?s.segs[Math.min(V.seg||0,s.n-1)]:null,LL=c.legs.count?legsOf(c):null;
+  const val=lab=>{switch(lab){
+    case'אורך':return q?q.len:s.total;case'רוחב':return q?q.wid:s.wid;
+    case'גובה':case'גובה בסיס':case'גובה מקס׳':return q?q.hei:s.hei;
+    case'ירך':return LL&&LL.thigh;case'שוק':return LL&&LL.shin;case'עובי הרגל':return LL&&LL.thick;
+    case'גובה מהרצפה':return c.legs.count?Math.round(clearance(c,'stand')):undefined;
+    case'עיגול פינות מהצד':return s.rS||0;case'עיגול פינות מלמעלה':return s.rT||0;
+    case'מרווח מדרגה':return s.sPad||0;case'בליטת הליידאר מהגוף':return s.lOut||0;
+    default:return /^נקודת ההשקה/.test(lab)?(s.gFoot||50):undefined}};
+  el._rows.forEach(w=>{if(document.activeElement===w.inp||document.activeElement===w.num)return;
+    const v=val(w.lab);if(v===undefined||v===null||!isFinite(v))return;const r=Math.round(v*10)/10;
+    if(w.lab==='גובה מהרצפה'){try{const CI=clearInfo(c);w.inp.min=CI.mn;w.inp.max=Math.max(CI.mn,CI.mx,r);w.num.min=CI.mn}catch(e){}}
+    else if(+w.inp.max<r)w.inp.max=r;
+    w.inp.value=r;w.num.value=r});
+  el.querySelectorAll('.lensum').forEach(e=>{e.textContent=Math.round(shellLen(c))})};
 function toast(t,ms){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),ms||2200)}
 
 function openRules(){
@@ -4073,5 +4463,37 @@ fix(document.body);mo.observe(document.body,{childList:true,subtree:true,charact
 })();
 </script>
 
+<script>
+/* TERRA theme switch. Look only: nothing here touches data, numbers or checks. */
+(function(){
+'use strict';
+var cur=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark',b=document.getElementById('thm');
+function sync(){if(b){b.setAttribute('aria-pressed',cur==='light'?'true':'false');b.title=cur==='light'?'מעבר למצב כהה':'מעבר למצב בהיר'}}
+function apply(){
+  document.documentElement.setAttribute('data-theme',cur);
+  try{localStorage.setItem('terra-theme',cur)}catch(e){}
+  if(window.__terraPaint)window.__terraPaint(cur);
+  if(window.__terraRefresh){try{window.__terraRefresh()}catch(e){}}
+  sync();
+}
+sync();
+if(b)b.addEventListener('click',function(){cur=cur==='light'?'dark':'light';apply()});
+})();
+</script>
+<script>
+/* category rail: shows only the body part or only the legs part of the dimensions panel. Look only. */
+(function(){
+var ctrl=document.getElementById('ctrl'),rail=document.getElementById('rail');if(!ctrl||!rail)return;
+ctrl.setAttribute('data-show','body');
+function mark(){var sec='body';Array.prototype.forEach.call(ctrl.children,function(el){
+  if(el.classList.contains('cardh')&&/^\s*רגליים/.test(el.textContent))sec='legs';el.setAttribute('data-sec',sec)})}
+new MutationObserver(mark).observe(ctrl,{childList:true});mark();
+rail.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var k=b.getAttribute('data-k');
+  if(k==='lab'){var x=document.getElementById('legsbtn');if(x)x.click();return}
+  if(k==='st'){var y=document.getElementById('stbtn');if(y)y.click();return}
+  ctrl.setAttribute('data-show',k);
+  Array.prototype.forEach.call(rail.querySelectorAll('button[data-k=body],button[data-k=legs]'),function(q){var on=q===b;q.classList.toggle('on',on);q.setAttribute('aria-pressed',on?'true':'false')})});
+})();
+</script>
 </body>
 </html>
