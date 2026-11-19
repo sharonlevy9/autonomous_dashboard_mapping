@@ -574,6 +574,11 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
   #ctrl[data-show=body] [data-sec=legs],#ctrl[data-show=legs] [data-sec=body]{display:none}
 }
 @media (min-width:1101px) and (max-width:1320px){.side{left:80px;width:300px}main>.editor{padding-left:396px}}
+
+.rail .rl-h{font-size:10.5px;font-weight:700;color:var(--t-text2);text-align:center;letter-spacing:.04em;padding:2px 0}
+.rail .rl-sep{height:1px;background:var(--t-line);margin:6px 4px}
+.rail button.win{position:relative;border:1.5px dashed var(--t-line);line-height:1.15}
+.rail button.win .out{position:absolute;top:2px;left:5px;font-style:normal;font-size:13px;color:var(--t-primary)}
 </style>
 </head>
 <body>
@@ -599,11 +604,12 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     </div>
   </header>
   <main>
-    <nav class="rail" id="rail" aria-label="קטגוריות">
+    <nav class="rail" id="rail" aria-label="קטגוריות"><div class="rl-h">בפאנל</div>
       <button type="button" data-k="body" class="on" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="9" rx="3"/><path d="M7 16v3M17 16v3"/></svg><span>גוף</span></button>
       <button type="button" data-k="legs" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v8l-3 9M16 3v8l3 9"/><path d="M8 11l3 9"/></svg><span>רגליים</span></button>
-      <button type="button" data-k="lab" aria-pressed="false" title="חלון הרגליים הגדול"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 10a1.5 1.5 0 0 0 1.4 2h11.2a1.5 1.5 0 0 0 1.4-2L14 9V3"/></svg><span>מעבדה</span></button>
-      <button type="button" data-k="st" aria-pressed="false" title="עמדת כניסה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg><span>עמדה</span></button>
+      <div class="rl-sep"></div><div class="rl-h">חלון נפרד</div>
+      <button type="button" data-k="lab" class="win" aria-pressed="false" title="פותח חלון גדול נפרד לרגליים, עם סגירה בפינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 10a1.5 1.5 0 0 0 1.4 2h11.2a1.5 1.5 0 0 0 1.4-2L14 9V3"/></svg><span>חלון<br>רגליים</span><i class="out" aria-hidden="true">↗</i></button>
+      <button type="button" data-k="st" class="win" aria-pressed="false" title="פותח חלון גדול נפרד לעמדת הכניסה, עם סגירה בפינה"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg><span>חלון<br>עמדה</span><i class="out" aria-hidden="true">↗</i></button>
     </nav>
     <section class="card list"><div class="cardh">רכיבים</div><div class="rows" id="rows"></div></section>
     <section class="card editor">
