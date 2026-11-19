@@ -3335,7 +3335,7 @@ function frameGroup(c,clear){
     if(si<n-1){const j=jc(si),jx=x1+GAP/2;seat.r={X:jx-j.jl-8,j};xb=Math.max(xb,seat.r.X+8)}
     if(si>0){const j=jc(si-1),jx=x0-GAP/2;seat.l={X:jx+j.jl,j};xa=Math.min(xa,seat.l.X)}
     const k=Math.max(1,Math.ceil((xb-xa)/75)),xs=[];for(let i=0;i<=k;i++)xs.push(xa+(xb-xa)*i/k);
-    const polyAt=x=>{let sel=its.filter(b=>b.mn[0]-40<=x&&b.mx[0]+40>=x);if(!sel.length)sel=its;const q=[];sel.forEach(b=>{[b.mn[2]-M,b.mx[2]+M].forEach(z=>[Math.max(0,b.mn[1]-M),b.mx[1]+M].forEach(y=>q.push([z,y])))});return hull(q)};
+    const polyAt=x=>{/* 19.11 (Sharon): the lidar sticks out of the frame, the rings do not wrap it; it is held by a short rod to the nearest ring */const core=its.filter(b=>b.it.cid!=='lidar'),pool=core.length?core:its;let sel=pool.filter(b=>b.mn[0]-40<=x&&b.mx[0]+40>=x);if(!sel.length)sel=pool;const q=[];sel.forEach(b=>{[b.mn[2]-M,b.mx[2]+M].forEach(z=>[Math.max(0,b.mn[1]-M),b.mx[1]+M].forEach(y=>q.push([z,y])))});return hull(q)};
     const polys=xs.map(polyAt);
     polys.forEach((pl,i)=>{ring(xs[i],pl)});
     /* rods between neighbouring rings: every corner joins the nearest corner of the next ring; the lowest run is a bolted tube (it carries the weight) */
