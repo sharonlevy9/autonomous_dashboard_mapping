@@ -1616,38 +1616,47 @@ function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),b
 /* ---------- frame (שלד): light machined-aluminium internal frame. Ported 18.11 from the chassis model of 17.11 (rails, perforated floor, end/joint/middle frames,
    hip posts, top bridges, wall strips, spacers). Follows the active configuration (segments, items, hips). Display only: does not change totals or warnings.
    Plate thickness 3 mm in the picture; weight is my estimate for 1.2 and 2 mm sheet (not verified, a structural engineer decides). Charging coil not drawn (station tab). ---------- */
+function frameNote(f){return'שלד מינימלי: '+f.bent+' מוטות מכופפים (אפורים בהירים) ו-'+f.bolted+' חלקים מוברגים (כהים: 4 מוטות אורך, לוחיות ירך קטנות, מושב מנוע המפרק). משקל ההערכה שלי, לא בדוק: כ-'+(f.w12/1000).toFixed(2)+' ק"ג עם לוחות 1.2 מ"מ, כ-'+(f.w20/1000).toFixed(2)+' ק"ג ב-2 מ"מ, מוטות Ø6, בלי רגליים ובלי ברגים.'}
 function frameGroup(c,clear){
-  const g=new THREE.Group(),segs=shellOf(c),n=segs.length,T3=3,AL=0.0027,info={parts:0,w12:0,w20:0},gs=segs.map(()=>{const q=new THREE.Group();g.add(q);return q});let cur=gs[0];
-  const mat=new THREE.MeshStandardMaterial({color:0xe4e7ec,roughness:.45,metalness:.35}),em=new THREE.LineBasicMaterial({color:0x5c6470});
-  const none=()=>{};
-  const add=(m,w)=>{m.raycast=none;const e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry,30),em);e.raycast=none;m.add(e);cur.add(m);info.parts++;info.w12+=w[0];info.w20+=w[1]};
-  const wPlate=a=>[a*1.2*AL,a*2*AL],wTube=l=>{const w=36*l*AL;return[w,w]},wRod=l=>{const w=Math.PI*9*l*AL;return[w,w]};
-  const box=(sx,sy,sz,p,tube)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),mat);m.position.set(p[0],p[1],p[2]);const s=[sx,sy,sz].sort((a,b)=>a-b);add(m,tube?wTube(s[2]):wPlate(s[1]*s[2]))};
-  /* kind: 'xz' flat, 'yz' cross, 'xy' wall */
+  /* 19.11 (Sharon): minimal frame, rods only. Plates ONLY where load is large: hip posts (legs) and the joint-motor seat, both bolted.
+     Everything else is a thin rod: floor cross rods, bent rings (end/middle/joint frames), top rods, wall rods, spacers. 4 corner tube rails run the length. */
+  const g=new THREE.Group(),segs=shellOf(c),n=segs.length,T3=3,AL=0.0027,RR=3,info={parts:0,bent:0,bolted:0,w12:0,w20:0},gs=segs.map(()=>{const q=new THREE.Group();g.add(q);return q});let cur=gs[0];
+  const mH=new THREE.MeshStandardMaterial({color:0x7f8791,roughness:.45,metalness:.4}),mB=new THREE.MeshStandardMaterial({color:0xe6eaf0,roughness:.4,metalness:.35}),em=new THREE.LineBasicMaterial({color:0x5c6470});
+  const none=()=>{},UP=new THREE.Vector3(0,1,0);
+  const add=(m,w,heavy,edges)=>{m.raycast=none;if(edges){const e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry,30),em);e.raycast=none;m.add(e)}cur.add(m);info.parts++;if(heavy)info.bolted++;else info.bent++;info.w12+=w[0];info.w20+=w[1]};
+  const wRod=l=>{const w=Math.PI*(RR*RR-(RR-1)*(RR-1))*l*AL;return[w,w]}  /* hollow tube Ø6 x 1 mm wall (my choice) */,wPlate=a=>[a*1.2*AL,a*2*AL];
+  const rod=(a,b)=>{const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B);if(L<2)return;const m=new THREE.Mesh(new THREE.CylinderGeometry(RR,RR,L,8),mB);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(UP,B.clone().sub(A).normalize());add(m,wRod(L),false)};
+  const rail=(len,p)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(len,10,10),mH);m.position.set(p[0],p[1],p[2]);add(m,[36*len*AL,36*len*AL],true,true)};
+  /* ring bent from one rod: rounded rectangle in the cross-section plane at x, through the rail centres */
+  const ring=(x,rz,hei)=>{const y0=5,y1=hei-5,rc=Math.min(14,rz-1,(y1-y0)/2-1),pts=[],P=(z,y)=>pts.push(new THREE.Vector3(x,y,z));
+    const line=(z0,y0_,z1,y1_)=>{const k=Math.max(1,Math.ceil(Math.hypot(z1-z0,y1_-y0_)/12));for(let i=0;i<k;i++)P(z0+(z1-z0)*i/k,y0_+(y1_-y0_)*i/k)};
+    const arc=(cz,cy,a0)=>{for(let i=0;i<=5;i++){const a=a0+Math.PI/2*i/5;P(cz+rc*Math.cos(a),cy+rc*Math.sin(a))}};
+    line(-rz+rc,y0,rz-rc,y0);arc(rz-rc,y0+rc,-Math.PI/2);line(rz,y0+rc,rz,y1-rc);arc(rz-rc,y1-rc,0);line(rz-rc,y1,-rz+rc,y1);arc(-rz+rc,y1-rc,Math.PI/2);line(-rz,y1-rc,-rz,y0+rc);arc(-rz+rc,y0+rc,Math.PI);
+    const m=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true,'catmullrom',.1),pts.length*3,RR,6,true),mB);
+    add(m,wRod(2*(2*rz-2*rc)+2*(y1-y0-2*rc)+2*Math.PI*rc),false)};
   const plate=(kind,a,b,th,pos,holes)=>{const s=new THREE.Shape();s.moveTo(a[0],a[1]);s.lineTo(b[0],a[1]);s.lineTo(b[0],b[1]);s.lineTo(a[0],b[1]);s.closePath();
     holes.forEach(h=>{const q=new THREE.Path();q.absarc(h[0],h[1],h[2],0,Math.PI*2,true);s.holes.push(q)});
     const geo=new THREE.ExtrudeGeometry(s,{depth:th,bevelEnabled:false,curveSegments:16});
     if(kind==='xz')geo.rotateX(-Math.PI/2);else if(kind==='yz')geo.rotateY(Math.PI/2);
-    const m=new THREE.Mesh(geo,mat);m.position.set(pos[0],pos[1],pos[2]);add(m,wPlate((b[0]-a[0])*(b[1]-a[1])-holes.reduce((t,h)=>t+Math.PI*h[2]*h[2],0)))};
-  const grid=(w,h,cx,cy,border,d,pitch)=>{const out=[];for(let u=-w/2+border+d/2;u<=w/2-border-d/2+.1;u+=pitch)for(let v=-h/2+border+d/2;v<=h/2-border-d/2+.1;v+=pitch)out.push([cx+u,cy+v,d/2]);return out};
+    const m=new THREE.Mesh(geo,mH);m.position.set(pos[0],pos[1],pos[2]);add(m,wPlate((b[0]-a[0])*(b[1]-a[1])-holes.reduce((t,h)=>t+Math.PI*h[2]*h[2],0)),true,true)};
+  const bolt=(p,ax)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(4.5,4.5,3,10),mH);if(ax==='z')m.rotation.x=Math.PI/2;else if(ax==='x')m.rotation.z=Math.PI/2;m.position.set(p[0],p[1],p[2]);m.raycast=none;cur.add(m)};
   const hips=c.items.filter(i=>i.role==='hip'&&!i.unfit),segAt=x=>segs.reduce((b,s)=>Math.abs(x-s.cx)<Math.abs(x-b.cx)?s:b,segs[0]);
-  segs.forEach((sg,si)=>{cur=gs[si];const {len,wid,hei}=sg,hw=wid/2,x0=sg.cx-len/2,x1=sg.cx+len/2,xc=sg.cx,rear=si===0,front=si===n-1;
-    const rz=hw-T3-5;[[1,5],[-1,5],[1,hei-5],[-1,hei-5]].forEach(([sz,y])=>box(len,10,10,[xc,y,sz*rz],true));
-    const fh=[];for(let xx=x0+40;xx<=x1-34;xx+=56)for(const zz of[-56,0,56])if(Math.abs(zz)<hw-30)fh.push([xx,-zz,22]);
-    plate('xz',[x0,-(hw-8)],[x1,hw-8],T3,[0,0,0],fh);
-    if(rear){const B=16,xm=x0+2;
-      box(4,B,wid,[xm,hei-B/2,0]);box(4,B,wid,[xm,B/2,0]);[1,-1].forEach(s=>box(4,hei-2*B,B,[xm,hei/2,s*(hw-B/2)]));
-      const pw=Math.min(70,hw-B-4),yb=Math.min(112,hei-B);if(pw>20&&yb>B+30)plate('yz',[-pw,B],[pw,yb],4,[x0,0,0],yb-B>70&&pw>50?[[-38,(B+yb)/2,16],[38,(B+yb)/2,16]]:[])}
-    if(front){const hs=grid(wid,hei,0,hei/2,14,54,66);plate('yz',[-hw,0],[hw,hei],4,[x1-4,0,0],hs.map(h=>[-h[0],h[1],h[2]]))}
+  segs.forEach((sg,si)=>{cur=gs[si];const {len,wid,hei}=sg,hw=wid/2,x0=sg.cx-len/2,x1=sg.cx+len/2,xc=sg.cx,rz=hw-T3-5;
+    [[1,5],[-1,5],[1,hei-5],[-1,hei-5]].forEach(([sz,y])=>rail(len,[xc,y,sz*rz]));
+    for(let xx=x0+25;xx<=x1-20;xx+=45)rod([xx,3,-rz],[xx,3,rz]);           /* floor: cross rods instead of a plate */
+    if(si===0)ring(x0+3,rz,hei);if(si===n-1)ring(x1-3,rz,hei);if(len>120)ring(xc,rz,hei);
     [[si<n-1,si],[si>0,si-1]].forEach(([has,gi],k)=>{if(!has)return;const right=k===0,ji=c.items.find(i=>i.auto==='joint'&&i.gap===gi),jl=ji?baseDims(ji)[1]/2:20.5,jy=ji?P(c,ji)[1]:hei/2;
-      const jx=right?x1+GAP/2:x0-GAP/2,jX=Math.min(Math.max(right?jx-jl-8:jx+jl,x0),x1-8),B=20,xm=jX+4,ya=Math.max(B+2,jy-52),yb=Math.min(hei-B-2,jy+52);
-      box(8,B,wid,[xm,hei-B/2,0]);box(8,B,wid,[xm,B/2,0]);[1,-1].forEach(s=>box(8,hei-2*B,B,[xm,hei/2,s*(hw-B/2)]));
-      if(yb>ya+20){plate('yz',[-52,ya],[52,yb],8,[jX,0,0],[[0,jy,22]]);
-        if(hw>52+B)[1,-1].forEach(s=>box(8,B,hw-52,[xm,jy,s*(52+(hw-52)/2)]))}});
-    const R4=14;box(4,R4,wid,[xc,hei-R4/2,0]);box(4,R4,wid,[xc,R4/2,0]);[1,-1].forEach(s=>box(4,hei-2*R4,R4,[xc,hei/2,s*(hw-R4/2)]))});
+      const jx=right?x1+GAP/2:x0-GAP/2,jX=Math.min(Math.max(right?jx-jl-8:jx+jl,x0),x1-8),xm=jX+4,ya=Math.max(8,jy-52),yb=Math.min(hei-8,jy+52);
+      ring(xm,rz,hei);
+      if(yb>ya+20){plate('yz',[-52,ya],[52,yb],8,[jX,0,0],[[0,jy,22]]);          /* joint-motor seat: the only plate besides the hip posts, bolted */
+        [[-52,ya],[52,ya],[-52,yb],[52,yb]].forEach(q=>bolt([xm,q[1]+(q[1]===ya?6:-6),q[0]+(q[0]>0?-6:6)],'x'));
+        if(rz>52)[1,-1].forEach(s=>rod([xm,jy,s*52],[xm,jy,s*rz]))}})});
   const posts=[];
-  hips.forEach(h=>{const sg=segs[segIdx(c,h.seg)],hw=sg.wid/2,hp=P(c,h),a=hp[0]-32;cur=gs[sg.i];posts.push({si:sg.i,side:h.side,a,b:hp[0]+32});
-    plate('xy',[a,0],[hp[0]+32,sg.hei],T3,[0,0,h.side>0?hw-T3:-hw],[[hp[0],hp[1],18],[hp[0],(hp[1]+sg.hei)/2+4,24],[hp[0],hp[1]*.35,16]].filter(q=>q[1]>q[2]+2&&q[1]<sg.hei-q[2]-2))});
+  hips.forEach(h=>{const sg=segs[segIdx(c,h.seg)],hw=sg.wid/2,hp=P(c,h),a=hp[0]-32,b=hp[0]+32;cur=gs[sg.i];posts.push({si:sg.i,side:h.side,a,b});
+    const zr=h.side*(hw-T3-5),ya=Math.max(8,hp[1]-40),yb=Math.min(sg.hei-8,hp[1]+40);          /* small hip plate (leg load), held by two vertical rods */
+    rod([a+4,8,zr],[a+4,sg.hei-8,zr]);rod([b-4,8,zr],[b-4,sg.hei-8,zr]);
+    plate('xy',[a,ya],[b,yb],T3,[0,0,h.side>0?hw-T3:-hw],[[hp[0],hp[1],18]]);
+    [[a+9,ya+7],[b-9,ya+7],[a+9,yb-7],[b-9,yb-7]].forEach(q=>bolt([q[0],q[1],h.side*(hw+1.5)],'z'))});
   const SKIP=new Set(['legmotor','jmotor','gimbal','doccam']),req=segs.map(()=>({top:[],side:{1:[],'-1':[]},sp:[]}));
   c.items.forEach(it=>{if(SKIP.has(it.cid)||it.auto||it.unfit)return;const k=cat[it.cid],e=ext(it),p=P(c,it),sg=segAt(p[0]),x0=sg.cx-sg.len/2,x1=sg.cx+sg.len/2;
     if(p[0]<x0-3||p[0]>x1+3)return;const mn=[p[0]-e[0]/2,p[1]-e[1]/2,p[2]-e[2]/2],mx=[p[0]+e[0]/2,p[1]+e[1]/2,p[2]+e[2]/2],hw=sg.wid/2;
@@ -1659,14 +1668,13 @@ function frameGroup(c,clear){
     else r.sp.push({mn,mx,dist,f});
     if(dist>3&&f!=='top')r.sp.push({mn,mx,dist,f});if(dist>3&&f==='top')r.sp.push({mn,mx,dist,f})});
   const merge=l=>{l.sort((p,q)=>p.a-q.a);const o=[];l.forEach(q=>{const t=o[o.length-1];if(t&&q.a<=t.b+10){t.b=Math.max(t.b,q.b);if(q.hole)t.holes.push(q.hole)}else o.push({a:q.a,b:q.b,holes:q.hole?[q.hole]:[]})});return o};
-  segs.forEach(sg=>{cur=gs[sg.i];const r=req[sg.i],hw=sg.wid/2,hei=sg.hei;
-    merge(r.top).forEach(t=>{const w=t.b-t.a,bars=[[t.a,t.a+14],[t.b-14,t.b]];if(w>90)bars.push([(t.a+t.b)/2-7,(t.a+t.b)/2+7]);
-      t.holes.forEach(h=>plate('xz',[h[0]-h[2]-8,-(hw-8)],[h[0]+h[2]+8,hw-8],T3,[0,hei-T3,0],[h]));bars.forEach(q=>plate('xz',[q[0],-(hw-8)],[q[1],hw-8],T3,[0,hei-T3,0],[]))});
-    [1,-1].forEach(s=>merge(r.side[s]).forEach(t=>[[t.a,t.a+14],[t.b-14,t.b]].forEach(q=>plate('xy',[q[0],0],[q[1],hei],T3,[0,0,s>0?hw-T3:-hw],[]))));
-    r.sp.forEach(q=>{const cx=(q.mn[0]+q.mx[0])/2,cz=(q.mn[2]+q.mx[2])/2,cy=(q.mn[1]+q.mx[1])/2;let len,pos,ax='y';
-      if(q.f==='fl'){len=q.mn[1]-T3;pos=[cx,T3+len/2,cz]}else if(q.f==='top'){len=sg.hei-T3-q.mx[1];pos=[cx,q.mx[1]+len/2,cz]}
-      else if(q.f==='sp'){len=hw-T3-q.mx[2];pos=[cx,cy,q.mx[2]+len/2];ax='z'}else{len=q.mn[2]+hw-T3;pos=[cx,cy,-hw+T3+len/2];ax='z'}
-      if(len<=2)return;const m=new THREE.Mesh(new THREE.CylinderGeometry(3,3,len,10),mat);if(ax==='z')m.rotation.x=Math.PI/2;m.position.set(pos[0],pos[1],pos[2]);add(m,wRod(len))})});
+  segs.forEach(sg=>{cur=gs[sg.i];const r=req[sg.i],hw=sg.wid/2,hei=sg.hei,rz=hw-T3-5;
+    merge(r.top).forEach(t=>{const xs=t.holes.length?t.holes.flatMap(h=>[h[0]-h[2]-8,h[0]+h[2]+8]):[t.a+7,t.b-7].concat(t.b-t.a>90?[(t.a+t.b)/2]:[]);xs.forEach(x=>rod([x,hei-3,-rz],[x,hei-3,rz]))});     /* top rods */
+    [1,-1].forEach(s=>merge(r.side[s]).forEach(t=>[t.a+7,t.b-7].forEach(x=>rod([x,8,s*rz],[x,hei-8,s*rz]))));                                                  /* wall rods */
+    r.sp.forEach(q=>{const cx=(q.mn[0]+q.mx[0])/2,cz=(q.mn[2]+q.mx[2])/2,cy=(q.mn[1]+q.mx[1])/2;let len,a,b;
+      if(q.f==='fl'){len=q.mn[1]-T3;a=[cx,T3,cz];b=[cx,T3+len,cz]}else if(q.f==='top'){len=sg.hei-T3-q.mx[1];a=[cx,q.mx[1],cz];b=[cx,q.mx[1]+len,cz]}
+      else if(q.f==='sp'){len=hw-T3-q.mx[2];a=[cx,cy,q.mx[2]];b=[cx,cy,q.mx[2]+len]}else{len=q.mn[2]+hw-T3;a=[cx,cy,-hw+T3];b=[cx,cy,-hw+T3+len]}
+      if(len<=2)return;rod(a,b)})});
   g.position.y=clear;return{g,gs,info}}
 /* ---------- walking simulation (18.11, Sharon): the tool walks in place on a moving floor, and the joint angles between segments can be played with.
    My assumptions, not decided: trot gait (diagonal legs together), stride 70 mm, foot lift 30 mm, step time 1.4 s, hip angles limits +-45 deg pitch/yaw, +-20 roll (for play only).
@@ -1697,7 +1705,7 @@ function walkBuild(c){
   root.children.slice(1).forEach(k=>{let i=0;while(i<gx.length&&k.position.x>gx[i]+.01)i++;root.remove(k);G[i].add(k)});
   G.forEach(q=>root.add(q));WK.seg=G;
   const fi=$('#frameInfo');fi.textContent='';
-  if(V.frame){const fr=frameGroup(c,clear);fr.gs.forEach((q,i)=>{q.position.y=clear;G[i].add(q)});const f=fr.info;fi.textContent='שלד אלומיניום (הערכה שלי, לא בדוקה): כ-'+(f.w12/1000).toFixed(2)+' ק"ג בלוחות 1.2 מ"מ, כ-'+(f.w20/1000).toFixed(2)+' ק"ג ב-2 מ"מ, בלי רגליים ובלי ברגים.'}
+  if(V.frame){const fr=frameGroup(c,clear);fr.gs.forEach((q,i)=>{q.position.y=clear;G[i].add(q)});const f=fr.info;fi.textContent=frameNote(f)}
   WK.J=[];for(let g=0;g<n-1;g++){const ji=c.items.find(i=>i.auto==='joint'&&i.gap===g);WK.J.push(new THREE.Vector3(gx[g],clear+(ji?P(c,ji)[1]:Math.min(segs[g].hei,segs[g+1].hei)/2),0))}
   const th=c.legs.thick||THICK0,lm=cat.legmotor,bm=new THREE.MeshStandardMaterial({color:0x9aa3af}),fm=new THREE.MeshStandardMaterial({color:0x2b2f33});
   WK.legs=[];
@@ -1726,7 +1734,7 @@ function walkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.
     walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)})}
 function build3D(){
   clearRoot(root);const c=cfg(),{segs,clear}=WK.on?walkBuild(c):fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c)});
-  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameGroup(c,clear);root.add(fr.g);const f=fr.info;fi.textContent='שלד אלומיניום (הערכה שלי, לא בדוקה): '+f.parts+' חלקים, כ-'+(f.w12/1000).toFixed(2)+' ק"ג בלוחות 1.2 מ"מ, כ-'+(f.w20/1000).toFixed(2)+' ק"ג ב-2 מ"מ, בלי רגליים ובלי ברגים. לא נכנס לסיכומי המשקל.'}else if(!WK.on)fi.textContent='';
+  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameGroup(c,clear);root.add(fr.g);const f=fr.info;fi.textContent=frameNote(f)}else if(!WK.on)fi.textContent='';
   const HH=Math.max(...segs.map(s=>s.hei))+(c.items.some(i=>i.cid==='gimbal')?95:0),rad=Math.hypot(shellLen(c)/2+60,(clear+HH)/2+30,shellWid(c)/2+40),R=rad/Math.sin(0.28)*.62,t=new THREE.Vector3(0,(clear+HH)/2,0);
   const big=V.mode==='3d'||V.mode==='win';
   if(!camSet){cam.position.set(R*.55,R*.38,R*.7);oc.target.copy(t);camSet=true}else if(!big)oc.target.copy(t);
