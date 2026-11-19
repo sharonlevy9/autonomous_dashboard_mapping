@@ -103,7 +103,8 @@ button.stat{text-align:start}
 /* right column */
 .side{display:flex;flex-direction:column;gap:12px;min-height:0}
 .m3{min-height:290px;flex:none;display:flex;flex-direction:column}
-.m3 #w3{flex:none;height:var(--w3h,230px)}.m3.nocv{height:auto;min-height:0}
+.m3 #w3{flex:none;height:var(--w3h,230px)}
+.m3.fixh #w3{flex:1;height:auto;min-height:80px}.m3.nocv{height:auto;min-height:0}
 /* step 4: view modes (single 2D view / 3D / all together), ranges, cables */
 .vopts{display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;padding:8px 22px 0;font-size:14px;color:var(--muted)}
 .vopts .grp{display:inline-flex;gap:6px;align-items:center}
@@ -4073,39 +4074,41 @@ function renderCtrl(){
   el.insertAdjacentHTML('beforeend','<div class="note">סידור אופטימלי: בודק את המקומות שבכרטיסים ועוד הרבה סידורים חוקיים, ובוחר את הטוב ביותר. הסדר שלי: קודם בלי רכיבים שלא נכנסים, אחר כך הכי מעט אזהרות, אחר כך מרכז כובד קרוב לאמצע ונמוך, ואחר כך כבלים קצרים. אם הכלי קטן מדי, נפתח חלון עם דרכים להגדיל אותו.<br>סידור מחדש: בכל לחיצה סידור חוקי אחר, בלי יותר אזהרות מעכשיו. זזים רק רכיבים שהכרטיס לא קובע להם כיוון או קצה (מחשב, בקר בטיחות, סוללות, IMU, חיישני אוויר, נורה, כפתור, זמזם, לוחות). רכיבים נעולים לא זזים בשני הכפתורים.</div>');
   document.querySelectorAll('#stance button').forEach(b=>b.classList.toggle('on',b.dataset.s===c.legs.stance));
 }
-/* ---------- resizable panels (19.11, Sharon): drag the inner edge of the components list or the side panel to change its width, and the bottom edge of the 3D view
-   to change its height. Sizes are remembered in this browser. Double-click an edge to go back to the default. Desktop layout only (screens 1101 px and wider). ---------- */
+/* ---------- resizable panels (19.11, Sharon): drag the inner edge of the components list or of the side panel to change its width; drag the line between two panels that sit
+   one above the other (3D view / controls) to give one more room and the other less; drag the bottom edge of the 3D view to change its height.
+   Sizes are remembered in this browser. Double-click a handle to go back to the default. Desktop layout only (screens 1101 px and wider). ---------- */
 (function(){const KEY='terra-panel-sizes',list=document.querySelector('.list'),side=document.querySelector('.side'),ed=document.querySelector('main>.editor');if(!list||!side||!ed)return;
   let RS={};try{RS=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(RS))}catch(e){}},desk=()=>window.matchMedia('(min-width:1101px)').matches;
-  const mk=cls=>{const d=document.createElement('div');d.className='rsz '+cls;d.title='גרירה לשינוי גודל. לחיצה כפולה: חזרה לברירת מחדל';document.body.appendChild(d);return d};
-  const mkz=()=>{const d=document.createElement('div');d.className='rsz-hz';d.title=hL.title;document.body.appendChild(d);return d};
-  const hL=mk('rsz-v'),hS=mk('rsz-v'),zLt=mkz(),zLb=mkz(),zSt=mkz(),zSb=mkz(),wh=document.getElementById('w3'),hH=document.createElement('div');hH.className='rsz-h';hH.title=hL.title;wh.appendChild(hH);
-  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-  function apply(){const on=desk();[hL,hS,zLt,zLb,zSt,zSb].forEach(h=>h.style.display=on?'block':'none');
-    if(!on){list.style.width=side.style.width=list.style.top=list.style.bottom=side.style.top=side.style.bottom='';ed.style.paddingLeft=ed.style.paddingRight='';return}
+  const mk=(cls,tag)=>{const d=document.createElement('div');d.className=cls;d.title='גרירה לשינוי גודל. לחיצה כפולה: חזרה לברירת מחדל';document.body.appendChild(d);return d};
+  const hL=mk('rsz rsz-v'),hS=mk('rsz rsz-v'),wh=document.getElementById('w3'),hH=document.createElement('div');hH.className='rsz-h';hH.title=hL.title;wh.appendChild(hH);
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),cards=()=>[...side.children].filter(c=>c.classList.contains('card'));
+  let splits=[];const roc=new ResizeObserver(()=>apply()),seen=new Set();
+  function apply(){const on=desk();[hL,hS].forEach(h=>h.style.display=on?'block':'none');
+    const cs=cards();cs.forEach(c=>{if(!seen.has(c)){seen.add(c);roc.observe(c)}});while(splits.length<cs.length-1)splits.push(mk('rsz-hz'));splits.forEach((d,i)=>d.style.display=on&&i<cs.length-1?'block':'none');
+    cs.forEach((c,i)=>{const h=on&&RS.ch&&RS.ch[i];c.style.height=h?h+'px':'';c.style.flex=h?'none':'';c.style.overflowY=h?'auto':'';c.classList.toggle('fixh',!!h)});
+    if(!on){list.style.width=side.style.width='';ed.style.paddingLeft=ed.style.paddingRight='';return}
     list.style.width=RS.list?clamp(RS.list,200,560)+'px':'';side.style.width=RS.side?clamp(RS.side,260,700)+'px':'';
-    list.style.top=RS.lt!=null?RS.lt+'px':'';list.style.bottom=RS.lb!=null?RS.lb+'px':'';side.style.top=RS.st!=null?RS.st+'px':'';side.style.bottom=RS.sb!=null?RS.sb+'px':'';
     wh.style.setProperty('--w3h',RS.h?clamp(RS.h,160,900)+'px':'');
     const l=list.getBoundingClientRect(),s=side.getBoundingClientRect();
     if(RS.list||RS.side){ed.style.paddingRight=Math.max(0,innerWidth-l.left+12)+'px';ed.style.paddingLeft=Math.max(0,s.right+12)+'px'}else{ed.style.paddingLeft=ed.style.paddingRight=''}
     [[hL,l.left-6],[hS,s.right-6]].forEach(([h,x])=>{h.style.left=x+'px'});
     [[hL,l],[hS,s]].forEach(([h,r])=>{h.style.top=r.top+'px';h.style.height=r.height+'px'});
-    [[zLt,l,l.top],[zLb,l,l.bottom],[zSt,s,s.top],[zSb,s,s.bottom]].forEach(([h,r,y])=>{h.style.top=(y-6)+'px';h.style.left=r.left+'px';h.style.width=r.width+'px'});
+    splits.forEach((d,i)=>{if(i>=cs.length-1)return;const a=cs[i].getBoundingClientRect(),b=cs[i+1].getBoundingClientRect();d.style.top=((a.bottom+b.top)/2-6)+'px';d.style.left=a.left+'px';d.style.width=a.width+'px'});
     try{resize3()}catch(e){}}
-  const drag=(h,fn)=>h.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();h.setPointerCapture(e.pointerId);h.classList.add('on');
-    const mv=ev=>{fn(ev);apply()},up=()=>{h.classList.remove('on');h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);save()};h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up)});
-  drag(hL,ev=>{RS.list=Math.round(list.getBoundingClientRect().right-ev.clientX)});          /* list is on the right: its inner edge is the left edge */
-  drag(hS,ev=>{RS.side=Math.round(ev.clientX-side.getBoundingClientRect().left)});          /* side panel is on the left: its inner edge is the right edge */
-  const topMin=60,opr=el=>(el.offsetParent||document.body).getBoundingClientRect();
-  drag(zLt,ev=>{RS.lt=Math.round(clamp(ev.clientY,topMin,list.getBoundingClientRect().bottom-150)-opr(list).top)});
-  drag(zLb,ev=>{RS.lb=Math.round(opr(list).bottom-clamp(ev.clientY,list.getBoundingClientRect().top+150,innerHeight))});
-  drag(zSt,ev=>{RS.st=Math.round(clamp(ev.clientY,topMin,side.getBoundingClientRect().bottom-150)-opr(side).top)});
-  drag(zSb,ev=>{RS.sb=Math.round(opr(side).bottom-clamp(ev.clientY,side.getBoundingClientRect().top+150,innerHeight))});
-  drag(hH,ev=>{RS.h=Math.round(ev.clientY-wh.getBoundingClientRect().top)});
+  const drag=(h,fn)=>h.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();h.setPointerCapture(e.pointerId);h.classList.add('on');const st=fn.start?fn.start(e):null;
+    const mv=ev=>{fn(ev,st);apply()},up=()=>{h.classList.remove('on');h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);save()};h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up)});
+  const dl=(ev)=>{RS.list=Math.round(list.getBoundingClientRect().right-ev.clientX)};drag(hL,dl);                 /* list is on the right: its inner edge is the left edge */
+  const ds=(ev)=>{RS.side=Math.round(ev.clientX-side.getBoundingClientRect().left)};drag(hS,ds);                 /* side panel is on the left: its inner edge is the right edge */
+  const dh=(ev)=>{RS.h=Math.round(ev.clientY-wh.getBoundingClientRect().top)};drag(hH,dh);
   hL.ondblclick=()=>{delete RS.list;save();apply()};hS.ondblclick=()=>{delete RS.side;save();apply()};hH.ondblclick=()=>{delete RS.h;save();apply()};
-  zLt.ondblclick=()=>{delete RS.lt;save();apply()};zLb.ondblclick=()=>{delete RS.lb;save();apply()};zSt.ondblclick=()=>{delete RS.st;save();apply()};zSb.ondblclick=()=>{delete RS.sb;save();apply()};
-  new ResizeObserver(apply).observe(document.body);addEventListener('resize',apply);setTimeout(apply,300);setTimeout(apply,1500);
+  /* line between stacked panels i and i+1: what one gains the other loses, the total stays the same */
+  document.body.addEventListener('pointerdown',e=>{const d=e.target.closest&&e.target.closest('.rsz-hz');if(!d)return;const i=splits.indexOf(d);if(i<0)return;const cs=cards(),a=cs[i],b=cs[i+1];if(!a||!b)return;
+    e.preventDefault();e.stopPropagation();d.setPointerCapture(e.pointerId);d.classList.add('on');const y0=e.clientY,ha=a.getBoundingClientRect().height,hb=b.getBoundingClientRect().height,tot=ha+hb,MIN=Math.min(90,ha,hb);
+    const mv=ev=>{const na=clamp(ha+ev.clientY-y0,MIN,tot-MIN);RS.ch=RS.ch||[];cs.forEach((c,k)=>{if(!RS.ch[k])RS.ch[k]=Math.round(c.getBoundingClientRect().height)});RS.ch[i]=Math.round(na);RS.ch[i+1]=Math.round(tot-na);apply()},
+      up=()=>{d.classList.remove('on');d.removeEventListener('pointermove',mv);d.removeEventListener('pointerup',up);save()};d.addEventListener('pointermove',mv);d.addEventListener('pointerup',up)},true);
+  document.body.addEventListener('dblclick',e=>{const d=e.target.closest&&e.target.closest('.rsz-hz');if(d){delete RS.ch;save();apply()}},true);
+  new ResizeObserver(apply).observe(document.body);new ResizeObserver(apply).observe(side);addEventListener('resize',apply);setTimeout(apply,300);setTimeout(apply,1500);
   window.__panelSizesApply=apply})();
 document.querySelectorAll('#frameTg button').forEach(b=>b.onclick=()=>{V.frame=b.dataset.f==='1';document.querySelectorAll('#frameTg button').forEach(x=>x.classList.toggle('on',x===b));schedule()});
 $('#freebtn').onclick=e=>{V.free=!V.free;e.currentTarget.setAttribute('aria-pressed',V.free?'true':'false');e.currentTarget.classList.toggle('on',V.free);toast(V.free?'מצב חופשי: אין הצמדה וחסימה':'חזרה להצמדה')};
