@@ -34,26 +34,34 @@
    "power_budget": 30
   },
   {
-   "id": "safety",
-   "name": "בקר בטיחות",
-   "model": "TI AM2612 על לוח משלו (הערכה)",
-   "group": "computing",
+   "id": "ebox",
+   "name": "תיבת אלקטרוניקה",
+   "model": "מארז אחד: בקר בטיחות, סוללת גיבוי, דרייבר נוריות, לוח אוויר",
+   "group": "safety",
    "shape": "box",
    "dims": [
-    56,
-    18,
-    46
+    99,
+    20.5,
+    73.5
    ],
    "qty": 1,
-   "weight": 20,
+   "weight": 40,
    "power": null,
    "estimate": [
     "dims",
     "weight"
    ],
-   "note": "לוח 50×40×12 ו-20 ג': הערכות. החשמל עד כ-2.9 W יחד עם הגיבוי (טבלת סיכום). | 16.11: עם מארז 56×46×18 (מארז: 3 מ\"מ מכל צד ו-6 בגובה, הערכה שלי; סיכום הכרטיסים).",
-   "source": "כרטיסים, טבלת סיכום (14.11); טאב 01",
-   "why": null
+   "enclosure": true,
+   "contains": [
+    "safety",
+    "backup",
+    "leddriver",
+    "airboard"
+   ],
+   "note": "מארז (פריסה 18.11, חישוב שלי): בקר 50×40×12, שני לוחות 30×20×8 זה מעל זה לצדו, סוללת גיבוי Ø14.5×49.3 שוכבת לפניהם, רווח 3 מ\"מ, עוד 10 מ\"מ לחיבורים וכבלים ודופן 3 מ\"מ. משקל 40 ג': בקר 20 וגיבוי 20 (הערכות); משקל שני הלוחות לא ידוע. החיישנים והנוריות מתחברים אליה.",
+   "source": "פריסה 18.11 (lists_1811.py)",
+   "why": null,
+   "heat": null
   },
   {
    "id": "radar",
@@ -706,69 +714,6 @@
    }
   },
   {
-   "id": "backup",
-   "name": "סוללת גיבוי לבקר",
-   "model": "תא 14500 (ליתיום 3.7 V, 800 mAh, כ-2.96 Wh)",
-   "group": "power",
-   "shape": "cyl",
-   "dims": [
-    14.5,
-    49.3,
-    14.5
-   ],
-   "qty": 1,
-   "weight": 20,
-   "power": 0,
-   "estimate": [
-    "weight"
-   ],
-   "note": "תא קוטר 14.5 × 49.3. משקל כ-20 ג': הערכה.",
-   "source": "כרטיסים, טבלת סיכום (14.11); רשימות פריסה",
-   "why": null
-  },
-  {
-   "id": "leddriver",
-   "name": "דרייבר לנוריות",
-   "model": "לא נבחר דגם (הערכה)",
-   "group": "light",
-   "shape": "box",
-   "dims": [
-    30,
-    8,
-    20
-   ],
-   "qty": 1,
-   "weight": null,
-   "power": null,
-   "estimate": [
-    "dims"
-   ],
-   "note": "לא נבחר דגם. מידות הערכה 30×20×8.",
-   "source": "רשימות פריסה; סכמת חיווט 14.11",
-   "why": null
-  },
-  {
-   "id": "airboard",
-   "name": "לוח ממשק לחיישני אוויר",
-   "model": "לא נבחר דגם (הערכה)",
-   "group": "air",
-   "shape": "box",
-   "dims": [
-    36,
-    14,
-    26
-   ],
-   "qty": 1,
-   "weight": null,
-   "power": null,
-   "estimate": [
-    "dims"
-   ],
-   "note": "לא נבחר דגם. מידות הערכה 30×20×8. | 16.11: עם מארז 36×26×14 (הערכה שלי; סיכום הכרטיסים).",
-   "source": "כרטיסים, טבלת סיכום (14.11); טאב 13",
-   "why": null
-  },
-  {
    "id": "pdu",
    "name": "חלוקת הספק והגנה",
    "model": "2× Mean Well SKA60C-12 + לוח הגנה",
@@ -1035,16 +980,7 @@
    "source": "כרטיס 06"
   },
   {
-   "child": "backup",
-   "parent": "safety",
-   "type": "near",
-   "moves_with_parent": false,
-   "inferred": true,
-   "text": "סוללת הגיבוי מזינה רק את בקר הבטיחות, לכן קרוב אליו (הסקה שלי).",
-   "source": "סכמת חיווט 14.11"
-  },
-  {
-   "child": "airboard",
+   "child": "ebox",
    "parent": [
     "o2",
     "co2"
@@ -1052,7 +988,7 @@
    "type": "near",
    "moves_with_parent": false,
    "inferred": true,
-   "text": "לוח הממשק ליד חיישני האוויר, כדי שהחוטים קצרים (הסקה שלי).",
+   "text": "התיבה (עם לוח הממשק) קרובה לחיישני האוויר, כדי שהחוטים קצרים (הסקה שלי).",
    "source": "הסקה"
   },
   {
@@ -1212,14 +1148,14 @@
    },
    {
     "from": "computer",
-    "to": "leddriver",
+    "to": "ebox",
     "kind": "data",
     "interface": "דרייבר לא נבחר",
     "verified": false
    },
    {
     "from": "computer",
-    "to": "airboard",
+    "to": "ebox",
     "kind": "data",
     "interface": "לא אומת",
     "verified": false
@@ -1240,13 +1176,13 @@
    },
    {
     "from": "computer",
-    "to": "safety",
+    "to": "ebox",
     "kind": "data",
     "interface": "פעימת חיים (הסקה)",
     "verified": false
    },
    {
-    "from": "leddriver",
+    "from": "ebox",
     "to": [
      "drivelight",
      "doclight",
@@ -1257,7 +1193,7 @@
     "verified": false
    },
    {
-    "from": "airboard",
+    "from": "ebox",
     "to": [
      "o2",
      "co2"
@@ -1282,7 +1218,7 @@
     "to": "motors",
     "kind": "power",
     "voltage": "24 V",
-    "via": "safety",
+    "via": "ebox",
     "text": "דרך מנתק של בקר הבטיחות",
     "verified": true
    },
@@ -1305,8 +1241,7 @@
      "lidar",
      "o2",
      "co2",
-     "leddriver",
-     "airboard",
+     "ebox",
      "buzzer"
     ],
     "kind": "power",
@@ -1314,14 +1249,8 @@
     "verified": true
    },
    {
-    "from": "backup",
-    "to": "safety",
-    "kind": "power",
-    "verified": true
-   },
-   {
     "from": "estop",
-    "to": "safety",
+    "to": "ebox",
     "kind": "power",
     "verified": true
    }
@@ -1333,8 +1262,7 @@
    "title": "מחשב ובקר בטיחות",
    "items": [
     "computer",
-    "safety",
-    "backup"
+    "ebox"
    ],
    "short": "המחשב הוא המוח של הכלי: מקבל מידע מהמצלמות, מהלידאר ומה-IMU ומחליט מה לעשות. המועמד הראשי הוא Qualcomm IQ-9075, ולידו בקר בטיחות נפרד. בחירת המחשב הסופית תהיה בסוף, אחרי כל הרכיבים.",
    "needs": [
@@ -2393,7 +2321,7 @@
     "doclight",
     "irled",
     "amber",
-    "leddriver"
+    "ebox"
    ],
    "short": "האור שהכלי מביא איתו: לנסיעה, לתיעוד ולהתראה. במערה אין אור אחר.",
    "needs": [
@@ -2507,7 +2435,7 @@
    "items": [
     "o2",
     "co2",
-    "airboard"
+    "ebox"
    ],
    "short": "שני חיישנים קטנים שבודקים אם אפשר לנשום במערה, לפני שאדם נכנס.",
    "needs": [
@@ -2746,12 +2674,11 @@
     ],
     "official_drawing": false,
     "shared_with": [
-     "safety",
-     "backup"
+     "ebox"
     ]
    },
    {
-    "id": "safety",
+    "id": "ebox",
     "card": "01",
     "own_card": false,
     "filled": {
@@ -2772,8 +2699,7 @@
     ],
     "official_drawing": false,
     "shared_with": [
-     "computer",
-     "backup"
+     "computer"
     ]
    },
    {
@@ -2993,7 +2919,7 @@
      "doclight",
      "irled",
      "amber",
-     "leddriver"
+     "ebox"
     ]
    },
    {
@@ -3020,7 +2946,7 @@
      "drivelight",
      "irled",
      "amber",
-     "leddriver"
+     "ebox"
     ]
    },
    {
@@ -3047,7 +2973,7 @@
      "drivelight",
      "doclight",
      "irled",
-     "leddriver"
+     "ebox"
     ]
    },
    {
@@ -3070,7 +2996,7 @@
     "official_drawing": true,
     "shared_with": [
      "co2",
-     "airboard"
+     "ebox"
     ]
    },
    {
@@ -3093,7 +3019,7 @@
     "official_drawing": true,
     "shared_with": [
      "o2",
-     "airboard"
+     "ebox"
     ]
    },
    {
@@ -3170,83 +3096,7 @@
      "drivelight",
      "doclight",
      "amber",
-     "leddriver"
-    ]
-   },
-   {
-    "id": "backup",
-    "card": "01",
-    "own_card": false,
-    "filled": {
-     "short": true,
-     "needs": true,
-     "decided": true,
-     "why": true,
-     "explainer": false,
-     "alternatives": true,
-     "placement": true,
-     "problems": false,
-     "open": true,
-     "sources": true
-    },
-    "missing": [
-     "explainer",
-     "problems"
-    ],
-    "official_drawing": false,
-    "shared_with": [
-     "computer",
-     "safety"
-    ]
-   },
-   {
-    "id": "leddriver",
-    "card": "12",
-    "own_card": false,
-    "filled": {
-     "short": true,
-     "needs": true,
-     "decided": true,
-     "why": true,
-     "explainer": true,
-     "alternatives": true,
-     "placement": true,
-     "problems": false,
-     "open": true,
-     "sources": true
-    },
-    "missing": [
-     "problems"
-    ],
-    "official_drawing": true,
-    "shared_with": [
-     "drivelight",
-     "doclight",
-     "irled",
-     "amber"
-    ]
-   },
-   {
-    "id": "airboard",
-    "card": "13",
-    "own_card": false,
-    "filled": {
-     "short": true,
-     "needs": true,
-     "decided": true,
-     "why": true,
-     "explainer": true,
-     "alternatives": true,
-     "placement": true,
-     "problems": true,
-     "open": true,
-     "sources": true
-    },
-    "missing": [],
-    "official_drawing": true,
-    "shared_with": [
-     "o2",
-     "co2"
+     "ebox"
     ]
    }
   ],
@@ -3264,7 +3114,7 @@
     "text": "משקל: בקטלוג 5 גרם (הערכה) ובכרטיס 'לא יודע'."
    },
    {
-    "id": "safety",
+    "id": "ebox",
     "text": "מידות: בקטלוג 50×40×12 (עם מחברים, הערכה), בהחלטה בכרטיס לוח 30×30×5 (הערכה). לא הוכרע."
    },
    {
@@ -4134,46 +3984,32 @@
   "post_h": 80,
   "items": [
    {
-    "id": "battery",
-    "name": "סוללת העמדה",
-    "model": "Molicel M65A 13S3P",
-    "b": 282.1,
-    "a": 65.1,
-    "h": 71,
-    "g": 3500,
+    "id": "spare1",
+    "name": "סוללת רזרבה נשלפת 1",
+    "model": "כמו סוללת הכלי (סוליד סטייט, ProLogium Gen 3.5)",
+    "b": 140,
+    "a": 85,
+    "h": 80,
+    "g": 1950,
     "row": 1,
-    "shape": "box",
-    "grp": "power",
-    "est": false,
-    "source": "טופס עמדה של רותם 14.11"
-   },
-   {
-    "id": "bms",
-    "name": "לוח הגנה לסוללה",
-    "model": "Bisida 13S 48V 20A",
-    "b": 60,
-    "a": 34,
-    "h": 9.2,
-    "g": 46,
-    "row": 1,
-    "shape": "box",
-    "grp": "power",
-    "est": false,
-    "source": "טופס עמדה של רותם 14.11"
-   },
-   {
-    "id": "charger",
-    "name": "לוח מטען",
-    "model": "TI BQ25756EVM",
-    "b": 112,
-    "a": 84,
-    "h": 2,
-    "g": 60,
-    "row": 2,
     "shape": "box",
     "grp": "power",
     "est": true,
-    "source": "מידות: מדריך TI. גובה לא ידוע, 2 מ\"מ הוא placeholder"
+    "source": "פריסה 18.11: 2 סוללות רזרבה בעמדה, מידות מאושרות 140×85×80. משקל כ-1.95 ק\"ג (מאושר)"
+   },
+   {
+    "id": "spare2",
+    "name": "סוללת רזרבה נשלפת 2",
+    "model": "כמו סוללת הכלי (סוליד סטייט, ProLogium Gen 3.5)",
+    "b": 140,
+    "a": 85,
+    "h": 80,
+    "g": 1950,
+    "row": 1,
+    "shape": "box",
+    "grp": "power",
+    "est": true,
+    "source": "פריסה 18.11: 2 סוללות רזרבה בעמדה, מידות מאושרות 140×85×80. משקל כ-1.95 ק\"ג (מאושר)"
    },
    {
     "id": "buck",
@@ -4190,18 +4026,19 @@
     "source": "טופס עמדה של רותם 14.11"
    },
    {
-    "id": "magconn",
-    "name": "מחבר טעינה מגנטי (חלופה)",
-    "model": "Rosenberger RoPD C001-04",
-    "b": 25,
-    "a": 25,
-    "h": 20,
-    "g": 20,
+    "id": "ebox_st",
+    "name": "תיבת אלקטרוניקה של העמדה",
+    "model": "מארז אחד: מטען BQ25756EVM, לוח הגנה, לוח קריאה, מקלט GPS ובקר כננת",
+    "b": 237.2,
+    "a": 100,
+    "h": 22,
+    "g": 132.5,
     "row": 2,
-    "shape": "cylv",
+    "shape": "box",
     "grp": "power",
-    "est": false,
-    "source": "חור התקנה ø25×20. נשקל כחלופה לטעינה אלחוטית"
+    "est": true,
+    "source": "פריסה 18.11 (חישוב שלי): מטען 112×84×15 משמאל; עמודה של לוח הגנה מעל לוח קריאה; עמודה של GPS מעל בקר; רווח 3 מ\"מ, עוד 10 מ\"מ לחיבורים, דופן 3 מ\"מ. לא כולל מטען חשמל (טרם אושר). הערה: המידות מהפריסה כוללות לוח הגנה לסוללת עמדה שהוסרה, ולכן התיבה כנראה גדולה מהנדרש (לא בטוח)",
+    "enclosure": true
    },
    {
     "id": "computer",
@@ -4258,35 +4095,6 @@
     "grp": "compute",
     "est": false,
     "source": "טופס עמדה של רותם 14.11"
-   },
-   {
-    "id": "modem",
-    "name": "מודם סלולרי",
-    "model": "Quectel EG25-GL",
-    "b": 51,
-    "a": 30,
-    "h": 4.9,
-    "g": 10.5,
-    "row": 4,
-    "shape": "box",
-    "grp": "compute",
-    "est": false,
-    "source": "טופס עמדה של רותם 14.11",
-    "inside": "computer"
-   },
-   {
-    "id": "gps",
-    "name": "מקלט GPS",
-    "model": "SparkFun ZED-X20P",
-    "b": 43.2,
-    "a": 43.2,
-    "h": 5,
-    "g": 10,
-    "row": 4,
-    "shape": "box",
-    "grp": "compute",
-    "est": true,
-    "source": "גובה לא ידוע, 5 מ\"מ הוא placeholder"
    },
    {
     "id": "gpsant",
@@ -4348,20 +4156,6 @@
     "source": "טופס עמדה של רותם 14.11"
    },
    {
-    "id": "jrk",
-    "name": "בקר מנוע הכננת",
-    "model": "Pololu Jrk G2 21v3",
-    "b": 30.5,
-    "a": 25.4,
-    "h": 7.6,
-    "g": 4.5,
-    "row": 5,
-    "shape": "box",
-    "grp": "winch",
-    "est": false,
-    "source": "טופס עמדה של רותם 14.11"
-   },
-   {
     "id": "loadcell",
     "name": "תא עומס (חיישן מתיחה)",
     "model": "Phidgets CZL635",
@@ -4376,32 +4170,18 @@
     "source": "טופס עמדה של רותם 14.11"
    },
    {
-    "id": "daq",
-    "name": "לוח קריאה לחיישן מתיחה",
-    "model": "Phidgets DAQ1500",
-    "b": 45,
-    "a": 45,
-    "h": 16,
-    "g": 12,
-    "row": 5,
-    "shape": "box",
-    "grp": "winch",
-    "est": false,
-    "source": "טופס עמדה של רותם 14.11"
-   },
-   {
     "id": "pulleys",
     "name": "3 גלגלות לחיישן המתיחה",
     "model": "דגם לא נבחר",
-    "b": 20,
+    "b": 60,
     "a": 20,
-    "h": 10,
+    "h": 6,
     "g": 30,
     "row": 5,
     "shape": "box",
     "grp": "winch",
     "est": true,
-    "source": "דגם ומידות לא נבחרו; הקובייה היא placeholder אחת לשלוש"
+    "source": "פריסה 18.11: 3 גלגלות 20×6 זו ליד זו (הערכה, דגם לא נבחר). סדר השלוש (לאורך או לרוחב) הוא הנחה שלי"
    },
    {
     "id": "forj",
@@ -4477,52 +4257,6 @@
   "wall_tol": 10,
   "rules_note": "כללי מיקום וכיוון לכל רכיב, מתוך מקורות היצרנים (רשימה למטה). מרחקי הקרבה המסומנים 'הסקה שלי' הם אורכי כבלים סבירים, לא מספר של יצרן. מרחק החום 30 מ\"מ הוא הערך הניסיוני של הכלי.",
   "rules": {
-   "battery": {
-    "heat": "sens",
-    "service": true,
-    "near": [
-     {
-      "id": "bms",
-      "mm": 100,
-      "text": "לוח ההגנה מחובר לתאים בחוטים קצרים",
-      "inferred": true
-     }
-    ],
-    "why": "39 תאי 21700 (13S3P) עומדים (גובה החבילה 71 מ\"מ = אורך תא), כך שפתחי הפליטה של התאים פונים למעלה ולמטה. פתח פליטה צריך לפנות לתעלה פתוחה ולא לאלקטרוניקה, ולכן אין רכיבים מעל הסוללה. טעינת התאים מותרת רק בין 0 ל-60 מעלות (בחבילות מוכנות: עד 45), לכן רחוק ממקורות חום.",
-    "zone": "בלי שום רכיב מעליה. לפחות 30 מ\"מ ממחשב, מטען, ממיר, בקר ומנוע.",
-    "orient": "תאים עומדים; הצד העליון פתוח.",
-    "source": "Molicel M65A (טמפרטורה, אתרי מפיצים); Dan Energy / Epec (כיוון פליטה); מרחק 30 מ\"מ: ערך ניסיוני מהכלי"
-   },
-   "bms": {
-    "heat": "sens",
-    "near": [
-     {
-      "id": "battery",
-      "mm": 100,
-      "text": "כולל חיישן חום שמודבק לתאים",
-      "inferred": false
-     }
-    ],
-    "why": "לוח ההגנה כולל חיישן חום של התאים, ולכן צמוד לסוללה.",
-    "zone": "עד 100 מ\"מ מהסוללה; רחוק ממקורות חום.",
-    "orient": "לא משנה.",
-    "source": "טופס רותם שורה 17 (Bisida, חיישן חום)"
-   },
-   "charger": {
-    "heat": "src",
-    "near": [
-     {
-      "id": "battery",
-      "mm": 200,
-      "text": "זרם טעינה עד 10 אמפר",
-      "inferred": true
-     }
-    ],
-    "why": "לפי TI הלוח מתחמם מאוד: מעל 100 וואט צריך ניטור חום; בזרם 10 אמפר הסליל והטרנזיסטורים מתחממים בכ-40 מעלות. יש רכיבים גם בצד התחתון, לכן מתקינים על עמודונים ולא צמוד למשטח.",
-    "zone": "עד 200 מ\"מ מהסוללה, אבל לפחות 30 מ\"מ ממנה.",
-    "orient": "שטוח, על עמודונים, הצד העליון פתוח לאוויר.",
-    "source": "TI SLUUCT7 (מדריך BQ25756EVM); פורום TI E2E 1549269"
-   },
    "buck": {
     "heat": "src",
     "near": [
@@ -4610,33 +4344,21 @@
     "orient": "לא משנה (אנטנה פנימית).",
     "source": "Tylogy (דף המוצר, אנטנה פנימית)"
    },
-   "modem": {
-    "why": "המודם נכנס לחריץ Mini PCIe שבתוך המחשב, ולכן לא מצויר בנפרד.",
-    "zone": "בתוך המחשב.",
-    "orient": "בתוך המחשב.",
-    "source": "Radxa AIRbox Q900 (Mini PCIe ל-4G/5G); טופס רותם שורה 20"
-   },
-   "gps": {
-    "heat": "sens",
-    "near": [],
-    "why": "ArduSimple: לוח ה-RTK צריך להיות בקופסה בלי מאוורר, כי זרימת אוויר פוגעת בביצועים. לכן לפחות 30 מ\"מ מהמחשב (שיש בו מאוורר) וממקורות חום. הוא מחובר לאנטנה בכבל קואקסיאלי, ולכן אין צורך שיהיה צמוד לתורן.",
-    "zone": "לפחות 30 מ\"מ מהמחשב וממקורות חום.",
-    "orient": "שטוח.",
-    "source": "ArduSimple GNSS antenna installation guide"
-   },
    "gpsant": {
     "sky": true,
     "why": "האנטנה צריכה לראות את כל השמיים. משטח האנטנה צריך להיות מקביל לאופק (פונה למעלה). לכן היא בראש התורן הזקוף, ושום דבר לא מעליה.",
     "zone": "בראש התורן.",
     "orient": "זקופה, פונה לשמיים.",
-    "source": "ArduSimple GNSS antenna installation guide"
+    "source": "ArduSimple GNSS antenna installation guide",
+    "near": []
    },
    "mast": {
     "wall": "edge",
     "why": "התורן מרים את האנטנה מעל העמדה. מוצג פתוח (זקוף). בהעברה הוא מתקפל.",
     "zone": "בקצה המגש, כדי שלא יסתיר רכיבים.",
     "orient": "זקוף כשהעמדה עובדת.",
-    "source": "טופס רותם שורה 13"
+    "source": "טופס רותם שורה 13",
+    "near": []
    },
    "drum": {
     "axis": "exit",
@@ -4670,7 +4392,7 @@
       "inferred": true
      },
      {
-      "id": "jrk",
+      "id": "ebox_st",
       "mm": 100,
       "text": "חוטי המנוע לבקר",
       "inferred": true
@@ -4680,21 +4402,6 @@
     "zone": "צמוד לדופן התוף, על אותו ציר.",
     "orient": "ציר אופקי, באותו כיוון כמו התוף.",
     "source": "Pololu #4753"
-   },
-   "jrk": {
-    "heat": "src",
-    "near": [
-     {
-      "id": "winchmotor",
-      "mm": 100,
-      "text": "חוטי המנוע",
-      "inferred": true
-     }
-    ],
-    "why": "עד 2.6 אמפר רציף בלי צלע קירור. Pololu ממליצה על זרימת אוויר יותר מצלע.",
-    "zone": "עד 100 מ\"מ מהמנוע; לא ליד הסוללה.",
-    "orient": "שטוח, צד הרכיבים פתוח לאוויר.",
-    "source": "Pololu Jrk G2 21v3"
    },
    "forj": {
     "axis": "exit",
@@ -4742,7 +4449,7 @@
       "inferred": false
      },
      {
-      "id": "daq",
+      "id": "ebox_st",
       "mm": 100,
       "text": "חוטי התא (550 מ\"מ) ללוח הקריאה",
       "inferred": true
@@ -4753,25 +4460,44 @@
     "orient": "לאורך כיוון היציאה; הכוח מאונך לו.",
     "source": "Phidgets Load Cell Guide; דף הנתונים 3133"
    },
-   "daq": {
+   "spare1": {
+    "heat": "sens",
+    "service": true,
+    "near": [],
+    "why": "סוללה נשלפת, מונחת בעמדה בלי חיבור. צריכה גישה חופשית להוצאה, ורחוקה ממקורות חום כמו סוללת הכלי.",
+    "zone": "גישה חופשית. לפחות 30 מ\"מ ממחשב, מטען, ממיר ומנוע.",
+    "orient": "לא משנה (הנחה שלי).",
+    "source": "פריסה 18.11; כללי חום כמו סוללת הכלי"
+   },
+   "spare2": {
+    "heat": "sens",
+    "service": true,
+    "near": [],
+    "why": "סוללה נשלפת, מונחת בעמדה בלי חיבור. צריכה גישה חופשית להוצאה, ורחוקה ממקורות חום כמו סוללת הכלי.",
+    "zone": "גישה חופשית. לפחות 30 מ\"מ ממחשב, מטען, ממיר ומנוע.",
+    "orient": "לא משנה (הנחה שלי).",
+    "source": "פריסה 18.11; כללי חום כמו סוללת הכלי"
+   },
+   "ebox_st": {
+    "heat": "src",
     "near": [
+     {
+      "id": "winchmotor",
+      "mm": 100,
+      "text": "בקר הכננת (Jrk) בתוך התיבה, קרוב למנוע",
+      "inferred": true
+     },
      {
       "id": "loadcell",
       "mm": 100,
-      "text": "חוטי התא",
+      "text": "לוח הקריאה (DAQ) בתוך התיבה, קרוב לתא העומס",
       "inferred": true
      }
     ],
-    "why": "קורא את תא העומס.",
-    "zone": "עד 100 מ\"מ מהתא.",
-    "orient": "לא משנה.",
-    "source": "טופס רותם שורה 6"
-   },
-   "magconn": {
-    "why": "מחבר מגנטי של Rosenberger נצמד לבד, בלי כוח. הוא נכנס בחור של 25 מ\"מ בדופן, ופונה החוצה אל הכלי. מקומו המדויק תלוי במיקום המשטח, ולכן אין לו כלל במגש.",
-    "zone": "בדופן שפונה אל הכלי (לא במגש).",
-    "orient": "פונה החוצה, אל הכלי.",
-    "source": "Rosenberger RoPD (עלון 2016, מקור ישן)"
+    "why": "התיבה כוללת את המטען, שמתחמם מאוד (לפי TI, בזרם 10 אמפר כ-40 מעלות), ולכן על עמודונים ופתוחה לאוויר. בגלל הבקר ולוח הקריאה שבתוכה היא גם קרובה למנוע הכננת ולתא העומס (הסקה שלי). אין סוללה בעמדה: הטעינה ממקור חשמל בכבל (החלטת שרון 20.11).",
+    "zone": "עד 100 מ\"מ ממנוע הכננת ומתא העומס. על עמודונים, פתוחה לאוויר.",
+    "orient": "שטוחה, הצד העליון פתוח לאוויר.",
+    "source": "TI SLUUCT7; פריסה 18.11. הקרבה לכננת ולתא העומס: הסקה שלי"
    }
   },
   "sources": [
