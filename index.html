@@ -3863,7 +3863,7 @@ function layout(c){
   const base=placed.slice();
   const run=Hw=>{placed.length=0;base.forEach(b=>placed.push(b));const segs=segs0.map(s=>({...s,hei:Math.min(Hw,s.hmax)}));rest.forEach(it=>it.unfit=false);
   const hipDone=new Set();rest.forEach(it=>{if(hipDone.has(it))return;
-    const r=tgtFor(c,it);it.rot=(r.rot||[0,0,0]).slice();const e=ext(it),pref=segIdx(c,r.s);
+    const r=tgtFor(c,it);it.rot=(r.rot||[0,0,0]).slice();delete it.rotBase;const e=ext(it),pref=segIdx(c,r.s);
     if(it.cid==='gimbal'){const m=c.shell.gAt||'top';
       if(m!=='top'){const s2=m==='front'?segs[segs.length-1]:segs[0];it.pos=[s2.cx+(m==='front'?1:-1)*(s2.len/2+e[0]/2+(c.shell.gArm||0)),Math.max(e[1]/2,s2.hei/2),0]}
       else{const sg=segs[pref];it.pos=[sg.cx,sg.hei+e[1]/2,0]}
@@ -5066,6 +5066,8 @@ function facing(c,it){
     if(u.down){d=norm([d[0],-1,d[2]]);nt='זווית ההטיה למטה לא כתובה בכרטיס. בציור 45° (הנחה שלי, רק לתצוגה).'}
     const s=(f==='+y'?10:0)+dot(norm([d[0],0,d[2]]),out);
     if(s>bs){bs=s;best=d;note=nt}});
+  if(best&&it.rotBase){/* 20.11 (Sharon): after a manual rotation the facing arrow, lenses and the e-stop button turn with the part */
+    const E=r=>new THREE.Quaternion().setFromEuler(new THREE.Euler(r[0]*Math.PI/2,r[1]*Math.PI/2,r[2]*Math.PI/2)),q=E(it.rot).multiply(E(it.rotBase).invert()),v=V3(best).applyQuaternion(q);best=[v.x,v.y,v.z]}
   return best?{d:norm(best),note}:null}
 /* point in the middle of the face that looks out (world coordinates, with the belly clearance) */
 function faceOf(c,it,clear){const f=facing(c,it);if(!f)return null;const p=P(c,it),e=ext(it),hd=(Math.abs(f.d[0])*e[0]+Math.abs(f.d[1])*e[1]+Math.abs(f.d[2])*e[2])/2;
@@ -5371,7 +5373,7 @@ function renderPop(){
   row.onclick=e=>{const a=e.target.dataset.a;if(!a)return;if(a==='card'){openCard(it.cid);return}
     if(a==='det'){showFields=!showFields;renderPop();return}
     snap();
-    if(a==='rot'||a==='rotv'){const ax=a==='rot'?1:(V.mode==='front'?0:2);it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
+    if(a==='rot'||a==='rotv'){const ax=a==='rot'?1:(V.mode==='front'?0:2);if(!it.rotBase)it.rotBase=it.rot.slice();it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
     if(a==='dup'){const n=JSON.parse(JSON.stringify(it));n.id=uid();n.manual=false;n.locked=false;c.items.push(n);layout(c);sel=n.id}
     if(a==='del'){c.items.splice(c.items.indexOf(it),1);sel=null}
     if(a==='lock'){it.locked=!it.locked;if(it.locked)it.manual=true;toast(it.locked?'המקום נעול. הסידור יסתדר סביבו':'הנעילה בוטלה')}
