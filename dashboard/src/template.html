@@ -1970,10 +1970,12 @@ function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group
     parts.forEach(o=>{if(o===p)return;const b=o.bb;if([0,1,2].every(k=>s.b.mn[k]<b.mx[k]-.5&&b.mn[k]<s.b.mx[k]-.5))blocked.push(name(c,p.it)+' / '+name(c,o.it))});
     mem.forEach(m=>{if(p.rails&&m.id.startsWith('rail'+p.id))return;for(let f=0;f<=20;f++){const q=lerp(m.a,m.b,f/20);if(inB(q,s.b,m.r-.5)&&!inB(q,p.bb,m.r+1)){blocked.push(name(c,p.it)+' / שלד');break}}})});
   /* draw */
-  mem.forEach(m=>{const t=tubeM(m.a,m.b,m.r,m.k==='rail'?SMAT.rail:SMAT.main);if(t)gs[m.seg].add(t);[m.a,m.b].forEach(e=>{const s=new THREE.Mesh(new THREE.SphereGeometry(m.r,20,14),m.k==='rail'?SMAT.rail:SMAT.main);s.position.set(e[0],e[1],e[2]);gs[m.seg].add(s)})});
+  parts.forEach(p=>{p.c0=p.bb.mn.map((v,i)=>(v+p.bb.mx[i])/2);p.follow=[]});
+  mem.forEach(m=>{const own=m.k==='rail'?parts.find(p=>m.id.startsWith('rail'+p.id)):null,keep=o=>{if(own){o.userData.p0=o.position.clone();own.follow.push(o)}};
+    const t=tubeM(m.a,m.b,m.r,m.k==='rail'?SMAT.rail:SMAT.main);if(t){gs[m.seg].add(t);keep(t)}[m.a,m.b].forEach(e=>{const s=new THREE.Mesh(new THREE.SphereGeometry(m.r,20,14),m.k==='rail'?SMAT.rail:SMAT.main);s.position.set(e[0],e[1],e[2]);gs[m.seg].add(s);keep(s)})});
   plates.forEach(pl=>{const b=pl.bb,m=new THREE.Mesh(rrGeo(b.mx[0]-b.mn[0],b.mx[1]-b.mn[1],b.mx[2]-b.mn[2],1.5),SMAT.plate);m.position.set((b.mn[0]+b.mx[0])/2,(b.mn[1]+b.mx[1])/2,0);gs[pl.seg].add(m)});
-  let La=0,nA=0;parts.forEach(p=>p.tubes.forEach(t=>{nA++;if(!t.stub){const m=tubeM(t.a,t.b,RA,SMAT.tube);if(m)gs[p.seg].add(m);La+=L3(t.a,t.b)}
-    const pad=new THREE.Mesh(new THREE.CylinderGeometry(9,9,3,24),SMAT.plate),dv=V3(t.b).sub(V3(t.a));pad.position.set(t.b[0],t.b[1],t.b[2]);if(dv.lengthSq()>.1)pad.quaternion.setFromUnitVectors(UPV,dv.normalize());gs[p.seg].add(pad)}));
+  let La=0,nA=0;parts.forEach(p=>p.tubes.forEach(t=>{nA++;t.grp=gs[p.seg];if(!t.stub){const m=tubeM(t.a,t.b,RA,SMAT.tube);if(m){gs[p.seg].add(m);t.mesh=m}La+=L3(t.a,t.b)}
+    const pad=new THREE.Mesh(new THREE.CylinderGeometry(9,9,3,24),SMAT.plate),dv=V3(t.b).sub(V3(t.a));pad.position.set(t.b[0],t.b[1],t.b[2]);if(dv.lengthSq()>.1)pad.quaternion.setFromUnitVectors(UPV,dv.normalize());gs[p.seg].add(pad);t.pad=pad}));
   g.traverse(o=>{o.raycast=()=>{}});g.position.y=clear;
   const AL=.0027,wT=(r,t,L)=>Math.PI*(r*r-(r-t)*(r-t))*L*AL;let Lm=0,Lr=0;mem.forEach(m=>{const L=L3(m.a,m.b);if(m.k==='rail')Lr+=L;else Lm+=L});
   const info={tubes:nA,La:Math.round(La),Lm:Math.round(Lm),Lr:Math.round(Lr),w:Math.round(wT(8,1.5,Lm)+wT(5,1,Lr)+wT(5,1,La)),noTube:noTube.map(p=>name(c,p.it)),blocked,direct:parts.filter(p=>p.direct).map(p=>name(c,p.it)),parts};
@@ -2175,15 +2177,24 @@ function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.la
     const tw=new THREE.Vector3(hw.x+d.x*off,lift,hw.z+d.z*off),tl=tw.applyMatrix4(_wm.copy(Mi).invert()),z=L.pz.hip[2],hp=L.pz.hip;
     const k=ik([hp[0],hp[1]],[tl.x,tl.y],L.T,L.Sn,L.dir);
     walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)})}
-/* 19.11 (Sharon: the 3D got stuck on every change): the frame search is the slow part (~0.2 s). It is cached per configuration, and while a part
-   or slider keeps moving the last frame stays on screen; the frame is rebuilt once the movement stops. */
-const FRC={key:'',fr:null,t:0,to:0};
-function frameFor(c,clear){const key=JSON.stringify(c)+'|'+clear;if(FRC.fr&&FRC.key===key)return FRC.fr;const now=performance.now(),busy=now-FRC.t<300;FRC.t=now;
-  if(busy&&FRC.fr){clearTimeout(FRC.to);FRC.to=setTimeout(()=>{FRC.t=0;build3D()},320);return FRC.fr}
-  if(FRC.fr)FRC.fr.g.traverse(x=>{if(x.geometry)x.geometry.dispose()});const fr=simFrame(c,clear);fr.g.userData.keep=1;FRC.key=key;FRC.fr=fr;return fr}
+/* 19.11 (Sharon: the 3D got stuck on every change): the frame search is the slow part. It is cached per configuration, and while the mouse or finger
+   is down (dragging a part, a handle or a slider) the last frame stays on screen and only follows the moved parts (frameFollow); the full frame
+   is worked out again when the pointer is released. */
+const FRC={key:'',fr:null,stale:false},PTR={down:false};
+document.addEventListener('pointerdown',()=>{PTR.down=true},true);
+['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,()=>{if(!PTR.down)return;PTR.down=false;if(FRC.stale)requestAnimationFrame(()=>{if(FRC.stale)build3D()})},true));
+function frameFor(c,clear){const key=JSON.stringify(c)+'|'+clear;if(FRC.fr&&FRC.key===key){FRC.stale=false;return FRC.fr}
+  if(PTR.down&&FRC.fr){FRC.stale=true;return FRC.fr}
+  if(FRC.fr)FRC.fr.g.traverse(x=>{if(x.geometry)x.geometry.dispose()});const fr=simFrame(c,clear);fr.g.userData.keep=1;FRC.key=key;FRC.fr=fr;FRC.stale=false;return fr}
+function frameFollow(fr,c){(fr.info.parts||[]).forEach(p=>{const it=c.items.find(i=>i.id===p.id);if(!it||!p.c0)return;const a=aabb(c,it),d=[0,1,2].map(k=>(a.min[k]+a.max[k])/2-p.c0[k]);
+  const moved=Math.hypot(...d)>.05;if(!moved&&!p.wasMoved)return;p.wasMoved=moved;
+  p.tubes.forEach(t=>{const b=t.b.map((v,k)=>v+d[k]);if(t.mesh){t.grp.remove(t.mesh);t.mesh.geometry.dispose();t.mesh=null}
+    if(!t.stub){const m=tubeM(t.a,b,5,SMAT.tube);if(m){m.raycast=()=>{};t.grp.add(m);t.mesh=m}}
+    if(t.pad){t.pad.position.set(b[0],b[1],b[2]);const dv=V3(b).sub(V3(t.a));if(dv.lengthSq()>.1)t.pad.quaternion.setFromUnitVectors(UPV,dv.normalize())}});
+  (p.follow||[]).forEach(o=>o.position.copy(o.userData.p0).add(new THREE.Vector3(d[0],d[1],d[2])))})}
 function build3D(){
   clearRoot(root);const c=cfg(),{segs,clear}=WK.on?walkBuild(c):fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c),noShell:V.frame});
-  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameFor(c,clear);fr.gs.forEach(q=>{q.position.y=0;fr.g.add(q)});root.add(fr.g);fi.textContent=simFrameNote(fr.info)}else if(!WK.on)fi.textContent='';
+  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameFor(c,clear);frameFollow(fr,c);fr.gs.forEach(q=>{q.position.y=0;fr.g.add(q)});root.add(fr.g);fi.textContent=simFrameNote(fr.info)}else if(!WK.on)fi.textContent='';
   if(V.fab&&!WK.on)root.add(fabricShell(c,clear));
   /* colours are sRGB, the renderer works in linear light: convert once; parts cast and catch shadows */
   root.traverse(o=>{if(!o.isMesh&&!o.isLine)return;const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m&&m.color&&!m.userData.lin){m.color.convertSRGBToLinear();m.userData.lin=1}});
@@ -2543,14 +2554,18 @@ W3.addEventListener('pointerdown',ev=>{if(!(V.mode==='3d'||V.mode==='win')||ev.b
   if(it&&it.locked)toast('נעול. אפשר לבטל את הנעילה בחלון שלמטה');
   if(it&&!it.auto&&!it.locked&&!PRES){const vert=ev.shiftKey,n=new THREE.Vector3(0,1,0);
     if(vert){cam.getWorldDirection(n);n.y=0;if(n.lengthSq()<1e-4)n.set(0,0,1);n.normalize()}
-    d3={it,plane:new THREE.Plane().setFromNormalAndCoplanarPoint(n,h.point),p0:h.point.clone(),pos0:it.pos.slice(),vert,moved:false};
-    oc.enabled=false;W3.setPointerCapture(ev.pointerId)}
+    d3={it,plane:new THREE.Plane().setFromNormalAndCoplanarPoint(n,h.point),p0:h.point.clone(),pos0:it.pos.slice(),vert,moved:false,sx:ev.clientX,sy:ev.clientY,acc:new THREE.Vector3(),last:null};
+    /* stop the camera glide at once, so the view does not keep drifting under the part while it is dragged */
+    oc.enableDamping=false;oc.update();oc.enabled=false;W3.setPointerCapture(ev.pointerId)}
   renderLight()},true);
 W3.addEventListener('pointermove',ev=>{if(!d3||!d3.it)return;rayAt(ev);const pt=new THREE.Vector3();if(!ray.ray.intersectPlane(d3.plane,pt))return;
-  const d=pt.sub(d3.p0);if(!d3.moved&&d.length()<1.5)return;if(!d3.moved){snap();d3.moved=true}
+  /* 20.11 (Sharon: parts jumped instead of moving smoothly): the move adds up the steps between one pointer position and the next, so a camera
+     that was still gliding when the part was grabbed, or a ray almost parallel to the drag plane, can no longer throw the part far away */
+  if(!d3.moved){if(Math.hypot(ev.clientX-d3.sx,ev.clientY-d3.sy)<3)return;snap();d3.moved=true;d3.last=pt.clone();return}
+  const st=pt.clone().sub(d3.last);d3.last.copy(pt);const sl=st.length(),lim=60;if(sl>lim)st.multiplyScalar(lim/sl);d3.acc.add(st);const d=d3.acc;
   const q=d3.pos0,c=cfg(),want=d3.vert?[q[0],q[1]+d.y,q[2]]:[q[0]+d.x,q[1],q[2]+d.z];
   d3.want=want;moveItem(c,d3.it,want,d3.vert?[false,true,false]:[true,false,true]);computeTops(c);schedule()});
-const end3=ev=>{if(d3&&d3.it){oc.enabled=true;if(d3.moved){save();refresh();blockedNote(cfg(),d3.it,d3.want)}}else if(d3&&d3.click&&sel&&Math.hypot(ev.clientX-d3.x,ev.clientY-d3.y)<4){sel=null;renderLight()}d3=null};
+const end3=ev=>{if(d3&&d3.it){oc.enabled=true;oc.enableDamping=true;if(d3.moved){save();refresh();blockedNote(cfg(),d3.it,d3.want)}}else if(d3&&d3.click&&sel&&Math.hypot(ev.clientX-d3.x,ev.clientY-d3.y)<4){sel=null;renderLight()}d3=null};
 W3.addEventListener('pointerup',end3);W3.addEventListener('pointercancel',end3);
 
 /* ---------- panels ---------- */
