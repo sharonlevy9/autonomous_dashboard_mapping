@@ -6039,7 +6039,7 @@ if(b)b.addEventListener('click',function(){cur=cur==='light'?'dark':'light';appl
 var ctrl=document.getElementById('ctrl'),rail=document.getElementById('rail');if(!ctrl||!rail)return;
 ctrl.setAttribute('data-show','body');
 function mark(){var sec='body';Array.prototype.forEach.call(ctrl.children,function(el){
-  if(el.classList.contains('cardh')&&/^\s*רגליים/.test(el.textContent))sec='legs';el.setAttribute('data-sec',sec)})}
+  if(el.classList.contains('cardh')&&/^\s*רגליים/.test(el.textContent))sec='legs';if(el.classList.contains('hgt'))sec='body';el.setAttribute('data-sec',sec)})}
 new MutationObserver(mark).observe(ctrl,{childList:true});mark();
 rail.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var k=b.getAttribute('data-k');
   if(k==='lab'){var x=document.getElementById('legsbtn');if(x)x.click();return}
