@@ -1849,7 +1849,8 @@ function clearRoot(r){while(r.children.length)dispKeep(r.children.pop())}
    layout rules are not changed by this block. ===== */
 const LIN=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return c};
 function sm(col,met,rou,extra){const m=new THREE.MeshStandardMaterial(Object.assign({color:LIN(col),metalness:met,roughness:rou},extra||{}));m.userData.lin=1;return m}
-const SMAT={main:sm(0x3a4049,.75,.32),tube:sm(0xc4cad2,.9,.28),rail:sm(0xe08a1e,.6,.35),plate:sm(0xaab2bc,.85,.3),motor:sm(0x2b2f35,.6,.38),rotor:sm(0xb87333,.8,.3),
+/* 20.11 (Sharon): the whole frame in one aluminium colour */
+const ALU=0xc4cad2,SMAT={main:sm(ALU,.9,.3),tube:sm(ALU,.9,.3),rail:sm(ALU,.9,.3),plate:sm(ALU,.9,.3),motor:sm(0x2b2f35,.6,.38),rotor:sm(0xb87333,.8,.3),
   cross:sm(0x2f6fed,.4,.35,{side:THREE.DoubleSide}),link:sm(0x7d8794,.8,.3),rubber:sm(0x1b1d20,0,.9),glass:sm(0x0e1a24,.2,.08),red:sm(0xd0463b,.15,.45),gim:sm(0x7b5cc9,.35,.45,{side:THREE.DoubleSide})};
 const CAP=8,SVC_IDS=['battery','computer','safety'];
 /* rounded box (same method as three.js RoundedBoxGeometry, 3 segments per corner) */
@@ -1860,6 +1861,11 @@ function rrGeo(w,h,d,r){r=Math.max(.3,Math.min(r==null?Math.min(3,Math.min(w,h,d
 function cylGeo(d,l,ax,seg,open){const g=new THREE.CylinderGeometry(d/2,d/2,l,seg||40,1,!!open);if(ax==='x')g.rotateZ(Math.PI/2);if(ax==='z')g.rotateX(Math.PI/2);return g}
 const UPV=new THREE.Vector3(0,1,0),V3=a=>new THREE.Vector3(a[0],a[1],a[2]);
 function alongGeo(geo,a,b){const A=V3(a),B=V3(b),m=new THREE.Mesh(geo);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(UPV,B.clone().sub(A).normalize());return m}
+/* 20.11 (Sharon: the rail should look like a rail): a C-channel 14 wide, 9 high, 1.5 mm wall, open toward the battery (my sizes) */
+function railM(a,b,up){const d=V3(b).sub(V3(a)),L=d.length();if(L<1)return null;const W=7,H=9,T=1.5,s=new THREE.Shape();
+  s.moveTo(-W,0);s.lineTo(W,0);s.lineTo(W,H);s.lineTo(W-3.5,H);s.lineTo(W-3.5,H-T);s.lineTo(W-T,H-T);s.lineTo(W-T,T);s.lineTo(-W+T,T);s.lineTo(-W+T,H-T);s.lineTo(-W+3.5,H-T);s.lineTo(-W+3.5,H);s.lineTo(-W,H);s.closePath();
+  const g=new THREE.ExtrudeGeometry(s,{depth:L,bevelEnabled:false});g.translate(0,-H/2,0);const z=d.normalize(),yv=new THREE.Vector3(0,up,0);let x=new THREE.Vector3().crossVectors(yv,z);
+  if(x.lengthSq()<1e-6)x.set(1,0,0);x.normalize();const y=new THREE.Vector3().crossVectors(z,x),m=new THREE.Mesh(g,SMAT.rail);m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z));m.position.set(a[0],a[1],a[2]);return m}
 function tubeM(a,b,r,mat){const L=V3(a).distanceTo(V3(b));if(L<.5)return null;const m=alongGeo(new THREE.CylinderGeometry(r,r,L,24),a,b);m.material=mat;return m}
 /* light of a room (port of three.js RoomEnvironment, r128) for reflections on the metal parts */
 function roomEnv(){const sc=new THREE.Scene(),geo=new THREE.BoxGeometry();geo.deleteAttribute('uv');const rm=new THREE.MeshStandardMaterial({side:THREE.BackSide}),bm=new THREE.MeshStandardMaterial();
@@ -1941,8 +1947,8 @@ function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group
     [[s.i>0,x0+3],[s.i<n-1,x1-3]].forEach(([on,x])=>{if(on){const h=Math.min(125,s.hei*.85);plates.push({seg:s.i,bb:{mn:[x-3,sy-h/2,-25],mx:[x+3,sy+h/2,25]}})}});
     /* battery rails along the removal direction, on the side of the battery that faces the spine */
     ps.filter(p=>p.it.cid==='battery').forEach(p=>{p.rails=true;const key=svcDir(c,p.it),bb=p.bb,cy=(bb.mn[1]+bb.mx[1])/2,y=key==='+y'?bb.mn[1]-RA:(cy<sy?bb.mx[1]+RA:bb.mn[1]-RA),W=s.wid/2-20;
-      if(key==='+z'||key==='-z'||key==='+y'){[bb.mn[0]+12,bb.mx[0]-12].forEach((x,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[x,y,-W],b:[x,y,W],r:RA,k:'rail'}))}
-      else{const zc=(bb.mn[2]+bb.mx[2])/2,dz=(bb.mx[2]-bb.mn[2])/2-12;[zc-dz,zc+dz].forEach((z,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[key==='-x'?x0+3:bb.mn[0],y,z],b:[key==='+x'?x1-3:bb.mx[0],y,z],r:RA,k:'rail'}))}})});
+      if(key==='+z'||key==='-z'||key==='+y'){[bb.mn[0]+12,bb.mx[0]-12].forEach((x,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[x,y,-W],b:[x,y,W],r:RA,k:'rail',up:cy>y?1:-1}))}
+      else{const zc=(bb.mn[2]+bb.mx[2])/2,dz=(bb.mx[2]-bb.mn[2])/2-12;[zc-dz,zc+dz].forEach((z,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[key==='-x'?x0+3:bb.mn[0],y,z],b:[key==='+x'?x1-3:bb.mx[0],y,z],r:RA,k:'rail',up:cy>y?1:-1}))}})});
   /* parts touching the spine are bolted straight to it */
   parts.forEach(p=>{if(p.rails||p.hip)return;const sp=mem.find(m=>m.id==='spine'+p.seg);for(let f=0;f<=20;f++)if(inB(lerp(sp.a,sp.b,f/20),p.bb,RM+.5)){p.direct=true;break}});
   const svcB=parts.filter(p=>svcNeed(p.it)).map(p=>{const key=svcDir(c,p.it),d=SVCD[key],k=d.findIndex(v=>v!==0),dist=p.bb.mx[k]-p.bb.mn[k]+30;p.svc={key,d,dist};
@@ -1987,6 +1993,7 @@ function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group
   /* draw */
   parts.forEach(p=>{p.c0=p.bb.mn.map((v,i)=>(v+p.bb.mx[i])/2);p.follow=[]});
   mem.forEach(m=>{const own=m.k==='rail'?parts.find(p=>m.id.startsWith('rail'+p.id)):null,keep=o=>{if(own){o.userData.p0=o.position.clone();own.follow.push(o)}};
+    if(m.k==='rail'){const r=railM(m.a,m.b,m.up||1);if(r){gs[m.seg].add(r);keep(r)}return}
     const t=tubeM(m.a,m.b,m.r,m.k==='rail'?SMAT.rail:SMAT.main);if(t){gs[m.seg].add(t);keep(t)}[m.a,m.b].forEach(e=>{const s=new THREE.Mesh(new THREE.SphereGeometry(m.r,20,14),m.k==='rail'?SMAT.rail:SMAT.main);s.position.set(e[0],e[1],e[2]);gs[m.seg].add(s);keep(s)})});
   plates.forEach(pl=>{const b=pl.bb,m=new THREE.Mesh(rrGeo(b.mx[0]-b.mn[0],b.mx[1]-b.mn[1],b.mx[2]-b.mn[2],1.5),SMAT.plate);m.position.set((b.mn[0]+b.mx[0])/2,(b.mn[1]+b.mx[1])/2,0);gs[pl.seg].add(m)});
   let La=0,nA=0;parts.forEach(p=>p.tubes.forEach(t=>{nA++;t.grp=gs[p.seg];if(!t.stub){const m=tubeM(t.a,t.b,RA,SMAT.tube);if(m){gs[p.seg].add(m);t.mesh=m}La+=L3(t.a,t.b)}
