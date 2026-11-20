@@ -150,6 +150,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ctl:has(.num){grid-template-columns:74px 1fr 84px}
 .hgt{display:flex;gap:10px;align-items:center;padding:4px 18px 8px;font-size:14px}.hgt svg{width:54px;height:56px;flex:none}.hgt .m{font-size:14px;color:var(--muted)}
 .reset{margin:6px 18px 0}
+/* 20.11 (Sharon): moving parts or clicking buttons must not select text; text stays selectable in inputs, the card drawer and the dialogs */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select,[contenteditable="true"],#cdrawer,#modal,#guide,.guide,.selectable{-webkit-user-select:text;user-select:text}
 /* bottom strip */
 .strip{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 6px;align-items:stretch}
 .cfg{flex:none;width:190px;background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:8px 10px;display:flex;flex-direction:column;position:relative;text-align:start;border:2px solid transparent}
@@ -560,7 +563,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
   .vopts{font-size:13px}.vopts .seg button,.vopts .pill{min-height:30px;padding:2px 10px;font-size:13px}
   .stage{margin:6px 8px 0;min-height:0}
   .pop{min-height:0;padding:8px 14px;margin-top:6px;margin-bottom:0}
-  .strip{padding:4px 8px;height:84px;overflow:hidden;align-items:center}.cfg{width:150px;height:72px}.cfg svg{max-height:40px}.cfg .t{font-size:13px}
+  .strip{padding:4px 8px;height:84px;overflow-x:auto;overflow-y:hidden;align-items:center;scrollbar-width:thin}.cfg{width:150px;height:72px}.cfg svg{max-height:40px}.cfg .t{font-size:13px}
   .m3{min-height:230px}
   .row{min-height:38px;padding:4px 10px;font-size:15px}
 }
@@ -3053,7 +3056,7 @@ $('#walkbtn').onclick=()=>{const c=cfg();
 document.querySelectorAll('#stance button').forEach(b=>b.onclick=()=>{const c=cfg();if(c.legs.stance===b.dataset.s)return;snap();c.legs.stance=b.dataset.s;save();refresh(true)});
 document.querySelectorAll('#viewseg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function renderStrip(){
-  const st=$('#strip');st.innerHTML='';
+  const st=$('#strip');st.innerHTML='';if(!st.dataset.wh){st.dataset.wh=1;st.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&st.scrollWidth>st.clientWidth){st.scrollLeft+=(getComputedStyle(st).direction==='rtl'?-1:1)*e.deltaY;e.preventDefault()}},{passive:false})}
   S.configs.forEach((c,i)=>{
     const d=drawView(c,'side',{mini:true,bad:new Set()}),vb=viewBoxFit(d.b,2.4,40);
     const b=document.createElement('div');b.className='cfg'+(i===S.active?' on':'');b.tabIndex=0;b.setAttribute('role','button');
