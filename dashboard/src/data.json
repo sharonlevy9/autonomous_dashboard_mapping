@@ -34,26 +34,34 @@
    "power_budget": 30
   },
   {
-   "id": "safety",
-   "name": "בקר בטיחות",
-   "model": "TI AM2612 על לוח משלו (הערכה)",
-   "group": "computing",
+   "id": "ebox",
+   "name": "תיבת אלקטרוניקה",
+   "model": "מארז אחד: בקר בטיחות, סוללת גיבוי, דרייבר נוריות, לוח אוויר",
+   "group": "safety",
    "shape": "box",
    "dims": [
-    56,
-    18,
-    46
+    99,
+    20.5,
+    73.5
    ],
    "qty": 1,
-   "weight": 20,
+   "weight": 40,
    "power": null,
    "estimate": [
     "dims",
     "weight"
    ],
-   "note": "לוח 50×40×12 ו-20 ג': הערכות. החשמל עד כ-2.9 W יחד עם הגיבוי (טבלת סיכום). | 16.11: עם מארז 56×46×18 (מארז: 3 מ\"מ מכל צד ו-6 בגובה, הערכה שלי; סיכום הכרטיסים).",
-   "source": "כרטיסים, טבלת סיכום (14.11); טאב 01",
-   "why": null
+   "enclosure": true,
+   "contains": [
+    "safety",
+    "backup",
+    "leddriver",
+    "airboard"
+   ],
+   "note": "מארז (פריסה 18.11, חישוב שלי): בקר 50×40×12, שני לוחות 30×20×8 זה מעל זה לצדו, סוללת גיבוי Ø14.5×49.3 שוכבת לפניהם, רווח 3 מ\"מ, עוד 10 מ\"מ לחיבורים וכבלים ודופן 3 מ\"מ. משקל 40 ג': בקר 20 וגיבוי 20 (הערכות); משקל שני הלוחות לא ידוע. החיישנים והנוריות מתחברים אליה.",
+   "source": "פריסה 18.11 (lists_1811.py)",
+   "why": null,
+   "heat": null
   },
   {
    "id": "radar",
@@ -706,69 +714,6 @@
    }
   },
   {
-   "id": "backup",
-   "name": "סוללת גיבוי לבקר",
-   "model": "תא 14500 (ליתיום 3.7 V, 800 mAh, כ-2.96 Wh)",
-   "group": "power",
-   "shape": "cyl",
-   "dims": [
-    14.5,
-    49.3,
-    14.5
-   ],
-   "qty": 1,
-   "weight": 20,
-   "power": 0,
-   "estimate": [
-    "weight"
-   ],
-   "note": "תא קוטר 14.5 × 49.3. משקל כ-20 ג': הערכה.",
-   "source": "כרטיסים, טבלת סיכום (14.11); רשימות פריסה",
-   "why": null
-  },
-  {
-   "id": "leddriver",
-   "name": "דרייבר לנוריות",
-   "model": "לא נבחר דגם (הערכה)",
-   "group": "light",
-   "shape": "box",
-   "dims": [
-    30,
-    8,
-    20
-   ],
-   "qty": 1,
-   "weight": null,
-   "power": null,
-   "estimate": [
-    "dims"
-   ],
-   "note": "לא נבחר דגם. מידות הערכה 30×20×8.",
-   "source": "רשימות פריסה; סכמת חיווט 14.11",
-   "why": null
-  },
-  {
-   "id": "airboard",
-   "name": "לוח ממשק לחיישני אוויר",
-   "model": "לא נבחר דגם (הערכה)",
-   "group": "air",
-   "shape": "box",
-   "dims": [
-    36,
-    14,
-    26
-   ],
-   "qty": 1,
-   "weight": null,
-   "power": null,
-   "estimate": [
-    "dims"
-   ],
-   "note": "לא נבחר דגם. מידות הערכה 30×20×8. | 16.11: עם מארז 36×26×14 (הערכה שלי; סיכום הכרטיסים).",
-   "source": "כרטיסים, טבלת סיכום (14.11); טאב 13",
-   "why": null
-  },
-  {
    "id": "pdu",
    "name": "חלוקת הספק והגנה",
    "model": "2× Mean Well SKA60C-12 + לוח הגנה",
@@ -1035,16 +980,7 @@
    "source": "כרטיס 06"
   },
   {
-   "child": "backup",
-   "parent": "safety",
-   "type": "near",
-   "moves_with_parent": false,
-   "inferred": true,
-   "text": "סוללת הגיבוי מזינה רק את בקר הבטיחות, לכן קרוב אליו (הסקה שלי).",
-   "source": "סכמת חיווט 14.11"
-  },
-  {
-   "child": "airboard",
+   "child": "ebox",
    "parent": [
     "o2",
     "co2"
@@ -1052,7 +988,7 @@
    "type": "near",
    "moves_with_parent": false,
    "inferred": true,
-   "text": "לוח הממשק ליד חיישני האוויר, כדי שהחוטים קצרים (הסקה שלי).",
+   "text": "התיבה (עם לוח הממשק) קרובה לחיישני האוויר, כדי שהחוטים קצרים (הסקה שלי).",
    "source": "הסקה"
   },
   {
@@ -1212,14 +1148,14 @@
    },
    {
     "from": "computer",
-    "to": "leddriver",
+    "to": "ebox",
     "kind": "data",
     "interface": "דרייבר לא נבחר",
     "verified": false
    },
    {
     "from": "computer",
-    "to": "airboard",
+    "to": "ebox",
     "kind": "data",
     "interface": "לא אומת",
     "verified": false
@@ -1240,13 +1176,13 @@
    },
    {
     "from": "computer",
-    "to": "safety",
+    "to": "ebox",
     "kind": "data",
     "interface": "פעימת חיים (הסקה)",
     "verified": false
    },
    {
-    "from": "leddriver",
+    "from": "ebox",
     "to": [
      "drivelight",
      "doclight",
@@ -1257,7 +1193,7 @@
     "verified": false
    },
    {
-    "from": "airboard",
+    "from": "ebox",
     "to": [
      "o2",
      "co2"
@@ -1282,7 +1218,7 @@
     "to": "motors",
     "kind": "power",
     "voltage": "24 V",
-    "via": "safety",
+    "via": "ebox",
     "text": "דרך מנתק של בקר הבטיחות",
     "verified": true
    },
@@ -1305,8 +1241,7 @@
      "lidar",
      "o2",
      "co2",
-     "leddriver",
-     "airboard",
+     "ebox",
      "buzzer"
     ],
     "kind": "power",
@@ -1314,14 +1249,8 @@
     "verified": true
    },
    {
-    "from": "backup",
-    "to": "safety",
-    "kind": "power",
-    "verified": true
-   },
-   {
     "from": "estop",
-    "to": "safety",
+    "to": "ebox",
     "kind": "power",
     "verified": true
    }
@@ -1333,8 +1262,7 @@
    "title": "מחשב ובקר בטיחות",
    "items": [
     "computer",
-    "safety",
-    "backup"
+    "ebox"
    ],
    "short": "המחשב הוא המוח של הכלי: מקבל מידע מהמצלמות, מהלידאר ומה-IMU ומחליט מה לעשות. המועמד הראשי הוא Qualcomm IQ-9075, ולידו בקר בטיחות נפרד. בחירת המחשב הסופית תהיה בסוף, אחרי כל הרכיבים.",
    "needs": [
@@ -2393,7 +2321,7 @@
     "doclight",
     "irled",
     "amber",
-    "leddriver"
+    "ebox"
    ],
    "short": "האור שהכלי מביא איתו: לנסיעה, לתיעוד ולהתראה. במערה אין אור אחר.",
    "needs": [
@@ -2507,7 +2435,7 @@
    "items": [
     "o2",
     "co2",
-    "airboard"
+    "ebox"
    ],
    "short": "שני חיישנים קטנים שבודקים אם אפשר לנשום במערה, לפני שאדם נכנס.",
    "needs": [
@@ -2746,12 +2674,11 @@
     ],
     "official_drawing": false,
     "shared_with": [
-     "safety",
-     "backup"
+     "ebox"
     ]
    },
    {
-    "id": "safety",
+    "id": "ebox",
     "card": "01",
     "own_card": false,
     "filled": {
@@ -2772,8 +2699,7 @@
     ],
     "official_drawing": false,
     "shared_with": [
-     "computer",
-     "backup"
+     "computer"
     ]
    },
    {
@@ -2993,7 +2919,7 @@
      "doclight",
      "irled",
      "amber",
-     "leddriver"
+     "ebox"
     ]
    },
    {
@@ -3020,7 +2946,7 @@
      "drivelight",
      "irled",
      "amber",
-     "leddriver"
+     "ebox"
     ]
    },
    {
@@ -3047,7 +2973,7 @@
      "drivelight",
      "doclight",
      "irled",
-     "leddriver"
+     "ebox"
     ]
    },
    {
@@ -3070,7 +2996,7 @@
     "official_drawing": true,
     "shared_with": [
      "co2",
-     "airboard"
+     "ebox"
     ]
    },
    {
@@ -3093,7 +3019,7 @@
     "official_drawing": true,
     "shared_with": [
      "o2",
-     "airboard"
+     "ebox"
     ]
    },
    {
@@ -3170,83 +3096,7 @@
      "drivelight",
      "doclight",
      "amber",
-     "leddriver"
-    ]
-   },
-   {
-    "id": "backup",
-    "card": "01",
-    "own_card": false,
-    "filled": {
-     "short": true,
-     "needs": true,
-     "decided": true,
-     "why": true,
-     "explainer": false,
-     "alternatives": true,
-     "placement": true,
-     "problems": false,
-     "open": true,
-     "sources": true
-    },
-    "missing": [
-     "explainer",
-     "problems"
-    ],
-    "official_drawing": false,
-    "shared_with": [
-     "computer",
-     "safety"
-    ]
-   },
-   {
-    "id": "leddriver",
-    "card": "12",
-    "own_card": false,
-    "filled": {
-     "short": true,
-     "needs": true,
-     "decided": true,
-     "why": true,
-     "explainer": true,
-     "alternatives": true,
-     "placement": true,
-     "problems": false,
-     "open": true,
-     "sources": true
-    },
-    "missing": [
-     "problems"
-    ],
-    "official_drawing": true,
-    "shared_with": [
-     "drivelight",
-     "doclight",
-     "irled",
-     "amber"
-    ]
-   },
-   {
-    "id": "airboard",
-    "card": "13",
-    "own_card": false,
-    "filled": {
-     "short": true,
-     "needs": true,
-     "decided": true,
-     "why": true,
-     "explainer": true,
-     "alternatives": true,
-     "placement": true,
-     "problems": true,
-     "open": true,
-     "sources": true
-    },
-    "missing": [],
-    "official_drawing": true,
-    "shared_with": [
-     "o2",
-     "co2"
+     "ebox"
     ]
    }
   ],
@@ -3264,7 +3114,7 @@
     "text": "משקל: בקטלוג 5 גרם (הערכה) ובכרטיס 'לא יודע'."
    },
    {
-    "id": "safety",
+    "id": "ebox",
     "text": "מידות: בקטלוג 50×40×12 (עם מחברים, הערכה), בהחלטה בכרטיס לוח 30×30×5 (הערכה). לא הוכרע."
    },
    {

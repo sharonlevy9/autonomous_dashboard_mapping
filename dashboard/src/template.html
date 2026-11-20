@@ -1188,7 +1188,7 @@ function syncMotors(c){
     while(m.length>want[r]){const x=m.pop();c.items.splice(c.items.indexOf(x),1)}
     m.forEach((it,k)=>{it.cid=cid;it.auto=r;if(r==='knee'){it.leg=k;it.rot=[1,0,0]}else{it.gap=k>>1;it.jax=k&1;it.rot=it.jax?[0,0,0]:[1,0,0]}})});
 }
-const PRIO=['battery','lidar','gimbal','doccam','doclight','computer','safety','backup','navcam','thermal','radar','cliff','imu','drivelight','irled','amber','estop','buzzer','o2','co2','legmotor'];
+const PRIO=['battery','lidar','gimbal','doccam','doclight','computer','ebox','safety','backup','navcam','thermal','radar','cliff','imu','drivelight','irled','amber','estop','buzzer','o2','co2','legmotor'];
 function ruleFor(c,it){
   const same=c.items.filter(x=>x.cid===it.cid&&!x.role),i=same.indexOf(it),AB=i%2?'B':'A',sgn=i%2?1:-1;
   switch(it.cid){
@@ -1490,7 +1490,7 @@ function findSpot(c,sg,f,e,placed,zlock){
 /* parts whose card gives no fixed direction or end (only rules the app checks: wall, heat, centre of gravity, service, IMU with the lidar).
    Only these change place in "סידור מחדש". Parts with a direction or a fixed end in the card (lidar, cameras, radar, cliff sensors, lights,
    gimbal, leg motors) keep the place the card gives them. */
-const FREE=new Set(['computer','safety','imu','battery','amber','estop','buzzer','o2','co2','irled','backup','leddriver','airboard']);
+const FREE=new Set(['computer','ebox','safety','imu','battery','amber','estop','buzzer','o2','co2','irled','backup','leddriver','airboard']);
 const AIR=new Set(['o2','co2']);
 let SHUF=null;
 const tgtFor=(c,it)=>(SHUF&&SHUF[it.id])||(c.tgt&&c.tgt[it.id])||ruleFor(c,it);
@@ -3167,8 +3167,11 @@ addEventListener('keydown',e=>{
 /* step 4: parts turned to face their direction (navigation and thermal cameras face out of the end, documentation lights face the side).
    Once per saved configuration; the body grows only if something no longer fits. */
 const ROT4={navcam:[0,1,0],thermal:[0,1,0],doclight:[1,0,0]};
+/* 20.11 (Sharon): enclosures are shown as enclosures. The bare safety board, backup cell, LED driver and air board now live in one 'ebox'. */
+const BOXED={safety:'ebox',backup:1,leddriver:1,airboard:1};
+function boxFix(items,uidf){let seen=false,out=[];for(const i of items){const k=i.cid;if(BOXED[k]){if(k==='safety'&&!seen){seen=true;out.push(Object.assign({},i,{cid:'ebox'}))}continue}if(k==='ebox'){if(seen)continue;seen=true}out.push(i)}return out}
 function migrate4(){S.configs.forEach(c=>{if(c.orient4)return;c.orient4=true;let ch=false;c.items.forEach(i=>{if(ROT4[i.cid]&&i.rot.every(v=>!v)){i.rot=ROT4[i.cid].slice();ch=true}});if(ch)growIfNeeded(c,false)})}
-function migrate(){S.configs.forEach(c=>{if(!c.radar1){c.radar1=true;const rs=c.items.filter(i=>i.cid==='radar');if(rs.length>1){c.items=c.items.filter(i=>i.cid!=='radar'||i===rs[0]);rs[0].manual=false}}});S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
+function migrate(){S.configs.forEach(c=>{c.items=boxFix(c.items)});S.configs.forEach(c=>{if(!c.radar1){c.radar1=true;const rs=c.items.filter(i=>i.cid==='radar');if(rs.length>1){c.items=c.items.filter(i=>i.cid!=='radar'||i===rs[0]);rs[0].manual=false}}});S.configs.forEach(c=>{const old=c.items.some(i=>i.cid==='motor');c.items=c.items.filter(i=>i.cid!=='motor');legsOf(c);if(old||!c.items.some(i=>i.role==='hip')&&c.legs.count)layout(c)})}
 
 /* ---------- legs tab: play with leg length and proportions, then import into a configuration ---------- */
 function showTab(tab){LV.on=tab==='legs';$('.app').classList.toggle('tl',LV.on);
@@ -3274,7 +3277,7 @@ function simPreset(p){const c={id:uid(),name:p.name,shell:{n:2,per:true,segs:p.s
     p.items.filter(i=>i.mount).forEach(i=>c.items.push(newItem(i.cid,{rot:i.rot.slice(),manual:true,pos:[g.pos[0]+i.dpos[0],g.pos[1]+i.dpos[1],g.pos[2]+i.dpos[2]]})))}
   syncMotors(c);c.items.filter(i=>i.role==='hip').forEach(h=>{const q=p.hips.find(x=>x[0]===h.seg);if(!q)return;const e=ext(h),sg=shellOf(c)[h.seg];h.pos=[q[1],q[2],h.side*(sg.wid/2-e[2]/2)];h.manual=true});
   layout(c);return c}
-if(!S.sim1911){S.sim1911=true;SIM_PRESETS.forEach(p=>{try{S.configs.push(simPreset(p))}catch(e){console.error('preset',p.key,e)}});save()}
+if(!S.sim1911){S.sim1911=true;SIM_PRESETS.forEach(p=>{p.items=boxFix(p.items);try{S.configs.push(simPreset(p))}catch(e){console.error('preset',p.key,e)}});save()}
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
 /* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
