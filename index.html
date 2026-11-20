@@ -168,6 +168,13 @@ input,textarea,select,[contenteditable="true"],#cdrawer,#modal,#guide,.guide,.se
 .modal{position:fixed;inset:0;background:rgba(15,20,30,.4);display:none;align-items:center;justify-content:center;z-index:10;padding:16px}
 .modal.on{display:flex}
 .mcard{background:var(--card2);border-radius:20px;padding:22px;max-width:860px;width:100%;max-height:88vh;overflow:auto}
+/* 20.11 (Sharon): the sight and light panel floats at the side, the model stays visible and usable behind it */
+.sdock{position:fixed;z-index:9;display:none;width:360px;max-width:calc(100vw - 24px);max-height:min(520px,calc(100vh - 260px));overflow:auto;padding:14px 16px 16px;border-radius:18px;background:color-mix(in srgb,var(--t-surface,#1b1b20) 82%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 8px 30px rgba(0,0,0,.35);border:1px solid color-mix(in srgb,var(--t-text,#fff) 14%,transparent);color:var(--t-text);font-size:14px;line-height:1.5}
+.sdock.on{display:block}
+.sdock .sdh{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:grab;touch-action:none;margin:-4px -4px 6px;padding:4px}
+.sdock .sdh h2{margin:0;font-size:18px}
+.sdock .sdh:active{cursor:grabbing}
+.sdock table.it td{padding:3px 6px}
 .mcard h2{margin:0 0 12px;font-size:20px;font-weight:600}
 table{border-collapse:collapse;width:100%}
 th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:start}
@@ -736,7 +743,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     <ul>
      <li>גרירה מזיזה את הרכיב. הוא נצמד למקום חוקי קרוב: בתוך חוליה, בלי התנגשות, ובצמוד לקירות ולשכנים.</li>
      <li>בתלת מימד: גרירה מזיזה לאורך ולרוחב, <kbd>Shift</kbd> וגרירה מזיזה למעלה ולמטה. גרירת הרקע מסובבת, וגלגלת העכבר מקרבת.</li>
-     <li>מתחת לציור מופיע חלון הרכיב הנבחר, עם כפתורים: <b>נעילת מקום</b> (הסידור האוטומטי לא יזיז אותו), <b>סיבוב</b>, <b>שכפול</b>, <b>הסרה</b>, <b>כרטיס</b>, <b>פרטים</b> (שינוי מידות, משקל והספק) ו-<b>טווח ראייה וכיוון</b>. אחרי הזזה ידנית יש גם <b>למקום המומלץ</b>.</li>
+     <li>מתחת לציור מופיע חלון הרכיב הנבחר, עם כפתורים: <b>נעילת מקום</b> (הסידור האוטומטי לא יזיז אותו), <b>סיבוב אופקי 90°</b> (סביב הציר האנכי), <b>סיבוב אנכי 90°</b> (הטיה למעלה/למטה), <b>שכפול</b>, <b>הסרה</b>, <b>כרטיס</b>, <b>פרטים</b> (שינוי מידות, משקל והספק) ו-<b>טווח ראייה וכיוון</b>. אחרי הזזה ידנית יש גם <b>למקום המומלץ</b>.</li>
      <li>לכל רכיב יש מקום מומלץ, מסיבה טכנית שכתובה בחלון ("למה כאן").</li>
     </ul>
     <p class="tip">טעית? <kbd>Ctrl</kbd>+<kbd>Z</kbd> מבטל, ו-<kbd>Ctrl</kbd>+<kbd>Y</kbd> משחזר. אותם כפתורים יש בסרגל העליון.</p>
@@ -5360,11 +5367,11 @@ function renderPop(){
   const B=document.createElement('div');B.className='b';
   const row=document.createElement('div');row.className='btns';
   const lk=it.auto?'':'<button class="pill'+(it.locked?' on':'')+'" data-a="lock">'+(it.locked?'ביטול נעילה':'נעילת מקום')+'</button>';
-  row.innerHTML=lk+(it.auto||it.locked?'':it.role?(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''):'<button class="pill" data-a="rot">סיבוב</button><button class="pill" data-a="dup">שכפול</button><button class="pill" data-a="del">הסרה</button>'+(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''))+'<button class="pill" data-a="card">כרטיס</button><button class="pill" data-a="det">פרטים</button>';
+  row.innerHTML=lk+(it.auto||it.locked?'':it.role?(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''):'<button class="pill" data-a="rot">סיבוב אופקי 90°</button><button class="pill" data-a="rotv">סיבוב אנכי 90°</button><button class="pill" data-a="dup">שכפול</button><button class="pill" data-a="del">הסרה</button>'+(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''))+'<button class="pill" data-a="card">כרטיס</button><button class="pill" data-a="det">פרטים</button>';
   row.onclick=e=>{const a=e.target.dataset.a;if(!a)return;if(a==='card'){openCard(it.cid);return}
     if(a==='det'){showFields=!showFields;renderPop();return}
     snap();
-    if(a==='rot'){const ax=V.mode==='side'?2:V.mode==='front'?0:1;it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
+    if(a==='rot'||a==='rotv'){const ax=a==='rot'?1:(V.mode==='front'?0:2);it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
     if(a==='dup'){const n=JSON.parse(JSON.stringify(it));n.id=uid();n.manual=false;n.locked=false;c.items.push(n);layout(c);sel=n.id}
     if(a==='del'){c.items.splice(c.items.indexOf(it),1);sel=null}
     if(a==='lock'){it.locked=!it.locked;if(it.locked)it.manual=true;toast(it.locked?'המקום נעול. הסידור יסתדר סביבו':'הנעילה בוטלה')}
@@ -5583,18 +5590,23 @@ function lightModel(c){const cams=c.items.filter(i=>i.cid==='doccam'&&!i.unfit),
 function litFrac(M,beta,psi,d0,d1){let n=0,t=0;for(let d=d0;d<=d1;d+=10){const h=d*Math.tan(M.A*Math.PI/180);for(let j=0;j<=20;j++){t++;const z=M.cam.z-h+2*h*j/20;
   if(M.L.some(l=>{const xp=M.cam.x+d-l.x;if(xp<=0)return false;const side=Math.sign(l.z-M.cam.z)||1,ang=Math.atan2((z-l.z)*side,xp),aim=(90-psi)*Math.PI/180;return Math.abs(ang-aim)<=beta*Math.PI/180}))n++}}return t?100*n/t:0}
 function lightRange(M,beta){const ok=[];for(let psi=0;psi<=150;psi++)if(litFrac(M,beta,psi,300,1000)>=95)ok.push(psi);return ok.length?[ok[0],ok[ok.length-1]]:null}
+function sightDock(){let D=document.getElementById('sightP');if(!D){D=document.createElement('div');D.id='sightP';D.className='sdock';document.body.appendChild(D);
+    /* drag by the header */let dr=null;D.addEventListener('pointerdown',e=>{const h=e.target.closest('.sdh');if(!h||e.target.closest('button'))return;const r=D.getBoundingClientRect();dr={dx:e.clientX-r.left,dy:e.clientY-r.top};h.setPointerCapture(e.pointerId);e.preventDefault()});
+    D.addEventListener('pointermove',e=>{if(!dr)return;D.style.left=Math.max(0,Math.min(innerWidth-120,e.clientX-dr.dx))+'px';D.style.top=Math.max(0,Math.min(innerHeight-60,e.clientY-dr.dy))+'px'});
+    D.addEventListener('pointerup',()=>{dr=null});D.style.left='12px';D.style.top='112px'}
+  return D}
 function openSight(){const c=cfg();if(!(V.mode==='3d'||V.mode==='win')){/* the rays need the 3D model */}
   build3D();const sh=gimbalBlockShares(c),M=lightModel(c),beam=(cat.doclight&&cat.doclight.beam_deg)||114;
   const rows=sh?sh.map(r=>'<tr><td>'+esc(r.n)+'</td><td style="text-align:end">'+(r.v<1?'לא מוסתר':Math.round(r.v)+'%')+'</td><td class="m">'+esc(r.note)+'</td></tr>').join(''):'';
   const BETAS=[20,30,45,57],LR=M?BETAS.map(b=>{const r=lightRange(M,b);return{b,r,rec:r?[r[0],Math.min(r[0]+20,90)]:null}}):[];
-  $('#mcard').innerHTML='<h2>ראייה ותאורה</h2>'+
+  const D=sightDock();D.innerHTML='<div class="sdh"><h2>ראייה ותאורה</h2><button class="pill" id="sdclose" type="button" aria-label="סגירה">✕</button></div>'+
    '<h3 style="margin:8px 0 4px">כמה מהשדה של כל חיישן הגימבל מסתיר</h3>'+(sh?'<table class="it">'+rows+'</table><div class="m" style="margin-top:4px">קרניים מאמצע הפנים של החיישן לתוך שדה הראייה שלו, מול המודל של הגימבל (STEP של היצרן) ומצלמות התיעוד, עד 60 ס"מ. הגימבל ישר קדימה. הטיה למעלה יכולה להסתיר יותר.</div>':'<div class="m">אין גימבל בקונפיגורציה הזאת.</div>')+
    '<h3 style="margin:14px 0 4px">זווית תאורות התיעוד</h3>'+(M?'<div class="ctl"><span class="l">הטיה קדימה מהצד</span><input type="range" id="aimR" min="0" max="150" step="1" value="'+(c.docAim||0)+'"><b id="aimV">'+(c.docAim||0)+'°</b></div>'+
    '<div class="ctl"><span class="l">חצי זווית אלומה</span><select id="beamS">'+BETAS.map(b=>'<option value="'+b+'"'+(b===57?' selected':'')+'>'+b+'°'+(b===57?' ('+beam+'° מלאים, בלי עדשה, כרטיס 12)':'')+'</option>').join('')+'</select></div><div id="aimOut"></div>'+
    '<table class="it"><tr><td><b>חצי אלומה</b></td><td><b>מאיר מספיק</b></td><td><b>טווח מומלץ</b></td></tr>'+LR.map(x=>'<tr><td>'+x.b+'°</td><td>'+(x.r?x.r[0]+'°-'+x.r[1]+'°':'אף זווית')+'</td><td>'+(x.rec?x.rec[0]+'°-'+x.rec[1]+'°':'-')+'</td></tr>').join('')+'</table>'+
    '<div class="m" style="margin-top:4px">0° = האור פונה ישר הצידה, 90° = מקביל לכלי, מעל 90° נוטה לתוך הציר של המצלמה. "מאיר מספיק" = לפחות 95% מהתמונה מואר בין 30 ל-100 ס"מ. "מומלץ" = מהקצה התחתון עד 20° מעליו ולא מעל 90°: בזווית קטנה פחות אור נכנס לאזור שליד העדשה, ושם האבק מחזיר אור למצלמה (סנוור). האלומה עם עדשה לא ידועה. מצלמה 81° (כרטיס 07, לא ברור אם רוחב או אלכסון). חישוב דו-ממדי מלמעלה, הנחות שלי. הזווית שבוחרים כאן נשמרת בקונפיגורציה ומסובבת את התאורות בתלת מימד.</div>'
-   :'<div class="m">צריך מצלמות תיעוד ותאורות תיעוד בקונפיגורציה.</div>')+'<div class="btns" style="margin-top:12px"><button class="pill" id="mc">סגירה</button></div>';
-  $('#modal').classList.add('on');$('#mc').onclick=closeModal;
+   :'<div class="m">צריך מצלמות תיעוד ותאורות תיעוד בקונפיגורציה.</div>')+'';
+  D.classList.add('on');D.querySelector('#sdclose').onclick=()=>D.classList.remove('on');
   if(M){const r=$('#aimR'),bs=$('#beamS'),upd=()=>{const psi=+r.value,b=+bs.value;$('#aimV').textContent=psi+'°';
       $('#aimOut').innerHTML='<div class="m">בזווית הזאת: <b>'+Math.round(litFrac(M,b,psi,300,1000))+'%</b> מהתמונה מואר בין 30 ל-100 ס"מ, <b>'+Math.round(litFrac(M,b,psi,300,300))+'%</b> ב-30 ס"מ. אזור הסנוור (0-20 ס"מ מול העדשה) מואר <b>'+Math.round(litFrac(M,b,psi,10,200))+'%</b>.</div>'};
     let first=true;r.oninput=()=>{if(first){snap();first=false}c.docAim=+r.value;upd();build3D()};r.onchange=()=>{save();first=true};bs.onchange=upd;upd()}}
@@ -6027,7 +6039,7 @@ if(b)b.addEventListener('click',function(){cur=cur==='light'?'dark':'light';appl
 var ctrl=document.getElementById('ctrl'),rail=document.getElementById('rail');if(!ctrl||!rail)return;
 ctrl.setAttribute('data-show','body');
 function mark(){var sec='body';Array.prototype.forEach.call(ctrl.children,function(el){
-  if(el.classList.contains('cardh')&&/^\s*רגליים/.test(el.textContent))sec='legs';el.setAttribute('data-sec',sec)})}
+  if(el.classList.contains('cardh')&&/^\s*רגליים/.test(el.textContent))sec='legs';if(el.classList.contains('hgt'))sec='body';el.setAttribute('data-sec',sec)})}
 new MutationObserver(mark).observe(ctrl,{childList:true});mark();
 rail.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var k=b.getAttribute('data-k');
   if(k==='lab'){var x=document.getElementById('legsbtn');if(x)x.click();return}
