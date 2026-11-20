@@ -5373,7 +5373,13 @@ function renderPop(){
   row.onclick=e=>{const a=e.target.dataset.a;if(!a)return;if(a==='card'){openCard(it.cid);return}
     if(a==='det'){showFields=!showFields;renderPop();return}
     snap();
-    if(a==='rot'||a==='rotv'){const ax=a==='rot'?1:(V.mode==='front'?0:2);if(!it.rotBase)it.rotBase=it.rot.slice();it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
+    if(a==='rot'||a==='rotv'){const ax=a==='rot'?1:(V.mode==='front'?0:2);
+      /* 20.11 (Sharon): parts that depend on each other's direction turn together. Air sensors + the air vent: all sensors turn, the vent moves to the wall they now face */
+      const grp=AIR.has(it.cid)&&c.vent?c.items.filter(x=>AIR.has(x.cid)):(it.cid==='lidar'||it.cid==='imu')?c.items.filter(x=>(x.cid==='lidar'||x.cid==='imu')&&!x.auto):[it]; /* IMU sits on the same rigid part as the lidar (card 06) */
+      grp.forEach(x=>{if(!x.rotBase)x.rotBase=x.rot.slice();x.rot[ax]=(x.rot[ax]+1)%4;x.manual=true;const q=snapPos(c,x,x.pos,[true,true,true]);if(q){x.pos=q;x.unfit=false}else x.unfit=true});
+      if(grp.length>1||(AIR.has(it.cid)&&c.vent)){const f=facing(c,it),key=f&&Object.keys(FACEV).find(k=>dot(FACEV[k],f.d)>.9);
+        if(key&&key!=='-y'&&!c.vent.locked){const ss=grp.filter(x=>!x.unfit),ctr=ss.length?ss[0].pos:c.vent.pos,r=ventSnap(c,ctr,key);
+          if(r){c.vent.pos=r.pos;c.vent.n=r.n;c.vent.manual=true;grp.forEach(x=>{delete x.rotBase;if(!ventFacesOK(c,x,x.pos))relocate(c,x,(c2,i,q)=>ventFacesOK(c2,i,q))})}}}}
     if(a==='dup'){const n=JSON.parse(JSON.stringify(it));n.id=uid();n.manual=false;n.locked=false;c.items.push(n);layout(c);sel=n.id}
     if(a==='del'){c.items.splice(c.items.indexOf(it),1);sel=null}
     if(a==='lock'){it.locked=!it.locked;if(it.locked)it.manual=true;toast(it.locked?'המקום נעול. הסידור יסתדר סביבו':'הנעילה בוטלה')}
