@@ -235,6 +235,8 @@ header md-icon-button[disabled]{opacity:.35}
 .cb2{overflow:auto;padding:12px 16px 20px;flex:1}
 .ctitle{display:flex;gap:12px;align-items:center}.ctitle h3{margin:0;font-size:21px;font-weight:600}.ctitle .m{font-size:14px;color:var(--muted);margin-top:2px}
 .cshort{margin:12px 0 4px;font-size:16px;line-height:1.55}
+#tip3{position:absolute;z-index:6;pointer-events:none;padding:4px 9px;border-radius:8px;font-size:13px;line-height:1.3;white-space:nowrap;background:rgba(20,22,28,.88);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:none;transform:translate(-50%,-130%)}
+.jtype{margin:10px 0;padding:10px 12px;border-radius:10px;background:var(--t-fill,rgba(127,127,127,.12));font-size:14px;line-height:1.55}
 .cs{border-top:1px solid var(--line);padding:2px 0}.cs>summary{cursor:pointer;padding:9px 0;font-weight:600;font-size:16px;list-style:none;display:flex;justify-content:space-between}
 .cs>summary::after{content:'▾';color:var(--muted)}.cs[open]>summary::after{content:'▴'}
 .cs .cb{padding:0 0 10px;font-size:16px;line-height:1.55}.cs ul{margin:0;padding-inline-start:20px}.cs li{margin:4px 0}.cs p{margin:6px 0}
@@ -4469,11 +4471,12 @@ function gimbalMesh(c,it,p,clear,mat){if(!GM3)return null;const at=c.shell.gAt||
 
 /* ---- cardan joint between segment g and g+1 (option B): forks, hollow cross, turn motor on top, tilt motor to the side */
 function cardan(c,g,clear,root,store){const segs=shellOf(c),a=segs[g],b=segs[g+1];if(!a||!b)return;const G=gapOf(c),x0=a.cx+a.len/2,cx=x0+G/2,jy=jointY(c,g),cy=jy+clear,wmin=Math.min(a.wid,b.wid);
-  const fz=Math.min(91,wmin/2-4),tz=Math.min(76,wmin/2-19),fy=Math.min(58,jy-6),hc=G/2,add=(geo,mat,x,y,z)=>{const m=new THREE.Mesh(geo,mat);m.position.set(cx+x,cy+y,z);root.add(m);if(store)store.push(m);return m};
+  const fz=Math.min(91,wmin/2-4),tz=Math.min(76,wmin/2-19),fy=Math.min(58,jy-6),hc=G/2;let tg='r';const add=(geo,mat,x,y,z)=>{const m=new THREE.Mesh(geo,mat);m.position.set(cx+x,cy+y,z);m.userData.cj=tg;m.userData.cg=g;root.add(m);if(store)store.push(m);return m};
+  /* 20.11: pieces are tagged r (rear segment), x (the cross, turns with the turn motor), f (front segment), so walking can move them like a real cardan */
   [-fy,fy].forEach(y=>add(rrGeo(hc+12,6,50,1.5),SMAT.plate,(hc+12)/2-6-hc,y,0));
-  const ym=add(cylGeo(69,25,'y',48),SMAT.motor,0,74,0);add(cylGeo(28,10,'y',32),SMAT.plate,0,-Math.min(66,jy-4),0);add(cylGeo(52,6,'y',40),SMAT.rotor,0,58,0);
-  add(new THREE.CylinderGeometry(11,11,110,32,1,true),SMAT.cross,0,0,0);add(cylGeo(22,2*(fz-27),'z',32,true),SMAT.cross,0,0,0);
-  const pm=add(cylGeo(69,25,'z',48),SMAT.motor,0,0,tz);add(cylGeo(52,6,'z',40),SMAT.rotor,0,0,tz-15);
+  const ym=add(cylGeo(69,25,'y',48),SMAT.motor,0,74,0);add(cylGeo(28,10,'y',32),SMAT.plate,0,-Math.min(66,jy-4),0);tg='x';add(cylGeo(52,6,'y',40),SMAT.rotor,0,58,0);
+  add(new THREE.CylinderGeometry(11,11,110,32,1,true),SMAT.cross,0,0,0);add(cylGeo(22,2*(fz-27),'z',32,true),SMAT.cross,0,0,0);add(cylGeo(52,6,'z',40),SMAT.rotor,0,0,tz-15);
+  tg='f';const pm=add(cylGeo(69,25,'z',48),SMAT.motor,0,0,tz);
   [-fz,fz].forEach(z=>add(rrGeo(G-hc+14,56,6,1.5),SMAT.plate,(G-hc+14)/2-6,0,z));{/* 20.11: bearing on the side without the motor, from the end of the cross to the fork (it stopped ~15 mm short) */const z0=fz-27,z1=fz-3;add(cylGeo(24,z1-z0+1,'z',32),SMAT.plate,0,0,-(z0+z1)/2)}
   [ym,pm].forEach((m,j)=>{const ji=c.items.find(i=>i.auto==='joint'&&i.gap===g&&(i.jax?1:0)===(j?0:1));if(ji)m.userData.id=ji.id})}
 
@@ -4745,24 +4748,25 @@ function walkPanel(c){const el=$('#walkPanel');el.classList.toggle('on',WK.on);i
     +'<div class="wr"><label>מהירות</label><input type="range" id="wkSpd" min="0.3" max="2" step="0.1" value="'+WK.spd+'"><b id="wkSpdL">×'+WK.spd+'</b></div>';
   if(n<2)h+='<div class="wn">יש רק חוליה אחת, אז אין זוויות בין חוליות. אפשר להגדיל ל-2 חוליות ומעלה.</div>';
   for(let g=0;g<n-1;g++){h+='<h4>מפרק '+(g+1)+' (חוליה '+(g+1)+' עם '+(g+2)+')</h4>';
-    [['p','הטיה'],['y','פנייה'],['r','גלגול']].forEach(([k,l])=>{const m=WK_LIM[k];
+    [['p','הטיה'],['y','פנייה']].forEach(([k,l])=>{const m=WK_LIM[k];
       h+='<div class="wr"><label>'+l+'</label><input type="range" data-g="'+g+'" data-k="'+k+'" min="'+-m+'" max="'+m+'" step="1" value="'+Math.round(WK.ang[g][k])+'"'+(WK.auto?' disabled':'')+'><b id="wl'+g+k+'">'+walkLab(k,WK.ang[g][k])+'</b></div>'})}
-  h+='<details class="wn"><summary>הסבר</summary>מנוע אחד בכל מפרק בקונפיגורציה. הטיה למעלה/למטה היא התנועה הרגילה. פנייה וגלגול הן רק לבדיקה איך הגוף יכול לזוז, ואין להן מנוע. מידות הצעד והמהירות להמחשה, לא חישוב.</details>';
+  h+='<details class="wn"><summary>הסבר</summary>המפרק הוא קרדן: צלב אחד באמצע, 2 מנועים. המנוע העליון מסובב את הצלב ימינה ושמאלה (פנייה), והמנוע בצד מטה את החוליה הקדמית למעלה ולמטה (הטיה). אין גלגול, הקרדן לא מסתובב סביב האורך. מידות הצעד והמהירות להמחשה, לא חישוב.</details>';
   el.innerHTML=h}
 $('#walkPanel').addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.k){WK.ang[+t.dataset.g][t.dataset.k]=+t.value;$('#wl'+t.dataset.g+t.dataset.k).textContent=walkLab(t.dataset.k,+t.value)}else if(t.id==='wkSpd'){WK.spd=+t.value;$('#wkSpdL').textContent='×'+WK.spd}else if(t.id==='wkAuto'){WK.auto=t.checked;walkPanel(cfg())}});
 $('#walkPanel').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.id==='wkPlay'){WK.play=!WK.play;t.textContent=WK.play?'עצירה':'הליכה'}else if(t.id==='wkReset'){WK.auto=false;WK.ang.forEach(a=>{a.p=a.y=a.r=0});walkPanel(cfg())}});
 document.querySelectorAll('#walkTg button').forEach(b=>b.onclick=()=>{WK.on=b.dataset.w==='1';document.querySelectorAll('#walkTg button').forEach(x=>x.classList.toggle('on',x===b));walkPanel(cfg());WK.last=0;schedule()});
 function walkBuild(c){
-  const clear=clearAt(c,0),r=fillTool(root,c,0,{bad:badSet(c),walk:true,noShell:V.frame}),segs=r.segs,n=segs.length;
+  const clear=clearAt(c,0),r=fillTool(root,c,0,{bad:badSet(c),walk:true,noShell:V.frame,hide:!!V.hide}),segs=r.segs,n=segs.length;
   if(WK.gaps!==n-1)walkPanel(c);
   WK.c=c;WK.clear=clear;WK.grid=root.children[0];
   const gx=[];for(let g=0;g<n-1;g++)gx.push((segs[g].cx+segs[g].len/2+segs[g+1].cx-segs[g+1].len/2)/2);
   const G=segs.map(()=>{const q=new THREE.Group();q.matrixAutoUpdate=false;return q});
-  root.children.slice(1).forEach(k=>{let i=0;while(i<gx.length&&k.position.x>gx[i]+.01)i++;root.remove(k);G[i].add(k)});
-  G.forEach(q=>root.add(q));WK.seg=G;
+  const CX=gx.map(()=>{const q=new THREE.Group();q.matrixAutoUpdate=false;return q});
+  root.children.slice(1).forEach(k=>{root.remove(k);if(k.userData.cj){const g=k.userData.cg;(k.userData.cj==='x'?CX[g]:k.userData.cj==='f'?G[g+1]:G[g]).add(k);return}let i=0;while(i<gx.length&&k.position.x>gx[i]+.01)i++;G[i].add(k)});
+  G.forEach(q=>root.add(q));CX.forEach(q=>root.add(q));WK.seg=G;WK.cx=CX;
   const fi=$('#frameInfo');fi.textContent='';
   if(V.frame){const fr=frameFor(c,clear);fr.gs.forEach((q,i)=>{q.userData.keep=1;q.position.y=clear;G[i].add(q)});fi.textContent=simFrameNote(fr.info)}
-  WK.J=[];for(let g=0;g<n-1;g++){const ji=c.items.find(i=>i.auto==='joint'&&i.gap===g);WK.J.push(new THREE.Vector3(gx[g],clear+(ji?P(c,ji)[1]:Math.min(segs[g].hei,segs[g+1].hei)/2),0))}
+  WK.J=[];for(let g=0;g<n-1;g++){const ji=c.items.find(i=>i.auto==='joint'&&i.gap===g);WK.J.push(new THREE.Vector3(gx[g],clear+jointY(c,g),0))}
   const th=c.legs.thick||THICK0,lm=cat.legmotor,bm=new THREE.MeshStandardMaterial({color:0x9aa3af}),fm=new THREE.MeshStandardMaterial({color:0x2b2f33});
   WK.legs=[];
   for(let i=0;i<c.legs.count;i++){const h=hipItem(c,i),pz=legPose(c,i,0);if(!h||!pz)continue;const si=segIdx(c,h.seg),ki=c.items.find(x=>x.auto==='knee'&&x.leg===i);
@@ -4774,10 +4778,12 @@ const _wv=new THREE.Vector3(),_wm=new THREE.Matrix4();
 function walkBar(m,a,b){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B)||1;m.position.copy(A).add(B).multiplyScalar(.5);m.scale.set(1,L,1);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize())}
 function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.last)/1000):0;WK.last=now;const c=WK.c;if(!c||!WK.seg.length)return;
   WK.t+=dt*WK.spd;
-  if(WK.auto)WK.ang.forEach((a,g)=>{a.p=WK_LIM.p*.55*Math.sin(WK.t*.9+g*1.3);a.y=WK_LIM.y*.55*Math.sin(WK.t*.6+g*.8+1);a.r=WK_LIM.r*.5*Math.sin(WK.t*.45+g)});
+  if(WK.auto)WK.ang.forEach((a,g)=>{a.p=WK_LIM.p*.55*Math.sin(WK.t*.9+g*1.3);a.y=WK_LIM.y*.55*Math.sin(WK.t*.6+g*.8+1);a.r=0});
   const M=[new THREE.Matrix4()];
-  WK.J.forEach((J,g)=>{const a=WK.ang[g]||{p:0,y:0,r:0},R=new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(a.r*DEG,a.y*DEG,a.p*DEG,'XYZ'));
-    M.push(M[g].clone().multiply(new THREE.Matrix4().makeTranslation(J.x,J.y,J.z)).multiply(R).multiply(new THREE.Matrix4().makeTranslation(-J.x,-J.y,-J.z)))});
+  WK.J.forEach((J,g)=>{const a=WK.ang[g]||{p:0,y:0,r:0},Ry=new THREE.Matrix4().makeRotationY(a.y*DEG),Rz=new THREE.Matrix4().makeRotationZ(a.p*DEG),T=new THREE.Matrix4().makeTranslation(J.x,J.y,J.z),Ti=new THREE.Matrix4().makeTranslation(-J.x,-J.y,-J.z);
+    /* the cross turns with the rear fork's motor (turn), the front segment then tilts on the cross */
+    if(WK.cx&&WK.cx[g]){WK.cx[g].matrix.copy(M[g].clone().multiply(T).multiply(Ry).multiply(Ti));WK.cx[g].matrixWorldNeedsUpdate=true}
+    M.push(M[g].clone().multiply(T).multiply(Ry).multiply(Rz).multiply(Ti))});
   WK.seg.forEach((s,i)=>{s.matrix.copy(M[i]);s.matrixWorldNeedsUpdate=true});
   /* walking direction on the floor = average of the segments' forward directions */
   const d=new THREE.Vector3();M.forEach(m=>{_wv.set(1,0,0).transformDirection(m);d.x+=_wv.x;d.z+=_wv.z});if(d.lengthSq()<1e-4)d.set(1,0,0);d.y=0;d.normalize();
@@ -5139,6 +5145,14 @@ function renderVopts(){const el=$('#vopts');
   const r=$('#rlen');if(r)r.oninput=()=>{V.rlen=+r.value;$('#rlenv').textContent=V.rlen+' מ"מ';saveUI();render2D(false);build3D()}}
 /* view modes: one 2D view (side / top / front, as before), the 3D view large, or all together with a resizable 3D window */
 const stage=$('#stage'),W3=$('#w3');
+/* 20.11 (Sharon): hovering over a part in 3D shows its name */
+{const tip=document.createElement('div');tip.id='tip3';W3.appendChild(tip);let pend=null;
+  const look=()=>{const ev=pend;pend=null;if(!ev||d3&&d3.moved){tip.style.display='none';return}rayAt(ev);
+    const hits=ray.intersectObjects(root.children,true);let id=null;for(const h of hits){if(!h.object.isMesh||!h.object.visible)continue;let o=h.object;while(o&&o!==root&&!(o.userData&&o.userData.id))o=o.parent;if(o&&o!==root&&o.userData.id){id=o.userData.id;break}}
+    const c=cfg(),it=id&&c.items.find(i=>i.id===id);if(!it){tip.style.display='none';W3.style.cursor='';return}
+    const r=W3.getBoundingClientRect();tip.textContent=name(c,it)+(it.auto==='joint'?' (מפרק קרדן)':'');tip.style.left=(ev.clientX-r.left)+'px';tip.style.top=(ev.clientY-r.top)+'px';tip.style.display='block';W3.style.cursor='pointer'};
+  W3.addEventListener('pointermove',ev=>{if(!pend)requestAnimationFrame(look);pend=ev});
+  W3.addEventListener('pointerleave',()=>{pend=null;tip.style.display='none'})}
 function applyW3(){const W=stage.clientWidth;if(!W)return;if(!V.w3)V.w3=Math.round(W*.4);V.w3=Math.round(Math.max(220,Math.min(V.w3,W-260)));stage.style.setProperty('--w3',V.w3+'px')}
 function setMode(m,init){if(!['side','top','front','3d','win'].includes(m))m='side';V.mode=m;
   document.querySelectorAll('#viewseg button').forEach(x=>x.classList.toggle('on',x.dataset.m===m));
@@ -5833,6 +5847,9 @@ function renderCard(){
   if(mi&&mi.src)h+='<figure class="mimg"><img src="'+mi.src+'" alt="'+esc('תמונת היצרן: '+k.name)+'"><figcaption class="cmeta">תמונת יצרן, להמחשה בלבד (לא בקנה מידה, לשימוש פנימי). מקור: <a href="'+esc(mi.page)+'" target="_blank" rel="noopener">'+esc(mi.label)+' ↗</a>'+(mi.note?'<br>'+esc(mi.note):'')+'</figcaption></figure>';
   if(lk&&lk.length)h+='<div class="clinks">'+lk.map(x=>'<a href="'+esc(x.u)+'" target="_blank" rel="noopener">'+esc(x.t)+' ↗</a>').join('')+'</div>';
   h+='<div class="cshort">'+gl(cd.short)+'</div>';
+  /* 20.11 (Sharon): the card says which kind of joint is used */
+  {const si=sel&&c.items.find(i=>i.id===sel),hasJ=c.items.some(i=>i.auto==='joint');
+    if(si&&si.auto==='joint'||(hasJ&&k&&c.items.some(i=>i.auto==='joint'&&i.cid===cid)))h+='<div class="jtype"><b>סוג המפרק בין החוליות: קרדן</b> (מפרק אוניברסלי, אפשרות B מ-19.11). צלב אחד באמצע, ושני צירים שנחתכים בו. 2 מנועים בכל מפרק: המנוע העליון מסובב ימינה ושמאלה (פנייה), והמנוע בצד מטה את החוליה הקדמית למעלה ולמטה (הטיה). אין גלגול. בצד שאין בו מנוע יש מיסב.'+(si&&si.auto==='joint'?'<br>הרכיב שנבחר: '+(si.jax?'המנוע העליון, לפנייה.':'המנוע בצד, להטיה.'):'')+'</div>'}
   const bt=[];if(k)bt.push('<button class="pill on" id="cdshow">הראי במודל</button><button class="pill" id="cd11">בגודל 1:1</button>');if(cardId==='10')bt.push('<button class="pill on" id="cdlegs">פתחי את חלון הרגליים</button>');
   if(bt.length)h+='<div class="btns" style="margin:8px 0">'+bt.join('')+'</div>';
   h+=csec('מה הוא עושה',cd.explainer?'<p>'+gl(cd.explainer)+'</p>':'<p class="cmeta">חסר בכרטיס.</p>',true);
