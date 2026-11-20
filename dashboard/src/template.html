@@ -743,7 +743,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     <ul>
      <li>גרירה מזיזה את הרכיב. הוא נצמד למקום חוקי קרוב: בתוך חוליה, בלי התנגשות, ובצמוד לקירות ולשכנים.</li>
      <li>בתלת מימד: גרירה מזיזה לאורך ולרוחב, <kbd>Shift</kbd> וגרירה מזיזה למעלה ולמטה. גרירת הרקע מסובבת, וגלגלת העכבר מקרבת.</li>
-     <li>מתחת לציור מופיע חלון הרכיב הנבחר, עם כפתורים: <b>נעילת מקום</b> (הסידור האוטומטי לא יזיז אותו), <b>סיבוב</b>, <b>שכפול</b>, <b>הסרה</b>, <b>כרטיס</b>, <b>פרטים</b> (שינוי מידות, משקל והספק) ו-<b>טווח ראייה וכיוון</b>. אחרי הזזה ידנית יש גם <b>למקום המומלץ</b>.</li>
+     <li>מתחת לציור מופיע חלון הרכיב הנבחר, עם כפתורים: <b>נעילת מקום</b> (הסידור האוטומטי לא יזיז אותו), <b>סיבוב אופקי 90°</b> (סביב הציר האנכי), <b>סיבוב אנכי 90°</b> (הטיה למעלה/למטה), <b>שכפול</b>, <b>הסרה</b>, <b>כרטיס</b>, <b>פרטים</b> (שינוי מידות, משקל והספק) ו-<b>טווח ראייה וכיוון</b>. אחרי הזזה ידנית יש גם <b>למקום המומלץ</b>.</li>
      <li>לכל רכיב יש מקום מומלץ, מסיבה טכנית שכתובה בחלון ("למה כאן").</li>
     </ul>
     <p class="tip">טעית? <kbd>Ctrl</kbd>+<kbd>Z</kbd> מבטל, ו-<kbd>Ctrl</kbd>+<kbd>Y</kbd> משחזר. אותם כפתורים יש בסרגל העליון.</p>
@@ -2815,11 +2815,11 @@ function renderPop(){
   const B=document.createElement('div');B.className='b';
   const row=document.createElement('div');row.className='btns';
   const lk=it.auto?'':'<button class="pill'+(it.locked?' on':'')+'" data-a="lock">'+(it.locked?'ביטול נעילה':'נעילת מקום')+'</button>';
-  row.innerHTML=lk+(it.auto||it.locked?'':it.role?(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''):'<button class="pill" data-a="rot">סיבוב</button><button class="pill" data-a="dup">שכפול</button><button class="pill" data-a="del">הסרה</button>'+(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''))+'<button class="pill" data-a="card">כרטיס</button><button class="pill" data-a="det">פרטים</button>';
+  row.innerHTML=lk+(it.auto||it.locked?'':it.role?(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''):'<button class="pill" data-a="rot">סיבוב אופקי 90°</button><button class="pill" data-a="rotv">סיבוב אנכי 90°</button><button class="pill" data-a="dup">שכפול</button><button class="pill" data-a="del">הסרה</button>'+(it.manual?'<button class="pill" data-a="auto">למקום המומלץ</button>':''))+'<button class="pill" data-a="card">כרטיס</button><button class="pill" data-a="det">פרטים</button>';
   row.onclick=e=>{const a=e.target.dataset.a;if(!a)return;if(a==='card'){openCard(it.cid);return}
     if(a==='det'){showFields=!showFields;renderPop();return}
     snap();
-    if(a==='rot'){const ax=V.mode==='side'?2:V.mode==='front'?0:1;it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
+    if(a==='rot'||a==='rotv'){const ax=a==='rot'?1:(V.mode==='front'?0:2);it.rot[ax]=(it.rot[ax]+1)%4;it.manual=true;const q=snapPos(c,it,it.pos,[true,true,true]);if(q){it.pos=q;it.unfit=false}else it.unfit=true}
     if(a==='dup'){const n=JSON.parse(JSON.stringify(it));n.id=uid();n.manual=false;n.locked=false;c.items.push(n);layout(c);sel=n.id}
     if(a==='del'){c.items.splice(c.items.indexOf(it),1);sel=null}
     if(a==='lock'){it.locked=!it.locked;if(it.locked)it.manual=true;toast(it.locked?'המקום נעול. הסידור יסתדר סביבו':'הנעילה בוטלה')}
