@@ -647,7 +647,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     </section>
     <div class="side">
       <section class="card m3"><div class="cardh">איך זה נראה במרחב</div><div id="w3"><canvas id="c3"></canvas><div class="hint3">גרירת רכיב: לאורך ולרוחב. Shift + גרירה: למעלה ולמטה. גרירת הרקע: סיבוב. גלגלת: זום. כפתור ימני: הזזת המבט.</div></div>
-        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><button class="pill" id="fabbtn" type="button" aria-pressed="false" title="מעטפת שקופה שנמתחת על הרכיבים כמו בד, ומשתנה בכל הזזה">מעטפת שקופה</button><button class="pill" id="svcbtn" type="button" aria-pressed="false" title="הסוללה, המחשב ובקר הבטיחות יוצאים בכיוון ההוצאה שלהם">הוצאה לתחזוקה</button><button class="pill" id="seebtn" type="button" title="כמה הגימבל מסתיר מכל חיישן, וזווית תאורות התיעוד">ראייה ותאורה</button><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><details style="padding:0 14px 10px;font-size:13px;color:var(--muted)"><summary style="cursor:pointer">מידות ומשקל השלד</summary><div id="frameInfo"></div></details></section>
+        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><button class="pill" id="fabbtn" type="button" aria-pressed="false" title="מעטפת שקופה שנמתחת על הרכיבים כמו בד, ומשתנה בכל הזזה">מעטפת שקופה</button><button class="pill" id="hidebtn" type="button" aria-pressed="false" title="מסתיר את הרכיבים ומשאיר רק את השלד, הקרדן והרגליים">רק שלד</button><button class="pill" id="svcbtn" type="button" aria-pressed="false" title="הסוללה, המחשב ובקר הבטיחות יוצאים בכיוון ההוצאה שלהם">הוצאה לתחזוקה</button><button class="pill" id="seebtn" type="button" title="כמה הגימבל מסתיר מכל חיישן, וזווית תאורות התיעוד">ראייה ותאורה</button><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><details style="padding:0 14px 10px;font-size:13px;color:var(--muted)"><summary style="cursor:pointer">מידות ומשקל השלד</summary><div id="frameInfo"></div></details></section>
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
@@ -1849,7 +1849,8 @@ function clearRoot(r){while(r.children.length)dispKeep(r.children.pop())}
    layout rules are not changed by this block. ===== */
 const LIN=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return c};
 function sm(col,met,rou,extra){const m=new THREE.MeshStandardMaterial(Object.assign({color:LIN(col),metalness:met,roughness:rou},extra||{}));m.userData.lin=1;return m}
-const SMAT={main:sm(0x3a4049,.75,.32),tube:sm(0xc4cad2,.9,.28),rail:sm(0xe08a1e,.6,.35),plate:sm(0xaab2bc,.85,.3),motor:sm(0x2b2f35,.6,.38),rotor:sm(0xb87333,.8,.3),
+/* 20.11 (Sharon): the whole frame in one aluminium colour */
+const ALU=0xc4cad2,SMAT={main:sm(ALU,.9,.3),tube:sm(ALU,.9,.3),rail:sm(ALU,.9,.3),plate:sm(ALU,.9,.3),motor:sm(0x2b2f35,.6,.38),rotor:sm(0xb87333,.8,.3),
   cross:sm(0x2f6fed,.4,.35,{side:THREE.DoubleSide}),link:sm(0x7d8794,.8,.3),rubber:sm(0x1b1d20,0,.9),glass:sm(0x0e1a24,.2,.08),red:sm(0xd0463b,.15,.45),gim:sm(0x7b5cc9,.35,.45,{side:THREE.DoubleSide})};
 const CAP=8,SVC_IDS=['battery','computer','safety'];
 /* rounded box (same method as three.js RoundedBoxGeometry, 3 segments per corner) */
@@ -1860,6 +1861,11 @@ function rrGeo(w,h,d,r){r=Math.max(.3,Math.min(r==null?Math.min(3,Math.min(w,h,d
 function cylGeo(d,l,ax,seg,open){const g=new THREE.CylinderGeometry(d/2,d/2,l,seg||40,1,!!open);if(ax==='x')g.rotateZ(Math.PI/2);if(ax==='z')g.rotateX(Math.PI/2);return g}
 const UPV=new THREE.Vector3(0,1,0),V3=a=>new THREE.Vector3(a[0],a[1],a[2]);
 function alongGeo(geo,a,b){const A=V3(a),B=V3(b),m=new THREE.Mesh(geo);m.position.copy(A).add(B).multiplyScalar(.5);m.quaternion.setFromUnitVectors(UPV,B.clone().sub(A).normalize());return m}
+/* 20.11 (Sharon: the rail should look like a rail): a C-channel 14 wide, 9 high, 1.5 mm wall, open toward the battery (my sizes) */
+function railM(a,b,up){const d=V3(b).sub(V3(a)),L=d.length();if(L<1)return null;const W=7,H=9,T=1.5,s=new THREE.Shape();
+  s.moveTo(-W,0);s.lineTo(W,0);s.lineTo(W,H);s.lineTo(W-3.5,H);s.lineTo(W-3.5,H-T);s.lineTo(W-T,H-T);s.lineTo(W-T,T);s.lineTo(-W+T,T);s.lineTo(-W+T,H-T);s.lineTo(-W+3.5,H-T);s.lineTo(-W+3.5,H);s.lineTo(-W,H);s.closePath();
+  const g=new THREE.ExtrudeGeometry(s,{depth:L,bevelEnabled:false});g.translate(0,-H/2,0);const z=d.normalize(),yv=new THREE.Vector3(0,up,0);let x=new THREE.Vector3().crossVectors(yv,z);
+  if(x.lengthSq()<1e-6)x.set(1,0,0);x.normalize();const y=new THREE.Vector3().crossVectors(z,x),m=new THREE.Mesh(g,SMAT.rail);m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x,y,z));m.position.set(a[0],a[1],a[2]);return m}
 function tubeM(a,b,r,mat){const L=V3(a).distanceTo(V3(b));if(L<.5)return null;const m=alongGeo(new THREE.CylinderGeometry(r,r,L,24),a,b);m.material=mat;return m}
 /* light of a room (port of three.js RoomEnvironment, r128) for reflections on the metal parts */
 function roomEnv(){const sc=new THREE.Scene(),geo=new THREE.BoxGeometry();geo.deleteAttribute('uv');const rm=new THREE.MeshStandardMaterial({side:THREE.BackSide}),bm=new THREE.MeshStandardMaterial();
@@ -1926,21 +1932,23 @@ function cardan(c,g,clear,root,store){const segs=shellOf(c),a=segs[g],b=segs[g+1
 function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group(),gs=segs.map(()=>{const q=new THREE.Group();g.add(q);return q});
   const RM=8,RA=5,mem=[],plates=[],L3=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]),lerp=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
   const inB=(q,b,pad)=>q.every((v,i)=>v>b.mn[i]-pad&&v<b.mx[i]+pad);
-  const parts=[];c.items.forEach(it=>{if(it.unfit||it.auto||isMounted(it)||it.cid==='gimbal')return;const a=aabb(c,it),bb={mn:a.min,mx:a.max},cx=(bb.mn[0]+bb.mx[0])/2;
+  const parts=[];c.items.forEach(it=>{if(it.unfit||it.auto||isMounted(it))return; /* 20.11: the gimbal too (it was left floating when it stuck out of the body) */const a=aabb(c,it),bb={mn:a.min,mx:a.max},cx=(bb.mn[0]+bb.mx[0])/2;
     parts.push({it,id:it.id,bb,seg:segAt(segs,cx).i,w:(cat[it.cid].weight||0)*(it.frac||1),hip:it.role==='hip'})});
   segs.forEach(s=>{const x0=s.cx-s.len/2,x1=s.cx+s.len/2,ps=parts.filter(p=>p.seg===s.i),hips=ps.filter(p=>p.hip);
     const sy=hips.length?hips.reduce((a,p)=>a+(p.bb.mn[1]+p.bb.mx[1])/2,0)/hips.length:(s.i<n-1?jointY(c,s.i):s.i>0?jointY(c,s.i-1):s.hei/2);s.sy=sy;
     const xs=ps.map(p=>(p.bb.mn[0]+p.bb.mx[0])/2);let a=xs.length?Math.min(...xs):s.cx-10,b=xs.length?Math.max(...xs):s.cx+10;const hx=hips.length?hips.reduce((q,h)=>q+(h.bb.mn[0]+h.bb.mx[0])/2,0)/hips.length:s.cx,stopAt=(from,to)=>{const st=from<to?2:-2;for(let x=from;st>0?x<=to:x>=to;x+=st){if(ps.some(p=>!p.hip&&inB([x,sy,0],p.bb,RM-1)))return x-st}return to};
     /* free ends stop before the first part in the way (19.11: the spine must not run through a camera); the ends that face a gap reach the joint plate */
     a=s.i>0?x0+6:Math.min(hx,stopAt(hx,a));b=s.i<n-1?x1-6:Math.max(hx,stopAt(hx,b));if(b-a<20){a=Math.min(a,hx-10);b=Math.max(b,hx+10)}
+    /* 20.11: the spine always reaches every hip bar, so the legs hang on the same connected frame */
+    hips.forEach(h=>{const x=(h.bb.mn[0]+h.bb.mx[0])/2;a=Math.min(a,x);b=Math.max(b,x)});
     mem.push({id:'spine'+s.i,seg:s.i,a:[a,sy,0],b:[b,sy,0],r:RM,k:'main'});
     const byX={};hips.forEach(h=>{const x=Math.round((h.bb.mn[0]+h.bb.mx[0])/2/5)*5;(byX[x]=byX[x]||[]).push(h)});
     Object.keys(byX).forEach(x=>{const zs=byX[x].map(h=>Math.abs(h.bb.mn[2])<Math.abs(h.bb.mx[2])?h.bb.mn[2]:h.bb.mx[2]);mem.push({id:'hipbar'+s.i+'_'+x,seg:s.i,a:[+x,sy,Math.min(0,...zs)],b:[+x,sy,Math.max(0,...zs)],r:RM,k:'main'})});
     [[s.i>0,x0+3],[s.i<n-1,x1-3]].forEach(([on,x])=>{if(on){const h=Math.min(125,s.hei*.85);plates.push({seg:s.i,bb:{mn:[x-3,sy-h/2,-25],mx:[x+3,sy+h/2,25]}})}});
     /* battery rails along the removal direction, on the side of the battery that faces the spine */
     ps.filter(p=>p.it.cid==='battery').forEach(p=>{p.rails=true;const key=svcDir(c,p.it),bb=p.bb,cy=(bb.mn[1]+bb.mx[1])/2,y=key==='+y'?bb.mn[1]-RA:(cy<sy?bb.mx[1]+RA:bb.mn[1]-RA),W=s.wid/2-20;
-      if(key==='+z'||key==='-z'||key==='+y'){[bb.mn[0]+12,bb.mx[0]-12].forEach((x,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[x,y,-W],b:[x,y,W],r:RA,k:'rail'}))}
-      else{const zc=(bb.mn[2]+bb.mx[2])/2,dz=(bb.mx[2]-bb.mn[2])/2-12;[zc-dz,zc+dz].forEach((z,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[key==='-x'?x0+3:bb.mn[0],y,z],b:[key==='+x'?x1-3:bb.mx[0],y,z],r:RA,k:'rail'}))}})});
+      if(key==='+z'||key==='-z'||key==='+y'){[bb.mn[0]+12,bb.mx[0]-12].forEach((x,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[x,y,-W],b:[x,y,W],r:RA,k:'rail',up:cy>y?1:-1}))}
+      else{const zc=(bb.mn[2]+bb.mx[2])/2,dz=(bb.mx[2]-bb.mn[2])/2-12;[zc-dz,zc+dz].forEach((z,j)=>mem.push({id:'rail'+p.id+j,seg:s.i,a:[key==='-x'?x0+3:bb.mn[0],y,z],b:[key==='+x'?x1-3:bb.mx[0],y,z],r:RA,k:'rail',up:cy>y?1:-1}))}})});
   /* parts touching the spine are bolted straight to it */
   parts.forEach(p=>{if(p.rails||p.hip)return;const sp=mem.find(m=>m.id==='spine'+p.seg);for(let f=0;f<=20;f++)if(inB(lerp(sp.a,sp.b,f/20),p.bb,RM+.5)){p.direct=true;break}});
   const svcB=parts.filter(p=>svcNeed(p.it)).map(p=>{const key=svcDir(c,p.it),d=SVCD[key],k=d.findIndex(v=>v!==0),dist=p.bb.mx[k]-p.bb.mn[k]+30;p.svc={key,d,dist};
@@ -1965,22 +1973,38 @@ function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group
           if(!clr(post.a,post.b)||!clr(arm.a,arm.b))continue;const o2=[];tryFrom(p,[arm],1,o2);if(o2.length){mem.push(post,arm);p.tubes=o2;break out}}}
     }
     if(!p.tubes.length)noTube.push(p)});
+  /* 20.11 (Sharon: the whole frame must be connected): each pair of battery rails is tied to the spine by a post (and a cross bar when the rails run
+     along the tool); the spine is extended to reach it if needed */
+  parts.filter(p=>p.rails).forEach(p=>{const rs=mem.filter(m=>m.id.startsWith('rail'+p.id));if(!rs.length)return;const sp=mem.find(m=>m.id==='spine'+p.seg),y=rs[0].a[1];
+    const along=Math.abs(rs[0].a[0]-rs[0].b[0])>Math.abs(rs[0].a[2]-rs[0].b[2]);
+    const xs=along?[(rs[0].a[0]+rs[0].b[0])/2]:rs.map(r=>r.a[0]);
+    xs.forEach((x,j)=>{if(x<sp.a[0])sp.a[0]=x;if(x>sp.b[0])sp.b[0]=x;
+      if(Math.abs(y-sp.a[1])>1)mem.push({id:'railpost'+p.id+j,seg:p.seg,a:[x,sp.a[1],0],b:[x,y,0],r:RA,k:'post'});
+      if(along)mem.push({id:'railbar'+p.id+j,seg:p.seg,a:[x,y,rs[0].a[2]],b:[x,y,rs[rs.length-1].a[2]],r:RA,k:'post'})})});
+  /* connectivity: every member must touch another member (or the joint plate), and each segment's frame reaches the cardan through its plate */
+  const dSeg=(p,a,b)=>{const ab=b.map((v,i)=>v-a[i]),l2=ab.reduce((q,v)=>q+v*v,0)||1,t=Math.max(0,Math.min(1,ab.reduce((q,v,i)=>q+v*(p[i]-a[i]),0)/l2));return L3(p,a.map((v,i)=>v+ab[i]*t))};
+  const touch=(m,o)=>{for(let f=0;f<=24;f++)if(dSeg(lerp(m.a,m.b,f/24),o.a,o.b)<=m.r+o.r+1)return true;return false};
+  const loose=[];segs.forEach(s=>{const ms=mem.filter(m=>m.seg===s.i),root0=ms.find(m=>m.id==='spine'+s.i);if(!root0)return;const seen=new Set([root0]),q=[root0];
+    while(q.length){const m=q.pop();ms.forEach(o=>{if(!seen.has(o)&&touch(m,o)){seen.add(o);q.push(o)}})}ms.forEach(m=>{if(!seen.has(m))loose.push(m.id)})});
   /* removal paths still blocked (by a part, a member or a tube) */
   const blocked=[];svcB.forEach(s=>{const p=parts.find(x=>x.id===s.id);
     parts.forEach(o=>{if(o===p)return;const b=o.bb;if([0,1,2].every(k=>s.b.mn[k]<b.mx[k]-.5&&b.mn[k]<s.b.mx[k]-.5))blocked.push(name(c,p.it)+' / '+name(c,o.it))});
     mem.forEach(m=>{if(p.rails&&m.id.startsWith('rail'+p.id))return;for(let f=0;f<=20;f++){const q=lerp(m.a,m.b,f/20);if(inB(q,s.b,m.r-.5)&&!inB(q,p.bb,m.r+1)){blocked.push(name(c,p.it)+' / שלד');break}}})});
   /* draw */
-  mem.forEach(m=>{const t=tubeM(m.a,m.b,m.r,m.k==='rail'?SMAT.rail:SMAT.main);if(t)gs[m.seg].add(t);[m.a,m.b].forEach(e=>{const s=new THREE.Mesh(new THREE.SphereGeometry(m.r,20,14),m.k==='rail'?SMAT.rail:SMAT.main);s.position.set(e[0],e[1],e[2]);gs[m.seg].add(s)})});
+  parts.forEach(p=>{p.c0=p.bb.mn.map((v,i)=>(v+p.bb.mx[i])/2);p.follow=[]});
+  mem.forEach(m=>{const own=m.k==='rail'?parts.find(p=>m.id.startsWith('rail'+p.id)):null,keep=o=>{if(own){o.userData.p0=o.position.clone();own.follow.push(o)}};
+    if(m.k==='rail'){const r=railM(m.a,m.b,m.up||1);if(r){gs[m.seg].add(r);keep(r)}return}
+    const t=tubeM(m.a,m.b,m.r,m.k==='rail'?SMAT.rail:SMAT.main);if(t){gs[m.seg].add(t);keep(t)}[m.a,m.b].forEach(e=>{const s=new THREE.Mesh(new THREE.SphereGeometry(m.r,20,14),m.k==='rail'?SMAT.rail:SMAT.main);s.position.set(e[0],e[1],e[2]);gs[m.seg].add(s);keep(s)})});
   plates.forEach(pl=>{const b=pl.bb,m=new THREE.Mesh(rrGeo(b.mx[0]-b.mn[0],b.mx[1]-b.mn[1],b.mx[2]-b.mn[2],1.5),SMAT.plate);m.position.set((b.mn[0]+b.mx[0])/2,(b.mn[1]+b.mx[1])/2,0);gs[pl.seg].add(m)});
-  let La=0,nA=0;parts.forEach(p=>p.tubes.forEach(t=>{nA++;if(!t.stub){const m=tubeM(t.a,t.b,RA,SMAT.tube);if(m)gs[p.seg].add(m);La+=L3(t.a,t.b)}
-    const pad=new THREE.Mesh(new THREE.CylinderGeometry(9,9,3,24),SMAT.plate),dv=V3(t.b).sub(V3(t.a));pad.position.set(t.b[0],t.b[1],t.b[2]);if(dv.lengthSq()>.1)pad.quaternion.setFromUnitVectors(UPV,dv.normalize());gs[p.seg].add(pad)}));
+  let La=0,nA=0;parts.forEach(p=>p.tubes.forEach(t=>{nA++;t.grp=gs[p.seg];if(!t.stub){const m=tubeM(t.a,t.b,RA,SMAT.tube);if(m){gs[p.seg].add(m);t.mesh=m}La+=L3(t.a,t.b)}
+    const pad=new THREE.Mesh(new THREE.CylinderGeometry(9,9,3,24),SMAT.plate),dv=V3(t.b).sub(V3(t.a));pad.position.set(t.b[0],t.b[1],t.b[2]);if(dv.lengthSq()>.1)pad.quaternion.setFromUnitVectors(UPV,dv.normalize());gs[p.seg].add(pad);t.pad=pad}));
   g.traverse(o=>{o.raycast=()=>{}});g.position.y=clear;
   const AL=.0027,wT=(r,t,L)=>Math.PI*(r*r-(r-t)*(r-t))*L*AL;let Lm=0,Lr=0;mem.forEach(m=>{const L=L3(m.a,m.b);if(m.k==='rail')Lr+=L;else Lm+=L});
-  const info={tubes:nA,La:Math.round(La),Lm:Math.round(Lm),Lr:Math.round(Lr),w:Math.round(wT(8,1.5,Lm)+wT(5,1,Lr)+wT(5,1,La)),noTube:noTube.map(p=>name(c,p.it)),blocked,direct:parts.filter(p=>p.direct).map(p=>name(c,p.it)),parts};
+  const info={tubes:nA,La:Math.round(La),Lm:Math.round(Lm),Lr:Math.round(Lr),w:Math.round(wT(8,1.5,Lm)+wT(5,1,Lr)+wT(5,1,La)),noTube:noTube.map(p=>name(c,p.it)),loose,blocked,direct:parts.filter(p=>p.direct).map(p=>name(c,p.it)),parts};
   return{g,gs,info}}
-function simFrameNote(f){return'שלד מינימלי (כמו בהדמיה): עמוד שדרה אחד בכל חוליה בגובה מנועי הירך, מוט ירכיים אחד, 2 מסילות לסוללה, ולכל רכיב צינור אחד (2 מעל 200 גרם). '+
+function simFrameNote(f){return'שלד מינימלי (כמו בהדמיה): עמוד שדרה אחד בכל חוליה בגובה מנועי הירך, מוט ירכיים אחד, 2 מסילות לסוללה (מחוברות לעמוד השדרה), ולכל רכיב, גם לגימבל, צינור אחד (2 מעל 200 גרם). '+
   f.tubes+' צינורות חיבור באורך '+f.La+' מ"מ, שלד ראשי '+f.Lm+' מ"מ, מסילות '+f.Lr+' מ"מ. משקל, חישוב שלי (נפח הדופן × 2.7 גרם לסמ"ק, Ø16×1.5 ו-Ø10×1): כ-'+f.w+' גרם, בלי ברגים, לוחיות ומזלגות הקרדן.'+
-  (f.direct.length?' מוברגים ישר על עמוד השדרה: '+f.direct.join(', ')+'.':'')+(f.noTube.length?' בלי חיבור: '+f.noTube.join(', ')+'.':' לכל רכיב יש חיבור.')+(f.blocked.length?' דרך הוצאה חסומה: '+[...new Set(f.blocked)].join(', ')+'.':' דרכי ההוצאה של הסוללה, המחשב ובקר הבטיחות פנויות.')}
+  (f.direct.length?' מוברגים ישר על עמוד השדרה: '+f.direct.join(', ')+'.':'')+(f.noTube.length?' בלי חיבור: '+f.noTube.join(', ')+'.':' לכל רכיב יש חיבור.')+(f.loose&&f.loose.length?' חלקי שלד לא מחוברים: '+f.loose.length+'.':' כל חלקי השלד מחוברים זה לזה ולקרדן.')+(f.blocked.length?' דרך הוצאה חסומה: '+[...new Set(f.blocked)].join(', ')+'.':' דרכי ההוצאה של הסוללה, המחשב ובקר הבטיחות פנויות.')}
 
 /* ---- see-through shell stretched over the parts like fabric: per segment, the convex hull of all parts (rounded 6 mm at the corners) and of the frame.
    Not the gimbal, its cameras or the legs (they are outside). Recomputed on every change, so it follows what is dragged. */
@@ -2033,7 +2057,7 @@ function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),b
   /* 19.11: legs like the simulation: rounded aluminium links, a rubber cap the width of the shin at the foot (no ball) */
   if(!o.walk)for(let i=0;i<c.legs.count;i++){const g=walkLeg(c,i,t);if(!g)continue;[[g.hip,g.knee],[g.knee,g.foot]].forEach(([a,b])=>{const L=V3(a).distanceTo(V3(b));if(L<1)return;const m=alongGeo(rrGeo(th,L,th,3),a,b);m.material=SMAT.link;root.add(m)});
     const f=new THREE.Mesh(rrGeo(th+2,CAP+4,th+2,5),SMAT.rubber);f.position.set(g.foot[0],g.foot[1]+(CAP+4)/2,g.foot[2]);root.add(f)}
-  c.items.forEach(it=>{if(o.fade&&it.unfit)return;if(o.walk&&it.auto==='knee')return;if(it.auto==='joint')return; /* joint motors: drawn as the cardan below */
+  if(!o.hide)c.items.forEach(it=>{if(o.fade&&it.unfit)return;if(o.walk&&it.auto==='knee')return;if(it.auto==='joint')return; /* joint motors: drawn as the cardan below */
     const k=cat[it.cid],d=baseDims(it),gim=it.cid==='gimbal'&&GM3,g=gim?null:k.shape==='cyl'?new THREE.CylinderGeometry(d[0]/2,d[0]/2,d[1],48):rrGeo(d[0],d[1],d[2]);
     let p=P(c,it);if(it.auto==='knee'){const q=walkLeg(c,it.leg,t);if(q)p=[q.knee[0],q.knee[1]-clear,q.knee[2]]}
     const mat=isMotor(it)?sm(0x2b2f35,.6,.38):gim?sm(colOf(it),.2,.55,{side:THREE.DoubleSide,envMapIntensity:.45}):sm(colOf(it),.05,.55,{envMapIntensity:.45});
@@ -2043,7 +2067,7 @@ function fillTool(root,c,t,o){o=o||{};const segs=shellOf(c),clear=clearAt(c,t),b
     else if(!o.fade&&sel){mat.transparent=true;mat.opacity=.25;mat.depthWrite=false}
     const m=gim?gimbalMesh(c,it,p,clear,mat):new THREE.Mesh(g,mat);if(!gim){m.rotation.set(it.rot[0]*Math.PI/2,it.rot[1]*Math.PI/2,it.rot[2]*Math.PI/2);m.position.set(p[0],p[1]+clear,p[2])}
     const aq=aimQuat(c,it);if(aq)m.quaternion.premultiply(aq);
-    if(it.cid==='gimbal'&&(c.shell.gAt||'top')!=='top'){const sg=segs[(c.shell.gAt==='front')?segs.length-1:0],sx=c.shell.gAt==='front'?1:-1,x0=sg.cx+sx*sg.len/2,e=ext(it),x1=p[0]-sx*e[0]/2,arm=Math.abs(x1-x0);
+    if(!o.noShell&&!o.hide&&it.cid==='gimbal'&&(c.shell.gAt||'top')!=='top'){const sg=segs[(c.shell.gAt==='front')?segs.length-1:0],sx=c.shell.gAt==='front'?1:-1,x0=sg.cx+sx*sg.len/2,e=ext(it),x1=p[0]-sx*e[0]/2,arm=Math.abs(x1-x0);
       const pl=new THREE.Mesh(rrGeo(4,Math.min(76,e[1]),Math.min(94,e[2]),1),SMAT.plate);pl.position.set(x1-sx*2,p[1]+clear,p[2]);root.add(pl);
       if(arm>3)[[-22,-30],[22,-30],[-22,30],[22,30]].forEach(([dy,dz])=>{const t=tubeM([x0,p[1]+clear+dy,p[2]+dz],[x1-sx*4,p[1]+clear+dy,p[2]+dz],5,SMAT.main);if(t)root.add(t)})}
     m.userData.id=it.id;root.add(m);const parts=[m];
@@ -2175,15 +2199,24 @@ function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.la
     const tw=new THREE.Vector3(hw.x+d.x*off,lift,hw.z+d.z*off),tl=tw.applyMatrix4(_wm.copy(Mi).invert()),z=L.pz.hip[2],hp=L.pz.hip;
     const k=ik([hp[0],hp[1]],[tl.x,tl.y],L.T,L.Sn,L.dir);
     walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)})}
-/* 19.11 (Sharon: the 3D got stuck on every change): the frame search is the slow part (~0.2 s). It is cached per configuration, and while a part
-   or slider keeps moving the last frame stays on screen; the frame is rebuilt once the movement stops. */
-const FRC={key:'',fr:null,t:0,to:0};
-function frameFor(c,clear){const key=JSON.stringify(c)+'|'+clear;if(FRC.fr&&FRC.key===key)return FRC.fr;const now=performance.now(),busy=now-FRC.t<300;FRC.t=now;
-  if(busy&&FRC.fr){clearTimeout(FRC.to);FRC.to=setTimeout(()=>{FRC.t=0;build3D()},320);return FRC.fr}
-  if(FRC.fr)FRC.fr.g.traverse(x=>{if(x.geometry)x.geometry.dispose()});const fr=simFrame(c,clear);fr.g.userData.keep=1;FRC.key=key;FRC.fr=fr;return fr}
+/* 19.11 (Sharon: the 3D got stuck on every change): the frame search is the slow part. It is cached per configuration, and while the mouse or finger
+   is down (dragging a part, a handle or a slider) the last frame stays on screen and only follows the moved parts (frameFollow); the full frame
+   is worked out again when the pointer is released. */
+const FRC={key:'',fr:null,stale:false},PTR={down:false};
+document.addEventListener('pointerdown',()=>{PTR.down=true},true);
+['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,()=>{if(!PTR.down)return;PTR.down=false;if(FRC.stale)requestAnimationFrame(()=>{if(FRC.stale)build3D()})},true));
+function frameFor(c,clear){const key=JSON.stringify(c)+'|'+clear;if(FRC.fr&&FRC.key===key){FRC.stale=false;return FRC.fr}
+  if(PTR.down&&FRC.fr){FRC.stale=true;return FRC.fr}
+  if(FRC.fr)FRC.fr.g.traverse(x=>{if(x.geometry)x.geometry.dispose()});const fr=simFrame(c,clear);fr.g.userData.keep=1;FRC.key=key;FRC.fr=fr;FRC.stale=false;return fr}
+function frameFollow(fr,c){(fr.info.parts||[]).forEach(p=>{const it=c.items.find(i=>i.id===p.id);if(!it||!p.c0)return;const a=aabb(c,it),d=[0,1,2].map(k=>(a.min[k]+a.max[k])/2-p.c0[k]);
+  const moved=Math.hypot(...d)>.05;if(!moved&&!p.wasMoved)return;p.wasMoved=moved;
+  p.tubes.forEach(t=>{const b=t.b.map((v,k)=>v+d[k]);if(t.mesh){t.grp.remove(t.mesh);t.mesh.geometry.dispose();t.mesh=null}
+    if(!t.stub){const m=tubeM(t.a,b,5,SMAT.tube);if(m){m.raycast=()=>{};t.grp.add(m);t.mesh=m}}
+    if(t.pad){t.pad.position.set(b[0],b[1],b[2]);const dv=V3(b).sub(V3(t.a));if(dv.lengthSq()>.1)t.pad.quaternion.setFromUnitVectors(UPV,dv.normalize())}});
+  (p.follow||[]).forEach(o=>o.position.copy(o.userData.p0).add(new THREE.Vector3(d[0],d[1],d[2])))})}
 function build3D(){
-  clearRoot(root);const c=cfg(),{segs,clear}=WK.on?walkBuild(c):fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c),noShell:V.frame});
-  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameFor(c,clear);fr.gs.forEach(q=>{q.position.y=0;fr.g.add(q)});root.add(fr.g);fi.textContent=simFrameNote(fr.info)}else if(!WK.on)fi.textContent='';
+  clearRoot(root);const c=cfg(),{segs,clear}=WK.on?walkBuild(c):fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c),noShell:V.frame,hide:!!V.hide});
+  const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameFor(c,clear);frameFollow(fr,c);fr.gs.forEach(q=>{q.position.y=0;fr.g.add(q)});root.add(fr.g);fi.textContent=simFrameNote(fr.info)}else if(!WK.on)fi.textContent='';
   if(V.fab&&!WK.on)root.add(fabricShell(c,clear));
   /* colours are sRGB, the renderer works in linear light: convert once; parts cast and catch shadows */
   root.traverse(o=>{if(!o.isMesh&&!o.isLine)return;const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m&&m.color&&!m.userData.lin){m.color.convertSRGBToLinear();m.userData.lin=1}});
@@ -2543,14 +2576,18 @@ W3.addEventListener('pointerdown',ev=>{if(!(V.mode==='3d'||V.mode==='win')||ev.b
   if(it&&it.locked)toast('נעול. אפשר לבטל את הנעילה בחלון שלמטה');
   if(it&&!it.auto&&!it.locked&&!PRES){const vert=ev.shiftKey,n=new THREE.Vector3(0,1,0);
     if(vert){cam.getWorldDirection(n);n.y=0;if(n.lengthSq()<1e-4)n.set(0,0,1);n.normalize()}
-    d3={it,plane:new THREE.Plane().setFromNormalAndCoplanarPoint(n,h.point),p0:h.point.clone(),pos0:it.pos.slice(),vert,moved:false};
-    oc.enabled=false;W3.setPointerCapture(ev.pointerId)}
+    d3={it,plane:new THREE.Plane().setFromNormalAndCoplanarPoint(n,h.point),p0:h.point.clone(),pos0:it.pos.slice(),vert,moved:false,sx:ev.clientX,sy:ev.clientY,acc:new THREE.Vector3(),last:null};
+    /* stop the camera glide at once, so the view does not keep drifting under the part while it is dragged */
+    oc.enableDamping=false;oc.update();oc.enabled=false;W3.setPointerCapture(ev.pointerId)}
   renderLight()},true);
 W3.addEventListener('pointermove',ev=>{if(!d3||!d3.it)return;rayAt(ev);const pt=new THREE.Vector3();if(!ray.ray.intersectPlane(d3.plane,pt))return;
-  const d=pt.sub(d3.p0);if(!d3.moved&&d.length()<1.5)return;if(!d3.moved){snap();d3.moved=true}
+  /* 20.11 (Sharon: parts jumped instead of moving smoothly): the move adds up the steps between one pointer position and the next, so a camera
+     that was still gliding when the part was grabbed, or a ray almost parallel to the drag plane, can no longer throw the part far away */
+  if(!d3.moved){if(Math.hypot(ev.clientX-d3.sx,ev.clientY-d3.sy)<3)return;snap();d3.moved=true;d3.last=pt.clone();return}
+  const st=pt.clone().sub(d3.last);d3.last.copy(pt);const sl=st.length(),lim=60;if(sl>lim)st.multiplyScalar(lim/sl);d3.acc.add(st);const d=d3.acc;
   const q=d3.pos0,c=cfg(),want=d3.vert?[q[0],q[1]+d.y,q[2]]:[q[0]+d.x,q[1],q[2]+d.z];
   d3.want=want;moveItem(c,d3.it,want,d3.vert?[false,true,false]:[true,false,true]);computeTops(c);schedule()});
-const end3=ev=>{if(d3&&d3.it){oc.enabled=true;if(d3.moved){save();refresh();blockedNote(cfg(),d3.it,d3.want)}}else if(d3&&d3.click&&sel&&Math.hypot(ev.clientX-d3.x,ev.clientY-d3.y)<4){sel=null;renderLight()}d3=null};
+const end3=ev=>{if(d3&&d3.it){oc.enabled=true;oc.enableDamping=true;if(d3.moved){save();refresh();blockedNote(cfg(),d3.it,d3.want)}}else if(d3&&d3.click&&sel&&Math.hypot(ev.clientX-d3.x,ev.clientY-d3.y)<4){sel=null;renderLight()}d3=null};
 W3.addEventListener('pointerup',end3);W3.addEventListener('pointercancel',end3);
 
 /* ---------- panels ---------- */
@@ -2910,6 +2947,7 @@ document.querySelectorAll('#frameTg button').forEach(b=>b.onclick=()=>{V.frame=b
   try{V.fab=localStorage.getItem('dash-fab')==='1'}catch(e){}setP(fb,!!V.fab);
   fb.onclick=()=>{V.fab=!V.fab;setP(fb,V.fab);try{localStorage.setItem('dash-fab',V.fab?'1':'0')}catch(e){}build3D()};
   sb.onclick=()=>{SVCA.on=!SVCA.on;setP(sb,SVCA.on);SVCA.dirty=true;if(SVCA.on&&!(V.mode==='3d'||V.mode==='win'))toast('ההוצאה נראית בתלת מימד')};
+  const hb=$('#hidebtn');V.hide=false;setP(hb,false);hb.onclick=()=>{V.hide=!V.hide;setP(hb,V.hide);if(V.hide&&!V.frame){V.frame=true;document.querySelectorAll('#frameTg button').forEach(x=>x.classList.toggle('on',x.dataset.f==='1'))}build3D()};
   $('#seebtn').onclick=()=>openSight()}
 /* share of each sensor's field of view that the gimbal (with its cameras) covers, within 60 cm. Rays from the middle of the sensor's front face,
    against the real gimbal mesh in the 3D view. Fields from the cards (data.json fov); navigation camera height 65° is my assumption (the card has none). */
