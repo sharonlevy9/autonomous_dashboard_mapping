@@ -2402,7 +2402,7 @@ function stRelocate(id,only,pl,ex){if(stIt(id).on)id=stIt(id).on;if(stIt(id).ins
       if(!best||score<best.s)best={s:score,p:[a,b],r}}}
   if(best){pl.pos[id]=best.p;st.rot[id]=best.r;pl.y0[id]=0;DEF.station.items.forEach(k=>{if(k.on===id){pl.pos[k.id]=best.p.slice();pl.y0[k.id]=it.h}});return best.s}pl.pos[id]=old;st.rot[id]=keepRot;return 1e9}
 function stCommit(pl){const st=stS();st.touched=true;DEF.station.items.forEach(i=>{st.pos[i.id]=pl.pos[i.id].slice();st.y0[i.id]=pl.y0[i.id]});save()}
-const ST_ORDER=['drum','forj','winchmotor','jrk','pulleys','loadcell','daq','sfpadapter','computer','hub','wifi','mast','ebox_st','buck','spare1','spare2'];
+const ST_ORDER=['drum','forj','winchmotor','jrk','pulleys','loadcell','daq','sfpadapter','computer','hub','wifi','mast','gps','battery','bms','charger','buck','magconn'];
 function stAutoArrange(){snap();const o=stOpt(),st=stS();if(!st.touched){const a=stAuto(o);st.L=a.L}st.touched=true;
   stBuild();const pl=ST.pl,ex=ST.ex,only=new Set();st.rot={};
   ST_ORDER.forEach(id=>{only.add(id);DEF.station.items.forEach(k=>{if(k.on===id)only.add(k.id)});let s=stRelocate(id,only,pl,ex),n=0;
