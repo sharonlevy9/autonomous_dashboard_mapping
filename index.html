@@ -4524,8 +4524,8 @@ function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group
     return{id:p.id,b:{mn:p.bb.mn.map((v,i)=>v+Math.min(0,d[i]*dist)),mx:p.bb.mx.map((v,i)=>v+Math.max(0,d[i]*dist))}}});
   const segHits=(a,b,r,skip)=>{const L=L3(a,b),N=Math.max(2,Math.ceil(L/3));for(let k=1;k<N;k++){const q=lerp(a,b,k/N);if(parts.some(o=>!skip.has(o.id)&&inB(q,o.bb,r-.5)))return true;if(plates.some(pl=>inB(q,pl.bb,r-.5)))return true}return false};
   const inSvc=(a,b,id)=>svcB.some(s=>s.id!==id&&[.2,.4,.6,.8].some(f=>inB(lerp(a,b,f),s.b,RA)));
-  const tryFrom=(p,mems,want,out)=>{const tb=p.bb,tp=[],N=4;for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)for(let k=0;k<=N;k++){if(i%N&&j%N&&k%N)continue;tp.push([tb.mn[0]+(tb.mx[0]-tb.mn[0])*i/N,tb.mn[1]+(tb.mx[1]-tb.mn[1])*j/N,tb.mn[2]+(tb.mx[2]-tb.mn[2])*k/N])}
-    const cand=[];mems.forEach(m=>{const L=L3(m.a,m.b),ns=Math.max(2,Math.ceil(L/12));for(let s=0;s<=ns;s++){const a=lerp(m.a,m.b,s/ns);tp.forEach(t=>{const l=L3(a,t);if(l<=260)cand.push({a,t,l})})}});
+  const tryFrom=(p,mems,want,out,cap)=>{const tb=p.bb,tp=[],N=4;for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)for(let k=0;k<=N;k++){if(i%N&&j%N&&k%N)continue;tp.push([tb.mn[0]+(tb.mx[0]-tb.mn[0])*i/N,tb.mn[1]+(tb.mx[1]-tb.mn[1])*j/N,tb.mn[2]+(tb.mx[2]-tb.mn[2])*k/N])}
+    const cand=[];mems.forEach(m=>{const L=L3(m.a,m.b),ns=Math.max(2,Math.ceil(L/12));for(let s=0;s<=ns;s++){const a=lerp(m.a,m.b,s/ns);tp.forEach(t=>{const l=L3(a,t);if(l<=(cap||260))cand.push({a,t,l})})}});
     cand.sort((x,y)=>x.l-y.l);const skip=new Set([p.id]);
     for(const q of cand){if(out.length>=want)break;if(out.some(o=>L3(o.b,q.t)<Math.max(30,Math.min(...p.bb.mx.map((v,i)=>v-p.bb.mn[i]))*.6)))continue;
       const u=q.t.map((v,i)=>(v-q.a[i])/(q.l||1)),a2=q.a.map((v,i)=>v+u[i]*Math.min(RM,q.l));
@@ -4557,6 +4557,21 @@ function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group
     while(q.length){const m=q.pop();ms.forEach(o=>{if(!seen.has(o)&&touch(m,o)){seen.add(o);q.push(o)}})}ms.forEach(m=>{if(!seen.has(m))loose.push(m.id)})});
   /* 20.11 (Sharon: no part without a purpose): every free end of a member must rest on a part, a plate or another member (rails are free by design) */
   const dang=[];mem.forEach(m=>{if(m.k==='rail')return;[m.a,m.b].forEach((e,k)=>{if(!(mem.some(o=>o!==m&&dSeg(e,o.a,o.b)<=m.r+o.r+1)||parts.some(p=>inB(e,p.bb,m.r+1.5))||plates.some(pl=>inB(e,pl.bb,m.r+1.5))||(gimP&&inB(e,gimP.plate,m.r+1.5))))dang.push(m.id+(k?'b':'a'))})});
+  /* 22.11 (Sharon: some parts floated free of the frame): a part that no tube reached gets more chances, in this order:
+     (1) a tube up to 400 mm long, also from the middle of another part's tube (a clamp on that tube), (2) a bolt to a part that touches it and is held.
+     Anything still unheld stays in the list and is shown in the frame note. */
+  const viaPart=[];
+  if(noTube.length){const virt=seg=>{const v=[];parts.forEach(o=>(o.tubes||[]).forEach(q=>{if(!q.stub&&o.seg===seg)v.push({id:'t'+o.id,seg,a:q.a,b:q.b,r:RA,k:'vt'})}));return v};
+    for(let pass=0;pass<4&&noTube.length;pass++){let any=false;
+      noTube.slice().forEach(p=>{const bbSave=p.bb;if(p===gimP)p.bb=p.plate;const out=[];tryFrom(p,mem.filter(m=>m.seg===p.seg).concat(virt(p.seg)),(p.w>200||p===gimP)?2:1,out,400);if(p===gimP)p.bb=bbSave;
+        if(out.length){out.forEach(o=>{if(!mem.some(m=>m.seg===p.seg&&dSeg(o.a,m.a,m.b)<=m.r+1.5))o.virt=true});p.tubes=out;noTube.splice(noTube.indexOf(p),1);any=true}});
+      if(!any)break}
+    /* (2) a short bridge (a post up to 80 mm, or just a bolt when they touch) from the nearest part that is already held; it must not pass through another part */
+    const held=p=>p.direct||p.hip||p.rails||(p.tubes&&p.tubes.length)||p.via,near=(p,q)=>{const a=[],b=[];for(let k=0;k<3;k++){const lo=Math.max(p.bb.mn[k],q.bb.mn[k]),hi=Math.min(p.bb.mx[k],q.bb.mx[k]);if(lo<=hi){a.push((lo+hi)/2);b.push((lo+hi)/2)}else if(p.bb.mx[k]<q.bb.mn[k]){a.push(q.bb.mn[k]);b.push(p.bb.mx[k])}else{a.push(q.bb.mx[k]);b.push(p.bb.mn[k])}}return{a,b,d:L3(a,b)}};
+    for(let pass=0;pass<6&&noTube.length;pass++){let any=false;
+      noTube.slice().forEach(p=>{const cand=parts.filter(q=>q!==p&&held(q)&&q.seg===p.seg).map(q=>({q,n:near(p,q)})).filter(x=>x.n.d<=80).sort((u,v)=>(u.q.via?1000:0)+u.n.d-(v.q.via?1000:0)-v.n.d);
+        for(const x of cand){const st=x.n.d<1.5;if(!st&&segHits(x.n.a,x.n.b,RA,new Set([p.id,x.q.id])))continue;p.via=x.q;p.tubes=[{a:x.n.a,b:x.n.b,stub:st,virt:true}];viaPart.push(name(c,p.it)+' ← '+name(c,x.q.it)+(st?'':' ('+Math.round(x.n.d)+' מ"מ)'));noTube.splice(noTube.indexOf(p),1);any=true;break}});
+      if(!any)break}}
   /* removal paths still blocked (by a part, a member or a tube) */
   const blocked=[];svcB.forEach(s=>{const p=parts.find(x=>x.id===s.id);
     parts.forEach(o=>{if(o===p)return;const b=o.bb;if([0,1,2].every(k=>s.b.mn[k]<b.mx[k]-.5&&b.mn[k]<s.b.mx[k]-.5))blocked.push(name(c,p.it)+' / '+name(c,o.it))});
@@ -4593,7 +4608,7 @@ function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group
   if(gimP){const q=gimP.plate,sz=[q.mx[0]-q.mn[0],q.mx[1]-q.mn[1],q.mx[2]-q.mn[2]],ctr=q.mn.map((v,i)=>(v+q.mx[i])/2),pm=new THREE.Mesh(rrGeo(sz[0],sz[1],sz[2],1),SMAT.plate);pm.position.set(ctr[0],ctr[1],ctr[2]);gs[gimP.seg].add(pm);pm.userData.p0=pm.position.clone();gimP.follow.push(pm);
     const dx=gimP.fr?q.mx[0]+1.4:q.mn[0]-1.4;[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([u,v])=>{const bt=new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,2.8,12),SMAT.plate);bt.rotation.z=Math.PI/2;bt.position.set(dx,ctr[1]+u*(sz[1]/2-8),ctr[2]+v*(sz[2]/2-8));gs[gimP.seg].add(bt);bt.userData.p0=bt.position.clone();gimP.follow.push(bt)})}
   let La=0,nA=0;parts.forEach(p=>p.tubes.forEach(t=>{nA++;t.grp=gs[p.seg];
-    if(V.real&&!t.stub){/* start on a shared 30 mm grid along the member, then right-angle legs */const sp=mem.filter(m=>m.seg===p.seg).sort((u,v)=>{const d=m=>{const ab=m.b.map((x,i)=>x-m.a[i]),l2=ab.reduce((q,x)=>q+x*x,0)||1,tt=Math.max(0,Math.min(1,ab.reduce((q,x,i)=>q+x*(t.a[i]-m.a[i]),0)/l2));return L3(t.a,m.a.map((x,i)=>x+ab[i]*tt))};return d(u)-d(v)})[0];
+    if(V.real&&!t.stub&&!t.virt){/* start on a shared 30 mm grid along the member, then right-angle legs */const sp=mem.filter(m=>m.seg===p.seg).sort((u,v)=>{const d=m=>{const ab=m.b.map((x,i)=>x-m.a[i]),l2=ab.reduce((q,x)=>q+x*x,0)||1,tt=Math.max(0,Math.min(1,ab.reduce((q,x,i)=>q+x*(t.a[i]-m.a[i]),0)/l2));return L3(t.a,m.a.map((x,i)=>x+ab[i]*tt))};return d(u)-d(v)})[0];
       let a=t.a.slice();if(sp){const k=[0,1,2].reduce((q,i)=>Math.abs(sp.b[i]-sp.a[i])>Math.abs(sp.b[q]-sp.a[q])?i:q,0),lo=Math.min(sp.a[k],sp.b[k]),hi=Math.max(sp.a[k],sp.b[k]);a[k]=Math.max(lo,Math.min(hi,Math.round(a[k]/30)*30));RX.mounts.add(sp.id+':'+Math.round(a[k]))}
       const pts=manh(a,t.b,new Set([p.id]),p.id);if(pts&&pts.length>1){const G=new THREE.Group();for(let i=0;i<pts.length-1;i++){const m=tubeM(pts[i],pts[i+1],RA,SMAT.tube);if(m)G.add(m);La+=L3(pts[i],pts[i+1]);
           if(i>0){const j=new THREE.Mesh(new THREE.SphereGeometry(RA+.6,14,10),SMAT.tube);j.position.set(pts[i][0],pts[i][1],pts[i][2]);G.add(j)}}
@@ -4603,11 +4618,11 @@ function simFrame(c,clear){const segs=shellOf(c),n=segs.length,g=new THREE.Group
     const pad=new THREE.Mesh(new THREE.CylinderGeometry(9,9,3,24),SMAT.plate),dv=V3(t.b).sub(V3(t.a));pad.position.set(t.b[0],t.b[1],t.b[2]);if(dv.lengthSq()>.1)pad.quaternion.setFromUnitVectors(UPV,dv.normalize());gs[p.seg].add(pad);t.pad=pad}));
   g.traverse(o=>{o.raycast=()=>{}});g.position.y=clear;
   const AL=.0027,wT=(r,t,L)=>Math.PI*(r*r-(r-t)*(r-t))*L*AL;let Lm=0,Lr=0;mem.forEach(m=>{const L=L3(m.a,m.b);if(m.k==='rail')Lr+=L;else Lm+=L});
-  const info={real:V.real?{brk:RX.brk,brace:RX.brace,mounts:RX.mounts.size,plates:RX.plates,wp:Math.round(RX.platesV*AL+wT(5,1,RX.bent))}:null,tubes:nA,La:Math.round(La),Lm:Math.round(Lm),Lr:Math.round(Lr),w:Math.round(wT(8,1.5,Lm)+wT(5,1,Lr)+wT(5,1,La)),noTube:noTube.map(p=>name(c,p.it)),loose,dang,blocked,direct:parts.filter(p=>p.direct).map(p=>name(c,p.it)),parts};
+  const info={real:V.real?{brk:RX.brk,brace:RX.brace,mounts:RX.mounts.size,plates:RX.plates,wp:Math.round(RX.platesV*AL+wT(5,1,RX.bent))}:null,tubes:nA,La:Math.round(La),Lm:Math.round(Lm),Lr:Math.round(Lr),w:Math.round(wT(8,1.5,Lm)+wT(5,1,Lr)+wT(5,1,La)),noTube:noTube.map(p=>name(c,p.it)),viaPart,loose,dang,blocked,direct:parts.filter(p=>p.direct).map(p=>name(c,p.it)),parts};
   return{g,gs,info}}
 function simFrameNote(f){return(f.real?'שלד ריאלי (הדמיה): '+f.real.brk+' תושבות למנועי הירך, '+f.real.brace+' צינורות חיזוק לפלטות הקרדן, חיבורים בזווית ישרה עם פלטה ו-2 ברגים, '+f.real.mounts+' נקודות חיבור על השלד (רכיבים קרובים חולקים נקודה). השלד לרכיבים בלבד, בלי חיבורים למעטפת. תוספת משקל לתושבות, פלטות וחיזוקים: כ-'+f.real.wp+' גרם (חישוב שלי). המידות של הפלטות והברגים הן הנחה שלי. ':'')+'שלד מינימלי (כמו בהדמיה): עמוד שדרה אחד בכל חוליה בגובה מנועי הירך, מוט ירכיים אחד, 2 מסילות לסוללה (מחוברות לעמוד השדרה), ולכל רכיב, גם לגימבל, צינור אחד (2 מעל 200 גרם). '+
   f.tubes+' צינורות חיבור באורך '+f.La+' מ"מ, שלד ראשי '+f.Lm+' מ"מ, מסילות '+f.Lr+' מ"מ. משקל, חישוב שלי (נפח הדופן × 2.7 גרם לסמ"ק, Ø16×1.5 ו-Ø10×1): כ-'+f.w+' גרם, בלי ברגים, לוחיות ומזלגות הקרדן.'+
-  (f.direct.length?' מוברגים ישר על עמוד השדרה: '+f.direct.join(', ')+'.':'')+(f.noTube.length?' בלי חיבור: '+f.noTube.join(', ')+'.':' לכל רכיב יש חיבור.')+(f.loose&&f.loose.length?' חלקי שלד לא מחוברים: '+f.loose.length+'.':' כל חלקי השלד מחוברים זה לזה ולקרדן.')+(f.dang&&f.dang.length?' קצוות שלא נשענים על כלום: '+f.dang.length+'.':' לכל חלק בשלד יש תפקיד: כל קצה נשען על רכיב, פלטה או חלק אחר.')+(f.blocked.length?' דרך הוצאה חסומה: '+[...new Set(f.blocked)].join(', ')+'.':' דרכי ההוצאה של הסוללה, המחשב ובקר הבטיחות פנויות.')}
+  (f.direct.length?' מוברגים ישר על עמוד השדרה: '+f.direct.join(', ')+'.':'')+(f.viaPart&&f.viaPart.length?' מחוברים דרך רכיב סמוך (בורג, או עמוד קצר עד 80 מ"מ), כי צינור ישר מהשלד חסום: '+f.viaPart.join(', ')+'.':'')+(f.noTube.length?' עדיין בלי חיבור: '+f.noTube.join(', ')+'.':' לכל רכיב יש חיבור.')+(f.loose&&f.loose.length?' חלקי שלד לא מחוברים: '+f.loose.length+'.':' כל חלקי השלד מחוברים זה לזה ולקרדן.')+(f.dang&&f.dang.length?' קצוות שלא נשענים על כלום: '+f.dang.length+'.':' לכל חלק בשלד יש תפקיד: כל קצה נשען על רכיב, פלטה או חלק אחר.')+(f.blocked.length?' דרך הוצאה חסומה: '+[...new Set(f.blocked)].join(', ')+'.':' דרכי ההוצאה של הסוללה, המחשב ובקר הבטיחות פנויות.')}
 
 /* ---- see-through shell stretched over the parts like fabric: per segment, the convex hull of all parts (rounded 6 mm at the corners) and of the frame.
    Not the gimbal, its cameras or the legs (they are outside). Recomputed on every change, so it follows what is dragged. */
@@ -4756,6 +4771,24 @@ function frameGroup(c,clear){
    Axes: pitch = around the width axis (+ = front segment up), yaw = around the vertical axis (+ = front goes left), roll = around the length axis (+ = leans right). ---------- */
 const WK={on:false,play:true,auto:false,spd:1,ang:[],t:0,last:0,seg:[],legs:[],J:[],c:null,grid:null,gaps:-1};
 const WK_S=70,WK_LIFT=30,WK_DUTY=.6,WK_T=1.4,WK_LIM={p:45,y:45,r:20},DEG=Math.PI/180;
+/* 22.11 (Sharon: the joint motor went into the frame when turning). The tilt motor sits on the side of the cross (about 76 mm off the turn axis), so a turn
+   swings it into the rear segment, and the turn motor on top swings into the front one when it tilts. This measures how deep the two motors go into a segment
+   (mm, 0 = clear) from their real size (disc 69 mm, 25 mm thick) and the segment boxes; the walk view then stops the joint where they would go deeper than they
+   already are at rest. Motor sizes and positions are the ones drawn in cardan(); the 2 mm margin is my assumption. */
+function jointDepth(c,g,G,yawDeg,pitchDeg){const sg=shellOf(c),a=sg[g],b=sg[g+1];if(!a||!b)return 0;
+  const jy=jointY(c,g),tz=Math.min(76,Math.min(a.wid,b.wid)/2-19),R=34.5,ym=[],pm=[];
+  for(let k=0;k<12;k++){const q=k*Math.PI/6,x=R*Math.cos(q),s=R*Math.sin(q);[61.5,86.5].forEach(y=>ym.push([x,y,s]));[tz-12.5,tz+12.5].forEach(z=>pm.push([x,s,z]))}
+  const ry=yawDeg*Math.PI/180,rp=pitchDeg*Math.PI/180,cy=Math.cos(ry),sy=Math.sin(ry),cp=Math.cos(rp),sp=Math.sin(rp);
+  const fwd=q=>{const x1=q[0]*cp-q[1]*sp,y1=q[0]*sp+q[1]*cp;return[x1*cy+q[2]*sy,y1,-x1*sy+q[2]*cy]},inv=q=>{const x1=q[0]*cy-q[2]*sy,z1=q[0]*sy+q[2]*cy;return[x1*cp+q[1]*sp,-x1*sp+q[1]*cp,z1]};
+  let d=0;
+  pm.forEach(q=>{const w=fwd(q);if(w[1]>-jy&&w[1]<a.hei-jy&&Math.abs(w[2])<a.wid/2)d=Math.max(d,-G/2+2-w[0])});
+  ym.forEach(q=>{const l=inv(q);if(l[1]>-jy&&l[1]<b.hei-jy&&Math.abs(l[2])<b.wid/2)d=Math.max(d,l[0]-G/2+2)});
+  return d}
+function jointLimit(c,g){const G=gapOf(c),d0=jointDepth(c,g,G,0,0),ok=(y,p)=>jointDepth(c,g,G,y,p)<=d0+.5&&jointDepth(c,g,G,-y,-p)<=d0+.5,L={y:0,p:0,d0:Math.round(d0),G:Math.round(G)};
+  while(L.y<45&&ok(L.y+1,0))L.y++;while(L.p<45&&ok(0,L.p+1))L.p++;
+  /* smallest gap that lets the joint turn 30 degrees each way, both axes */
+  let need=null;for(let g2=20;g2<=400;g2+=2){if(jointDepth(c,g,g2,30,0)<=.5&&jointDepth(c,g,g2,-30,0)<=.5&&jointDepth(c,g,g2,0,30)<=.5&&jointDepth(c,g,g2,0,-30)<=.5){need=g2;break}}
+  L.need30=need;return L}
 function walkLab(k,v){v=Math.round(v);if(!v)return'ישר';const a=Math.abs(v)+'°';return k==='p'?(v>0?'למעלה ':'למטה ')+a:k==='y'?(v>0?'שמאלה ':'ימינה ')+a:(v>0?'לימין ':'לשמאל ')+a}
 function walkPanel(c){const el=$('#walkPanel');el.classList.toggle('on',WK.on);if(!WK.on){el.innerHTML='';return}
   const n=c.shell.n;WK.gaps=n-1;while(WK.ang.length<n-1)WK.ang.push({p:0,y:0,r:0});WK.ang.length=Math.max(0,n-1);
@@ -4763,8 +4796,9 @@ function walkPanel(c){const el=$('#walkPanel');el.classList.toggle('on',WK.on);i
     +'<div class="wr"><label>מהירות</label><input type="range" id="wkSpd" min="0.3" max="2" step="0.1" value="'+WK.spd+'"><b id="wkSpdL">×'+WK.spd+'</b></div>';
   if(n<2)h+='<div class="wn">יש רק חוליה אחת, אז אין זוויות בין חוליות. אפשר להגדיל ל-2 חוליות ומעלה.</div>';
   for(let g=0;g<n-1;g++){h+='<h4>מפרק '+(g+1)+' (חוליה '+(g+1)+' עם '+(g+2)+')</h4>';
-    [['p','הטיה'],['y','פנייה']].forEach(([k,l])=>{const m=WK_LIM[k];
-      h+='<div class="wr"><label>'+l+'</label><input type="range" data-g="'+g+'" data-k="'+k+'" min="'+-m+'" max="'+m+'" step="1" value="'+Math.round(WK.ang[g][k])+'"'+(WK.auto?' disabled':'')+'><b id="wl'+g+k+'">'+walkLab(k,WK.ang[g][k])+'</b></div>'})}
+    [['p','הטיה'],['y','פנייה']].forEach(([k,l])=>{const m=WK.lim&&WK.lim[g]?WK.lim[g][k]:WK_LIM[k];
+      h+='<div class="wr"><label>'+l+'</label><input type="range" data-g="'+g+'" data-k="'+k+'" min="'+-m+'" max="'+m+'" step="1" value="'+Math.round(WK.ang[g][k])+'"'+(WK.auto?' disabled':'')+'><b id="wl'+g+k+'">'+walkLab(k,WK.ang[g][k])+'</b></div>'});
+    const L=WK.lim&&WK.lim[g];if(L&&(L.y<WK_LIM.y||L.p<WK_LIM.p))h+='<div class="wn">הזווית מוגבלת כדי שמנועי המפרק לא ייכנסו לחוליות: פנייה עד '+L.y+'°, הטיה עד '+L.p+'° לכל כיוון (המרווח בין החוליות '+L.G+' מ"מ). '+(L.d0>0?'המנועים כבר נכנסים '+L.d0+' מ"מ לתוך החוליות במנוחה, כי המרווח קטן מקוטר המנוע (69 מ"מ). ':'')+(L.need30?'לפנייה והטיה של 30° לכל כיוון בלי שהמנועים ייכנסו לחוליות צריך מרווח של כ-'+L.need30+' מ"מ (חישוב שלי, לפי מידות המנועים והחוליות).':'')+'</div>'}
   h+='<details class="wn"><summary>הסבר</summary>המפרק הוא קרדן: צלב אחד באמצע, 2 מנועים. המנוע העליון מסובב את הצלב ימינה ושמאלה (פנייה), והמנוע בצד מטה את החוליה הקדמית למעלה ולמטה (הטיה). אין גלגול, הקרדן לא מסתובב סביב האורך. מידות הצעד והמהירות להמחשה, לא חישוב.</details>';
   el.innerHTML=h}
 $('#walkPanel').addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.k){WK.ang[+t.dataset.g][t.dataset.k]=+t.value;$('#wl'+t.dataset.g+t.dataset.k).textContent=walkLab(t.dataset.k,+t.value)}else if(t.id==='wkSpd'){WK.spd=+t.value;$('#wkSpdL').textContent='×'+WK.spd}else if(t.id==='wkAuto'){WK.auto=t.checked;walkPanel(cfg())}});
@@ -4772,7 +4806,8 @@ $('#walkPanel').addEventListener('click',e=>{const t=e.target.closest('button');
 document.querySelectorAll('#walkTg button').forEach(b=>b.onclick=()=>{WK.on=b.dataset.w==='1';document.querySelectorAll('#walkTg button').forEach(x=>x.classList.toggle('on',x===b));walkPanel(cfg());WK.last=0;schedule()});
 function walkBuild(c){
   const clear=clearAt(c,0),r=fillTool(root,c,0,{bad:badSet(c),walk:true,noShell:V.frame,hide:!!V.hide}),segs=r.segs,n=segs.length;
-  if(WK.gaps!==n-1)walkPanel(c);
+  WK.lim=[];for(let g=0;g<n-1;g++)WK.lim.push(jointLimit(c,g));const lk=JSON.stringify(WK.lim);
+  if(WK.gaps!==n-1||WK.limKey!==lk){WK.limKey=lk;walkPanel(c)}
   WK.c=c;WK.clear=clear;WK.grid=root.children[0];
   const gx=[];for(let g=0;g<n-1;g++)gx.push((segs[g].cx+segs[g].len/2+segs[g+1].cx-segs[g+1].len/2)/2);
   const G=segs.map(()=>{const q=new THREE.Group();q.matrixAutoUpdate=false;return q});
@@ -4793,9 +4828,13 @@ const _wv=new THREE.Vector3(),_wm=new THREE.Matrix4();
 function walkBar(m,a,b){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B)||1;m.position.copy(A).add(B).multiplyScalar(.5);m.scale.set(1,L,1);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize())}
 function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.last)/1000):0;WK.last=now;const c=WK.c;if(!c||!WK.seg.length)return;
   WK.t+=dt*WK.spd;
-  if(WK.auto)WK.ang.forEach((a,g)=>{a.p=WK_LIM.p*.55*Math.sin(WK.t*.9+g*1.3);a.y=WK_LIM.y*.55*Math.sin(WK.t*.6+g*.8+1);a.r=0});
+  const LM=g=>WK.lim&&WK.lim[g]||WK_LIM;
+  if(WK.auto)WK.ang.forEach((a,g)=>{a.p=LM(g).p*.55*Math.sin(WK.t*.9+g*1.3);a.y=LM(g).y*.55*Math.sin(WK.t*.6+g*.8+1);a.r=0});
   const M=[new THREE.Matrix4()];
-  WK.J.forEach((J,g)=>{const a=WK.ang[g]||{p:0,y:0,r:0},Ry=new THREE.Matrix4().makeRotationY(a.y*DEG),Rz=new THREE.Matrix4().makeRotationZ(a.p*DEG),T=new THREE.Matrix4().makeTranslation(J.x,J.y,J.z),Ti=new THREE.Matrix4().makeTranslation(-J.x,-J.y,-J.z);
+  WK.J.forEach((J,g)=>{const a0=WK.ang[g]||{p:0,y:0,r:0},L=WK.lim&&WK.lim[g]?WK.lim[g]:null,a={p:L?Math.max(-L.p,Math.min(L.p,a0.p)):a0.p,y:L?Math.max(-L.y,Math.min(L.y,a0.y)):a0.y,r:a0.r};
+    /* both axes together can still push a motor in: shrink the pair until it does not go deeper than at rest */
+    if(L){let s=1;while(s>0&&jointDepth(c,g,L.G,a.y*s,a.p*s)>L.d0+.5)s-=.1;if(s<1){a.y*=Math.max(0,s);a.p*=Math.max(0,s)}}
+    const Ry=new THREE.Matrix4().makeRotationY(a.y*DEG),Rz=new THREE.Matrix4().makeRotationZ(a.p*DEG),T=new THREE.Matrix4().makeTranslation(J.x,J.y,J.z),Ti=new THREE.Matrix4().makeTranslation(-J.x,-J.y,-J.z);
     /* the cross turns with the rear fork's motor (turn), the front segment then tilts on the cross */
     if(WK.cx&&WK.cx[g]){WK.cx[g].matrix.copy(M[g].clone().multiply(T).multiply(Ry).multiply(Ti));WK.cx[g].matrixWorldNeedsUpdate=true}
     M.push(M[g].clone().multiply(T).multiply(Ry).multiply(Rz).multiply(Ti))});
