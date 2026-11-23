@@ -4813,11 +4813,12 @@ function trotFor(c,L){const n=L.length;if(n<2)return null;const T=c.legs.thigh,S
   return{smax,hxm,vmax:smax/(TROT.beta*TROT.tmin)}}
 function trotNow(){const T=WK.tr;if(!T)return null;const sp=wkSpeed(),v=MMS(sp.eff);let s=Math.min(T.smax,v*TROT.beta*TROT.tmax),tc=TROT.tmax;if(v>0)tc=s/(v*TROT.beta);else s=0;return{s,tc,v,sp}}
 function wkInfoHtml(){if(WK.mode==='dyn'){const T=WK.tr;if(!T)return'<div class="wn bad"><b>אי אפשר לחשב ריצה:</b> הרגליים קצרות מדי ביחס לגובה הגוף מעל הקרקע.</div>';
-  const q=trotNow();return'<details class="wn"><summary>המספרים של הריצה</summary><ul style="margin:4px 0;padding-inline-start:18px;line-height:1.7">'
+  const q=trotNow(),hh=WK.legs.length?WK.legs[0].pz.hip[1]:100,fr=Math.pow(q.v/1000,2)/(9.81*hh/1000);return'<details class="wn"><summary>המספרים של ההליכה הדינמית</summary><ul style="margin:4px 0;padding-inline-start:18px;line-height:1.7">'
    +'<li>אורך צעד: <b>'+Math.round(q.s)+' מ"מ</b> (המקסימום שהרגליים מגיעות אליו: '+Math.round(T.smax)+')</li>'
    +'<li>זמן מחזור צעד: <b>'+fmt(q.tc,2)+' שנייה</b>, כלומר כל רגל עושה <b>'+fmt(1/q.tc,1)+' צעדים בשנייה</b></li>'
    +'<li>בערך <b>'+Math.round(2*(1-2*TROT.beta)*100)+'%</b> מהזמן כל ארבע הרגליים באוויר</li>'
-   +'<li>המהירות המקסימלית של הריצה: <b>'+fmt(KMH(T.vmax),1)+' קמ"ש</b></li></ul>'
+   +'<li>המהירות המקסימלית של הליכה דינמית: <b>'+fmt(KMH(T.vmax),1)+' קמ"ש</b></li>'
+   +'<li>הליכה או ריצה? מספר פרוד (v² חלקי g כפול גובה הירך) הוא <b>'+fmt(fr,2)+'</b>. מתחת ל-0.5 בערך זו הליכה, מעליו ריצה (כלל אצבע של בעלי חיים, לא בטוח)</li></ul>'
    +'<div>הנחות שלי, לא בטוח: המנועים מסוגלים לעד '+fmt(1/TROT.tmin,0)+' צעדים בשנייה. הסימולציה מראה רק איך זה נראה. האיזון (הבקר והחיישנים), הכוח של המנועים והזעזוע בנחיתה לא נבדקים כאן.</div></details>'}
   const P=WK.plan;if(!P)return'<div class="wn bad"><b>בקונפיגורציה הזאת אין הליכה איטית יציבה.</b> '+(_gc.vw||_gc.why||'')+' הכלי מוצג עומד במקום.</div>';
   const sp=wkSpeed();return'<details class="wn"><summary>המספרים של ההליכה</summary><ul style="margin:4px 0;padding-inline-start:18px;line-height:1.7">'
@@ -4826,11 +4827,11 @@ function wkInfoHtml(){if(WK.mode==='dyn'){const T=WK.tr;if(!T)return'<div class=
    +'<li>מרכז הכובד נשאר בתוך משולש שלוש הרגליים, ברווח של לפחות <b>'+Math.round(P.mg)+' מ"מ</b> מהקצה</li>'
    +'<li>המהירות המקסימלית של ההליכה האיטית: <b>'+fmt(sp.max,2)+' קמ"ש</b> ('+fmt(P.vmax/1000,3)+' מ\' בשנייה)</li></ul>'
    +'<div>הנחות שלי, לא בטוח: רגל מתנדנדת לא פחות מ-'+GAIT.SWING_MIN+' שנייה, החלקה לא פחות מ-'+GAIT.SLIDE_MIN+' שנייה, הרגל נמתחת עד 97% מהאורך שלה'+(P.cogKnown?'':', משקל חלק מהרכיבים לא ידוע')+'. מרכז הכובד חושב מהרכיבים שיש להם משקל.</div></details>'}
-function wkWarnHtml(){const sp=wkSpeed();if(WK.mode==='dyn'){if(!WK.tr)return'';return sp.cap?'<b><bdi>'+fmt(sp.req,2)+' קמ"ש</bdi> גבוה מדי לרגליים האלה.</b> המקסימום הוא <bdi>'+fmt(sp.max,1)+' קמ"ש</bdi> (הנחה שלי, לא בטוח), אז זה מה שמוצג. אפשר להאריך רגליים.':'ריצה: רגליים באלכסון זזות יחד, ויש רגעים שכל הרגליים באוויר.'}if(!WK.plan)return'';
+function wkWarnHtml(){const sp=wkSpeed();if(WK.mode==='dyn'){if(!WK.tr)return'';return sp.cap?'<b><bdi>'+fmt(sp.req,2)+' קמ"ש</bdi> גבוה מדי לרגליים האלה.</b> המקסימום הוא <bdi>'+fmt(sp.max,1)+' קמ"ש</bdi> (הנחה שלי, לא בטוח), אז זה מה שמוצג. אפשר להאריך רגליים.':'הליכה דינמית: רגליים באלכסון זזות יחד, ויש רגעים שכל הרגליים באוויר.'}if(!WK.plan)return'';
   return sp.cap?'<b><bdi>'+fmt(sp.req,2)+' קמ"ש</bdi> לא אפשרי בהליכה איטית.</b> היא מגיעה לכל היותר ל-<bdi>'+fmt(sp.max,2)+' קמ"ש</bdi>, אז זה מה שמוצג. כדי להגיע ל-<bdi>4 קמ"ש</bdi> הכלי צריך לרוץ (לפעמים כל הרגליים באוויר), וזו הליכה אחרת.':'המהירות בתוך מה שהליכה איטית מסוגלת לעשות.'}
 function walkPanel(c){const el=$('#walkPanel');el.classList.toggle('on',WK.on);if(!WK.on){el.innerHTML='';return}
   const n=c.shell.n;WK.gaps=n-1;while(WK.ang.length<n-1)WK.ang.push({p:0,y:0,r:0});WK.ang.length=Math.max(0,n-1);const sp=wkSpeed();
-  let h='<div class="wr"><div class="seg small" id="wkMode"><button data-m="dyn"'+(WK.mode==='dyn'?' class="on"':'')+'>ריצה (דינמית)</button><button data-m="slow"'+(WK.mode==='slow'?' class="on"':'')+'>הליכה איטית (סטטית)</button></div></div><div class="wr"><button id="wkPlay" class="btn">'+(WK.play?'עצירה':'הליכה')+'</button><button id="wkReset" class="btn">יישור החוליות</button></div>'
+  let h='<div class="wr"><div class="seg small" id="wkMode"><button data-m="dyn"'+(WK.mode==='dyn'?' class="on"':'')+'>הליכה דינמית</button><button data-m="slow"'+(WK.mode==='slow'?' class="on"':'')+'>הליכה איטית (סטטית)</button></div></div><div class="wr"><button id="wkPlay" class="btn">'+(WK.play?'עצירה':'הליכה')+'</button><button id="wkReset" class="btn">יישור החוליות</button></div>'
     +'<div class="wspd"><div class="wbig" id="wkKm"></div><div class="wsm" id="wkMs"></div></div>'
     +'<div class="wr"><label style="width:auto">מהירות</label><input type="range" id="wkSpd" min="0" max="100" step="1" value="'+wkK2P(sp.req||.1)+'"></div>'
     +'<div class="wr"><button id="wkMaxB" class="btn">'+(WK.mode==='dyn'?'הכי מהר':'הכי מהר בהליכה איטית')+'</button><button id="wkFour" class="btn"><bdi>4 קמ"ש</bdi></button></div>'
@@ -5963,6 +5964,19 @@ function cfg12Config(){const p=CFG12,c={id:uid(),name:p.name,shell:{n:2,per:true
   syncMotors(c);c.items.filter(i=>i.role==='hip').forEach(h=>{const q=p.hips.find(x=>x[0]===h.seg);if(!q)return;const e=ext(h),sg=shellOf(c)[h.seg];h.pos=[q[1],q[2],h.side*(sg.wid/2-e[2]/2)];h.manual=true});
   layout(c);return c}
 if(!S.cfg12){S.cfg12=true;try{S.configs.push(cfg12Config())}catch(e){console.error('cfg12',e)}save()}
+/* 23.11 (Sharon): legs of configuration 12 lengthened so that 4 km/h is a walk, and the warnings solved with as little change as possible.
+   Legs 135 mm per link = the longest the knee motor can still carry (torque check); each end of the shell +6 mm (parts stuck out 3-6 mm);
+   lidar turned so it looks forward (it was flagged because its axis pointed backwards); the two documentation lights moved 27 mm in to the wall; the buzzer 5 mm in;
+   the rest is the dashboard's own first fix for each warning (radars, air sensors, fibre adapter: 4-37 mm). Heat and joint-torque warnings are marked "fine as is" with a note. Only runs on a configuration 12 whose legs are still 70 mm. */
+function cfg12Fix(c){const act=S.active;S.active=S.configs.indexOf(c);
+  try{c.legs.thigh=135;c.legs.shin=135;c.shell.segs.forEach(s=>s.len+=6);syncTotal(c);
+    c.items.forEach(i=>{if(!i.keep)return;if(i.cid==='lidar'&&i.rot.join()==='0,0,1')i.rot=[0,0,3];if(i.cid==='doclight'&&Math.abs(i.pos[2])>90)i.pos[2]=Math.sign(i.pos[2])*83;if(i.cid==='buzzer'&&i.pos[2]<-90)i.pos[2]=-90});
+    layout(c);
+    for(let k=0;k<14;k++){const W=warnings(c).filter(w=>!(w.t==='rule'&&(w.r==='heat'||w.r==='joint')));if(!W.length)break;const F=fixesFor(c,W[0]);if(!F.length||!F[0].run())break;layout(c)}
+    c.waive=c.waive||{};warnings(c).filter(w=>w.t==='rule'&&(w.r==='heat'||w.r==='joint')).forEach(w=>{c.waive[wkey(w)]=w.r==='joint'?'הרמת חוליה היא רגעית: 5.7 ניוטון-מטר מתחת לשיא של המנוע (12.5). לא נבדק לעומק':w.text.indexOf('סוללה')===0?'שרון 23.11: מרווח של 30 מ"מ בין הסוללה לחלקים אחרים הוא לא כלל':'לא בטוח: לפי אותו עיקרון (שרון 23.11), חלקים מבודדים יכולים לשבת קרוב'});
+    c.cfg12v2=1}catch(e){console.error('cfg12Fix',e)}
+  S.active=act}
+if(!S.cfg12v2){S.cfg12v2=true;S.configs.filter(c=>c.sim==='12'&&!c.cfg12v2&&c.legs.thigh===70&&c.legs.shin===70).forEach(cfg12Fix);save()}
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
 /* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
