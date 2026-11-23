@@ -659,7 +659,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     </section>
     <div class="side">
       <section class="card m3"><div class="cardh">איך זה נראה במרחב</div><div id="w3"><canvas id="c3"></canvas><div class="hint3">גרירת רכיב: לאורך ולרוחב. Shift + גרירה: למעלה ולמטה. גרירת הרקע: סיבוב. גלגלת: זום. כפתור ימני: הזזת המבט.</div></div>
-        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="סימולציית הליכה: שלוש רגליים תמיד על הקרקע, הגוף מחליק לפני כל הרמה, מהירות בקמ&quot;ש ורקע מערה.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><button class="pill" id="fabbtn" type="button" aria-pressed="false" title="מעטפת שקופה שנמתחת על הרכיבים כמו בד, ומשתנה בכל הזזה">מעטפת שקופה</button><button class="pill on" id="realbtn" type="button" aria-pressed="true" title="מחליף בין השלד המינימלי לשלד הריאלי">שלד ריאלי</button><button class="pill" id="hidebtn" type="button" aria-pressed="false" title="מסתיר את הרכיבים ומשאיר רק את השלד, הקרדן והרגליים">רק שלד</button><button class="pill" id="svcbtn" type="button" aria-pressed="false" title="הסוללה, המחשב ובקר הבטיחות יוצאים בכיוון ההוצאה שלהם">הוצאה לתחזוקה</button><button class="pill" id="seebtn" type="button" title="כמה הגימבל מסתיר מכל חיישן, וזווית תאורות התיעוד">ראייה ותאורה</button><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><details style="padding:0 14px 10px;font-size:13px;color:var(--muted)"><summary style="cursor:pointer">מידות ומשקל השלד</summary><div id="frameInfo"></div></details></section>
+        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="סימולציית הליכה: שלוש רגליים תמיד על הקרקע, הגוף מחליק לפני כל הרמה, מהירות בקמ&quot;ש ורקע מערה.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><button class="pill" id="fabbtn" type="button" aria-pressed="false" title="מעטפת שקופה שנמתחת על הרכיבים כמו בד, ומשתנה בכל הזזה">מעטפת שקופה</button><button class="pill on" id="realbtn" type="button" aria-pressed="true" title="מחליף בין השלד המינימלי לשלד הריאלי">שלד ריאלי</button><button class="pill" id="hidebtn" type="button" aria-pressed="false" title="מסתיר את הרכיבים ומשאיר רק את השלד, הקרדן והרגליים">רק שלד</button><button class="pill" id="svcbtn" type="button" aria-pressed="false" title="הסוללה, המחשב ובקר הבטיחות יוצאים בכיוון ההוצאה שלהם">הוצאה לתחזוקה</button><button class="pill" id="seebtn" type="button" title="כמה הגימבל מסתיר מכל חיישן, וזווית תאורות התיעוד">ראייה ותאורה</button><button class="pill" id="encbtn" type="button" aria-pressed="false" title="מארזים: קבוצות רכיבים שיושבות יחד בתוך מארז אחד, כמו בסימולציה">מארזים</button><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><details style="padding:0 14px 10px;font-size:13px;color:var(--muted)"><summary style="cursor:pointer">מידות ומשקל השלד</summary><div id="frameInfo"></div></details></section>
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
@@ -4951,6 +4951,8 @@ function build3D(){
   clearRoot(root);const c=cfg(),{segs,clear}=WK.on?walkBuild(c):fillTool(root,c,c.legs.stance==='fold'?1:0,{bad:badSet(c),noShell:V.frame,hide:!!V.hide});
   const fi=$('#frameInfo');if(V.frame&&!WK.on){const fr=frameFor(c,clear);frameFollow(fr,c);fr.gs.forEach(q=>{q.position.y=0;fr.g.add(q)});root.add(fr.g);fi.textContent=simFrameNote(fr.info)}else if(!WK.on)fi.textContent='';
   if(V.fab&&!WK.on)root.add(fabricShell(c,clear));
+  if(V.enc&&!WK.on&&c.enc&&c.enc.length)root.add(encGroup(c,clear));
+  if(V.enc){clearTimeout(build3D._et);build3D._et=setTimeout(()=>{const D=document.getElementById('encP');if(V.enc&&D&&D.classList.contains('on')&&!D.contains(document.activeElement))openEnc()},350)}
   /* colours are sRGB, the renderer works in linear light: convert once; parts cast and catch shadows */
   root.traverse(o=>{if(!o.isMesh&&!o.isLine)return;const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m&&m.color&&!m.userData.lin){m.color.convertSRGBToLinear();m.userData.lin=1}});
     if(o.isMesh&&!o.userData.noShadow){const op=ms.every(m=>m&&(!m.transparent||m.opacity>.9));o.castShadow=op;o.receiveShadow=op}});
@@ -5698,7 +5700,8 @@ document.querySelectorAll('#frameTg button').forEach(b=>b.onclick=()=>{V.frame=b
   sb.onclick=()=>{SVCA.on=!SVCA.on;setP(sb,SVCA.on);SVCA.dirty=true;if(SVCA.on&&!(V.mode==='3d'||V.mode==='win'))toast('ההוצאה נראית בתלת מימד')};
   V.real=true;const rb=$('#realbtn');rb.onclick=()=>{V.real=!V.real;setP(rb,V.real);FRC.key='';build3D()};
   const hb=$('#hidebtn');V.hide=false;setP(hb,false);hb.onclick=()=>{V.hide=!V.hide;setP(hb,V.hide);if(V.hide&&!V.frame){V.frame=true;document.querySelectorAll('#frameTg button').forEach(x=>x.classList.toggle('on',x.dataset.f==='1'))}build3D()};
-  $('#seebtn').onclick=()=>openSight()}
+  $('#seebtn').onclick=()=>openSight();
+  const eb=$('#encbtn');eb.onclick=()=>{V.enc=!V.enc;setP(eb,V.enc);const D=document.getElementById('encP');if(V.enc)openEnc();else if(D)D.classList.remove('on');build3D()}}
 /* share of each sensor's field of view that the gimbal (with its cameras) covers, within 60 cm. Rays from the middle of the sensor's front face,
    against the real gimbal mesh in the 3D view. Fields from the cards (data.json fov); navigation camera height 65° is my assumption (the card has none). */
 function gimbalBlockShares(c){const clear=clearance(c),gim=root.children.filter(o=>{const it=o.userData&&o.userData.id&&c.items.find(i=>i.id===o.userData.id);return it&&(it.cid==='gimbal'||isMounted(it))});
@@ -5721,11 +5724,31 @@ function lightModel(c){const cams=c.items.filter(i=>i.cid==='doccam'&&!i.unfit),
 function litFrac(M,beta,psi,d0,d1){let n=0,t=0;for(let d=d0;d<=d1;d+=10){const h=d*Math.tan(M.A*Math.PI/180);for(let j=0;j<=20;j++){t++;const z=M.cam.z-h+2*h*j/20;
   if(M.L.some(l=>{const xp=M.cam.x+d-l.x;if(xp<=0)return false;const side=Math.sign(l.z-M.cam.z)||1,ang=Math.atan2((z-l.z)*side,xp),aim=(90-psi)*Math.PI/180;return Math.abs(ang-aim)<=beta*Math.PI/180}))n++}}return t?100*n/t:0}
 function lightRange(M,beta){const ok=[];for(let psi=0;psi<=150;psi++)if(litFrac(M,beta,psi,300,1000)>=95)ok.push(psi);return ok.length?[ok[0],ok[ok.length-1]]:null}
-function sightDock(){let D=document.getElementById('sightP');if(!D){D=document.createElement('div');D.id='sightP';D.className='sdock';document.body.appendChild(D);
+function sightDock(id){id=id||'sightP';let D=document.getElementById(id);if(!D){D=document.createElement('div');D.id=id;D.className='sdock';document.body.appendChild(D);
     /* drag by the header */let dr=null;D.addEventListener('pointerdown',e=>{const h=e.target.closest('.sdh');if(!h||e.target.closest('button'))return;const r=D.getBoundingClientRect();dr={dx:e.clientX-r.left,dy:e.clientY-r.top};h.setPointerCapture(e.pointerId);e.preventDefault()});
     D.addEventListener('pointermove',e=>{if(!dr)return;D.style.left=Math.max(0,Math.min(innerWidth-120,e.clientX-dr.dx))+'px';D.style.top=Math.max(0,Math.min(innerHeight-60,e.clientY-dr.dy))+'px'});
-    D.addEventListener('pointerup',()=>{dr=null});D.style.left='12px';D.style.top='112px'}
+    D.addEventListener('pointerup',()=>{dr=null});D.style.left='12px';D.style.top=id==='sightP'?'112px':'150px'}
   return D}
+
+/* enclosures window (23.11): list, size, parts that stick in, make a new one from ticked parts, take one apart */
+function openEnc(){const c=cfg(),D=sightDock('encP');D.classList.add('on');
+  const nm=it=>name(c,it),E=(c.enc||[]).filter(e=>encItems(c,e).length),inEnc=new Set();E.forEach(e=>e.ids.forEach(i=>inEnc.add(i)));
+  const rows=E.map(e=>{const bx=encShapeBoxes(c,e),o=encOuter(bx),cf=encConflicts(c,e),sz=o?Math.round(o[3]-o[0])+' × '+Math.round(o[4]-o[1])+' × '+Math.round(o[5]-o[2]):'';
+    return '<div class="encrow" style="border:1px solid '+e.color+';border-radius:8px;padding:6px;margin:6px 0"><div style="display:flex;gap:6px;align-items:center"><span style="width:12px;height:12px;border-radius:3px;background:'+e.color+'"></span><input data-en="'+e.id+'" value="'+esc(e.name)+'" style="flex:1;min-width:0"><button class="pill" data-ug="'+e.id+'" type="button">פירוק</button></div>'+
+      '<div class="m" style="font-size:12px">'+esc(encItems(c,e).map(nm).join(', '))+'</div><div class="m" style="font-size:12px">גודל (אורך × גובה × רוחב): '+sz+' מ"מ, כולל '+ENC_PAD+' מ"מ מכל צד (הערכה שלי)</div>'+
+      (cf.length?'<div style="color:#e06c5a;font-size:12px">חלקים אחרים נכנסים למארז: '+esc(cf.map(nm).join(', '))+'</div>':'')+'</div>'}).join('');
+  const free=c.items.filter(i=>!i.auto&&!i.unfit&&!inEnc.has(i.id)).map(i=>'<label style="display:inline-flex;gap:4px;align-items:center;margin:2px 8px 2px 0"><input type="checkbox" data-pk="'+i.id+'">'+esc(nm(i))+'</label>').join('');
+  D.innerHTML='<div class="sdh"><h2>מארזים</h2><button class="pill" id="encclose" type="button" aria-label="סגירה">✕</button></div>'+
+    '<div class="m" style="font-size:12px;margin-bottom:6px">מארז = קבוצת רכיבים שיושבת יחד בתוך מעטפת אחת. המארז נבנה מהקופסאות של הרכיבים ועוקב אחריהם כשמזיזים. תצוגה ובדיקה בלבד, בלי השפעה על משקל או אזהרות.</div>'+
+    '<div class="btns" style="margin-bottom:6px"><button class="pill'+(V.encShape===false?'':' on')+'" id="encshape" type="button">צורה לפי הרכיבים</button><button class="pill'+(V.encShape===false?' on':'')+'" id="encbox" type="button">קופסה אחת</button></div>'+
+    (rows||'<div class="m">אין מארזים בקונפיגורציה הזאת.</div>')+
+    '<h3 style="margin:10px 0 4px;font-size:14px">מארז חדש</h3><div style="max-height:150px;overflow:auto;font-size:12px">'+(free||'<span class="m">כל הרכיבים כבר במארזים.</span>')+'</div>'+
+    '<div style="display:flex;gap:6px;margin-top:6px"><input id="encname" placeholder="שם המארז" style="flex:1;min-width:0"><button class="pill edit" id="encnew" type="button">יצירה</button></div>';
+  D.querySelector('#encclose').onclick=()=>{D.classList.remove('on');V.enc=false;const eb=$('#encbtn');eb.setAttribute('aria-pressed','false');eb.classList.remove('on');build3D()};
+  D.querySelector('#encshape').onclick=()=>{V.encShape=true;build3D();openEnc()};D.querySelector('#encbox').onclick=()=>{V.encShape=false;build3D();openEnc()};
+  D.querySelectorAll('[data-en]').forEach(i=>i.onchange=()=>{const e=(c.enc||[]).find(x=>x.id===i.dataset.en);if(e){snap();e.name=i.value;save()}});
+  D.querySelectorAll('[data-ug]').forEach(b=>b.onclick=()=>{snap();c.enc=(c.enc||[]).filter(e=>e.id!==b.dataset.ug);save();build3D();openEnc()});
+  D.querySelector('#encnew').onclick=()=>{const ids=[...D.querySelectorAll('[data-pk]:checked')].map(i=>i.dataset.pk);if(ids.length<2){toast('צריך לסמן לפחות 2 רכיבים');return}snap();encMake(c,ids,D.querySelector('#encname').value.trim());save();build3D();openEnc()}}
 function openSight(){const c=cfg();if(!(V.mode==='3d'||V.mode==='win')){/* the rays need the 3D model */}
   build3D();const sh=gimbalBlockShares(c),M=lightModel(c),beam=(cat.doclight&&cat.doclight.beam_deg)||114;
   const rows=sh?sh.map(r=>'<tr><td>'+esc(r.n)+'</td><td style="text-align:end">'+(r.v<1?'לא מוסתר':Math.round(r.v)+'%')+'</td><td class="m">'+esc(r.note)+'</td></tr>').join(''):'';
@@ -5984,6 +6007,55 @@ function cfg12Top(c){const act=S.active;S.active=S.configs.indexOf(c);
   S.active=act}
 if(!S.cfg12v2){S.cfg12v2=true;S.configs.filter(c=>c.sim==='12'&&!c.cfg12v2&&c.legs.thigh===70&&c.legs.shin===70).forEach(cfg12Fix);save()}
 if(!S.cfg12v3){S.cfg12v3=true;S.configs.filter(c=>c.sim==='12'&&!c.cfg12v3&&c.shell.gAt==='front').forEach(cfg12Top);save()}
+/* ---- 23.11 (Sharon): enclosures, moved from the configurations simulation. An enclosure = a group of parts that share one housing.
+   Drawn as the union of the parts' boxes, each padded by ENC_PAD mm on every side (my estimate, as in the simulation), joined where two groups of boxes do not touch. Display and check only:
+   it does not change weight, size or warnings. A part inside an enclosure may still be moved; the enclosure follows. */
+const ENC_PAD=3,ENC_COL=['#9C6B30','#f06292','#fff176','#4fc3f7','#ba68c8','#81c784','#ffb74d','#7986cb'];
+V.enc=false;V.encShape=true;
+const encItems=(c,e)=>e.ids.map(id=>c.items.find(i=>i.id===id&&!i.unfit)).filter(Boolean);
+function encShapeBoxes(c,e){
+  let bx=encItems(c,e).map(it=>{const b=aabb(c,it),p=ENC_PAD;return[b.min[0]-p,b.min[1]-p,b.min[2]-p,b.max[0]+p,b.max[1]+p,b.max[2]+p]});
+  const touch=(a,b)=>a[0]<=b[3]&&b[0]<=a[3]&&a[1]<=b[4]&&b[1]<=a[4]&&a[2]<=b[5]&&b[2]<=a[5];
+  const comp=()=>{const q=bx.map((_,i)=>i),f=i=>q[i]===i?i:(q[i]=f(q[i]));for(let i=0;i<bx.length;i++)for(let j=i+1;j<bx.length;j++)if(touch(bx[i],bx[j]))q[f(i)]=f(j);return bx.map((_,i)=>f(i))};
+  for(let g=0;g<10;g++){const q=comp();if(new Set(q).size<2)break;
+    let best=null;for(let i=0;i<bx.length;i++)for(let j=0;j<bx.length;j++){if(q[i]===q[j])continue;const a=bx[i],b=bx[j];let d=0;for(let k=0;k<3;k++){const gp=Math.max(0,Math.max(a[k],b[k])-Math.min(a[k+3],b[k+3]));d+=gp*gp}if(!best||d<best.d)best={d,i,j}}
+    const a=bx[best.i],b=bx[best.j],br=[0,0,0,0,0,0];
+    for(let k=0;k<3;k++){const lo=Math.max(a[k],b[k]),hi=Math.min(a[k+3],b[k+3]);if(lo<=hi){br[k]=lo;br[k+3]=hi}else{br[k]=Math.min(a[k+3],b[k+3]);br[k+3]=Math.max(a[k],b[k])}}
+    bx.push(br)}
+  return bx}
+const encOuter=bx=>bx.reduce((o,b)=>o?[Math.min(o[0],b[0]),Math.min(o[1],b[1]),Math.min(o[2],b[2]),Math.max(o[3],b[3]),Math.max(o[4],b[4]),Math.max(o[5],b[5])]:b.slice(),null);
+/* other parts that stick into the enclosure volume (more than 1 mm in every direction) */
+function encConflicts(c,e){const bx=encShapeBoxes(c,e),out=[];
+  c.items.forEach(it=>{if(e.ids.includes(it.id)||it.unfit)return;const b=aabb(c,it);
+    for(const s of bx){if(Math.min(b.max[0],s[3])-Math.max(b.min[0],s[0])>1&&Math.min(b.max[1],s[4])-Math.max(b.min[1],s[1])>1&&Math.min(b.max[2],s[5])-Math.max(b.min[2],s[2])>1){out.push(it);break}}});
+  return out}
+function encGroup(c,clear){const g=new THREE.Group();
+  (c.enc||[]).forEach(e=>{const all=encShapeBoxes(c,e);if(!all.length)return;const bxs=V.encShape===false?[encOuter(all)]:all,col=new THREE.Color(e.color);
+    bxs.forEach(b=>{const w=b[3]-b[0],h=b[4]-b[1],d=b[5]-b[2];if(w<=0||h<=0||d<=0)return;const gm=new THREE.BoxGeometry(w,h,d),
+      m=new THREE.Mesh(gm,new THREE.MeshBasicMaterial({color:col.clone(),transparent:true,opacity:.16,depthWrite:false})),
+      ln=new THREE.LineSegments(new THREE.EdgesGeometry(gm),new THREE.LineDashedMaterial({color:col.clone(),dashSize:5,gapSize:3}));ln.computeLineDistances();m.userData.noShadow=1;
+      const q=new THREE.Group();q.add(m,ln);q.position.set((b[0]+b[3])/2,(b[1]+b[4])/2+clear,(b[2]+b[5])/2);g.add(q)})});
+  return g}
+function encMake(c,ids,nm){c.enc=(c.enc||[]).map(e=>({...e,ids:e.ids.filter(x=>!ids.includes(x))})).filter(e=>e.ids.length>1);
+  c.encN=(c.encN||0)+1;const e={id:'enc'+c.encN,name:nm||('מארז '+c.encN),ids:ids.slice(),color:ENC_COL[c.encN%ENC_COL.length]};c.enc.push(e);return e}
+/* sim item id ('nav#1', 'dlight#0'...) -> the n-th part of that kind in the configuration */
+const SIMK={comp:'computer',nav:'navcam',therm:'thermal',dlight:'drivelight',clight:'doclight',bat:'battery'};
+function simItem(c,sid){const m=/^(.*)#(\d+)$/.exec(sid);if(!m)return null;const cid=SIMK[m[1]]||m[1];return c.items.filter(i=>i.cid===cid&&!i.auto)[+m[2]]||null}
+const SIMENC=[["מארז חיישני אוויר","#9C6B30",["o2#0","co2#0"]],["מארז 4","#f06292",["cliff#2","cliff#3"]],["מארז 5","#fff176",["fo1#0","netconv#0"]],["מארז 6","#4fc3f7",["cliff#1","cliff#0"]],["מארז 8","#ba68c8",["amber#0","estop#0","buzzer#0"]],["מארז 11","#fff176",["radar#0","dlight#0"]],["מארז 12","#4fc3f7",["nav#0","therm#0"]],["מארז 15","#81c784",["radar#1","dlight#1"]],["מארז 16","#f06292",["pdu#0","comp#0","ebox#0"]],["מארז 17","#fff176",["imu#0","irled#0","therm#1","nav#1"]]];
+/* 23.11 (Sharon: parts that must touch the outer wall did not): every part with the wall rule that is 0.05-10 mm from the face it is nearest to goes flush against it (a cliff sensor: the floor).
+   The lidar sticks out of its wall by design. Then the enclosures of the simulation are added. Runs once on configuration 12. */
+function cfg12Flush(c){const act=S.active;S.active=S.configs.indexOf(c);let n=0;
+  try{const sg=shellOf(c),L=sg[0].cx-sg[0].len/2,R=sg[sg.length-1].cx+sg[sg.length-1].len/2;
+    c.items.forEach(it=>{const w=cat[it.cid].wall;if(it.auto||!w||it.cid==='lidar')return;const b=aabb(c,it),s=segAt(sg,P(c,it)[0]),F=[];
+      if(w==='bottom')F.push([1,b.min[1],-1]);
+      else{F.push([2,b.min[2]+s.wid/2,-1],[2,s.wid/2-b.max[2],1],[1,s.hei-b.max[1],1]);if(s.i===0)F.push([0,b.min[0]-L,-1]);if(s.i===sg.length-1)F.push([0,R-b.max[0],1])}
+      if(F.some(x=>x[1]<=.05))return; /* already flush, or sticking through that face on purpose (amber light, emergency button) */
+      const f=F.filter(x=>x[1]>.05&&x[1]<=10).sort((a,b)=>a[1]-b[1])[0];if(f){it.pos[f[0]]=Math.round((it.pos[f[0]]+f[2]*f[1])*100)/100;n++}});
+    layout(c);
+    c.enc=[];c.encN=0;SIMENC.forEach(r=>{const ids=r[2].map(s=>simItem(c,s)).filter(Boolean).map(i=>i.id);if(ids.length>1){const e=encMake(c,ids,r[0]);e.color=r[1]}});
+    c.cfg12v4=n}catch(e){console.error('cfg12Flush',e)}
+  S.active=act}
+if(!S.cfg12v4){S.cfg12v4=true;S.configs.filter(c=>c.sim==='12'&&c.cfg12v4===undefined).forEach(cfg12Flush);save()}
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
 /* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
