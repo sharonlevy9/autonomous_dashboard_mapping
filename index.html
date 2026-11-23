@@ -3835,7 +3835,7 @@ function placeGimbals(c){
   const segs=shellOf(c);
   if((c.shell.gAt||'top')!=='top')return;
   c.items.filter(i=>i.cid==='gimbal'&&!i.unfit).forEach(g=>{
-    const e=ext(g),gb=aabb(c,g);let base=segAt(segs,g.pos[0]).hei;stepsOf(c).forEach(st=>{if(st.x1>gb.min[0]&&st.x0<gb.max[0]&&st.z1>gb.min[2]&&st.z0<gb.max[2])base=Math.max(base,st.top)});const y=base+e[1]/2,dy=y-g.pos[1];
+    const e=ext(g),gb=aabb(c,g);let base=segAt(segs,g.pos[0]).hei;stepsOf(c).forEach(st=>{if(st.x1>gb.min[0]&&st.x0<gb.max[0]&&st.z1>gb.min[2]&&st.z0<gb.max[2])base=Math.max(base,st.top)});const y=base+(g.lift||0)+e[1]/2,dy=y-g.pos[1];
     if(Math.abs(dy)<.01)return;g.pos[1]=y;
     c.items.filter(isMounted).forEach(m=>{m.pos[1]+=dy});
   });
@@ -6067,6 +6067,16 @@ function cfg12Lights(c){const act=S.active;S.active=S.configs.indexOf(c);
     c.cfg12v5=1}catch(e){console.error('cfg12Lights',e)}
   S.active=act}
 if(!S.cfg12v5){S.cfg12v5=true;S.configs.filter(c=>c.sim==='12'&&!c.cfg12v5).forEach(cfg12Lights);save()}
+/* 23.11 (Sharon, with the STEP export): the gimbal of configuration 12 goes back to its place in the simulation: centre x 254.5 (front overhanging the shell), z -65 (opposite side from the lidar),
+   its base 15.2 mm above the roof (y 159.2), held by a post from the roof. Its two cameras keep the simulation positions relative to it. Runs once. */
+function cfg12Gimbal(c){const act=S.active;S.active=S.configs.indexOf(c);
+  try{const g=c.items.find(i=>i.cid==='gimbal');if(g){const e=ext(g),roof=shellOf(c)[shellOf(c).length-1].hei;g.lift=Math.round((159.2-roof)*10)/10;
+      const dx=254.5-g.pos[0],dz=-65-g.pos[2];g.pos[0]=254.5;g.pos[2]=-65;g.manual=true;g.keep=true;
+      c.items.filter(isMounted).forEach((m,k)=>{m.pos[0]=278.5;m.pos[2]=k?-44:-86;m.manual=true;m.keep=true});
+      g.pos[1]=roof+g.lift+e[1]/2;c.items.filter(isMounted).forEach(m=>{m.pos[1]=205})}
+    layout(c);c.cfg12v6=1}catch(e){console.error('cfg12Gimbal',e)}
+  S.active=act}
+if(!S.cfg12v6){S.cfg12v6=true;S.configs.filter(c=>c.sim==='12'&&!c.cfg12v6).forEach(cfg12Gimbal);save()}
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
 /* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
