@@ -5976,7 +5976,14 @@ function cfg12Fix(c){const act=S.active;S.active=S.configs.indexOf(c);
     c.waive=c.waive||{};warnings(c).filter(w=>w.t==='rule'&&(w.r==='heat'||w.r==='joint')).forEach(w=>{c.waive[wkey(w)]=w.r==='joint'?'הרמת חוליה היא רגעית: 5.7 ניוטון-מטר מתחת לשיא של המנוע (12.5). לא נבדק לעומק':w.text.indexOf('סוללה')===0?'שרון 23.11: מרווח של 30 מ"מ בין הסוללה לחלקים אחרים הוא לא כלל':'לא בטוח: לפי אותו עיקרון (שרון 23.11), חלקים מבודדים יכולים לשבת קרוב'});
     c.cfg12v2=1}catch(e){console.error('cfg12Fix',e)}
   S.active=act}
+/* 23.11 (Sharon): the gimbal of configuration 12 sits ON TOP of the body (on its mounting footprint), not on the front face. It goes on the front segment, and its two cameras follow it. */
+function cfg12Top(c){const act=S.active;S.active=S.configs.indexOf(c);
+  try{c.shell.gAt='top';c.shell.gArm=0;const sg=shellOf(c),f=sg[sg.length-1],g=c.items.find(i=>i.cid==='gimbal');
+    if(g){const e=ext(g);g.pos=[f.cx,f.hei+e[1]/2,-Math.min(0,0)];g.manual=true;g.keep=true;c.items.filter(isMounted).forEach(m=>{m.manual=false;m.keep=false})}
+    layout(c);c.cfg12v3=1}catch(e){console.error('cfg12Top',e)}
+  S.active=act}
 if(!S.cfg12v2){S.cfg12v2=true;S.configs.filter(c=>c.sim==='12'&&!c.cfg12v2&&c.legs.thigh===70&&c.legs.shin===70).forEach(cfg12Fix);save()}
+if(!S.cfg12v3){S.cfg12v3=true;S.configs.filter(c=>c.sim==='12'&&!c.cfg12v3&&c.shell.gAt==='front').forEach(cfg12Top);save()}
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
 /* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
