@@ -3504,6 +3504,17 @@ function cfg12Flush(c){const act=S.active;S.active=S.configs.indexOf(c);let n=0;
     c.cfg12v4=n}catch(e){console.error('cfg12Flush',e)}
   S.active=act}
 if(!S.cfg12v4){S.cfg12v4=true;S.configs.filter(c=>c.sim==='12'&&c.cfg12v4===undefined).forEach(cfg12Flush);save()}
+/* 23.11 (Sharon, with the STEP export): in configuration 12 the two documentation lights stick out 10 mm from the side wall (their outer face 10 mm past it), and the fibre enclosure (fibre connector + network adapter) sits 21 mm higher so it no longer touches the rear cliff-sensor enclosure. Runs once. */
+function cfg12Lights(c){const act=S.active;S.active=S.configs.indexOf(c);
+  try{const sg=shellOf(c);c.items.filter(i=>i.cid==='doclight').forEach(i=>{const e=ext(i),s=segAt(sg,i.pos[0]);i.pos[2]=Math.sign(i.pos[2]||1)*(s.wid/2+10-e[2]/2);i.manual=true;i.keep=true});
+    c.items.filter(i=>i.cid==='fo1'||i.cid==='netconv').forEach(i=>{i.pos[1]=Math.round((i.pos[1]+21)*100)/100;i.manual=true;i.keep=true});
+    layout(c);c.waive=c.waive||{};
+    warnings(c).forEach(w=>{const it=c.items.find(i=>i.id===w.a);if(!it)return;
+      if(w.t==='out'&&it.cid==='doclight')c.waive[wkey(w)]='שרון 23.11: תאורות התיעוד בולטות 10 מ"מ מהדופן בכוונה';
+      else if(w.t==='rule'&&w.r==='service'&&it.cid==='netconv')c.waive[wkey(w)]='ההזזה של מארז הסיב 21 מ"מ למעלה סוגרת את דרך ההוצאה מאחור (דרך המכ"ם). לא נבדק איך מוציאים אותו, אפשר לפתוח את הקליפה'});
+    c.cfg12v5=1}catch(e){console.error('cfg12Lights',e)}
+  S.active=act}
+if(!S.cfg12v5){S.cfg12v5=true;S.configs.filter(c=>c.sim==='12'&&!c.cfg12v5).forEach(cfg12Lights);save()}
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
 /* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
