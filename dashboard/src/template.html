@@ -135,7 +135,7 @@ button.stat{text-align:start}
 .stage.v3d .zoom{display:none}
 .stage.vwin .zoom{inset-inline-end:auto;inset-inline-start:12px;top:12px;bottom:auto}
 .m3 .st{padding:8px 12px 12px;display:flex;justify-content:center}
-.wkp{display:none;padding:0 14px 12px;font-size:13px}.wkp.on{display:block}.wkp .wr{display:flex;align-items:center;gap:8px;margin:3px 0}.wkp .wr label{width:46px;flex:none}.wkp .wr input[type=range]{flex:1}.wkp .wr b{width:78px;flex:none;font-weight:600;font-size:12px}.wkp h4{margin:8px 0 2px;font-size:13px}.wkp .wn{color:var(--muted);margin-top:6px}.wkp button{margin-inline-end:6px}
+.wkp .wspd{margin:4px 0 2px}.wkp .wbig{font-size:26px;font-weight:700;line-height:1.1}.wkp .wsm{color:var(--muted);font-size:12px}.wkp .wn.bad{color:#d93025;background:rgba(217,48,37,.08);border-radius:8px;padding:6px 8px}.wkp{display:none;padding:0 14px 12px;font-size:13px}.wkp.on{display:block}.wkp .wr{display:flex;align-items:center;gap:8px;margin:3px 0}.wkp .wr label{width:46px;flex:none}.wkp .wr input[type=range]{flex:1}.wkp .wr b{width:78px;flex:none;font-weight:600;font-size:12px}.wkp h4{margin:8px 0 2px;font-size:13px}.wkp .wn{color:var(--muted);margin-top:6px}.wkp button{margin-inline-end:6px}
 .ctrl{flex:1;min-height:0;overflow:auto;padding-bottom:12px}
 .ctl{display:grid;grid-template-columns:74px 1fr 66px;align-items:center;gap:10px;padding:5px 18px;font-size:15px}
 .ctl .l{color:var(--muted)}
@@ -659,7 +659,7 @@ input[type=range]::-moz-range-track{background:var(--t-surface3);height:6px;bord
     </section>
     <div class="side">
       <section class="card m3"><div class="cardh">איך זה נראה במרחב</div><div id="w3"><canvas id="c3"></canvas><div class="hint3">גרירת רכיב: לאורך ולרוחב. Shift + גרירה: למעלה ולמטה. גרירת הרקע: סיבוב. גלגלת: זום. כפתור ימני: הזזת המבט.</div></div>
-        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="הליכה במהירות 0.15 מטר לשנייה, כמו בחישוב הסוללה. הרגליים לפי אורכי הירך והשוק שלך.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><button class="pill" id="fabbtn" type="button" aria-pressed="false" title="מעטפת שקופה שנמתחת על הרכיבים כמו בד, ומשתנה בכל הזזה">מעטפת שקופה</button><button class="pill on" id="realbtn" type="button" aria-pressed="true" title="מחליף בין השלד המינימלי לשלד הריאלי">שלד ריאלי</button><button class="pill" id="hidebtn" type="button" aria-pressed="false" title="מסתיר את הרכיבים ומשאיר רק את השלד, הקרדן והרגליים">רק שלד</button><button class="pill" id="svcbtn" type="button" aria-pressed="false" title="הסוללה, המחשב ובקר הבטיחות יוצאים בכיוון ההוצאה שלהם">הוצאה לתחזוקה</button><button class="pill" id="seebtn" type="button" title="כמה הגימבל מסתיר מכל חיישן, וזווית תאורות התיעוד">ראייה ותאורה</button><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><details style="padding:0 14px 10px;font-size:13px;color:var(--muted)"><summary style="cursor:pointer">מידות ומשקל השלד</summary><div id="frameInfo"></div></details></section>
+        <div class="st" style="flex-wrap:wrap;gap:8px"><div class="seg small" id="stance"><button data-s="stand" class="on">עומד</button><button data-s="fold">מקופל</button></div><button class="pill" id="freebtn" type="button" aria-pressed="false" title="מצב חופשי: רכיב נגרר בדיוק לאן שגוררים, בלי הצמדה וחסימה. האזהרות ממשיכות להופיע.">חופשי</button><button class="pill" id="walkbtn" type="button" title="סימולציית הליכה: שלוש רגליים תמיד על הקרקע, הגוף מחליק לפני כל הרמה, מהירות בקמ&quot;ש ורקע מערה.">▶ הליכה</button><div class="seg small" id="frameTg" style="margin-inline-start:10px"><button data-f="1" class="on">שלד מוצג</button><button data-f="0">שלד מוסתר</button></div><button class="pill" id="fabbtn" type="button" aria-pressed="false" title="מעטפת שקופה שנמתחת על הרכיבים כמו בד, ומשתנה בכל הזזה">מעטפת שקופה</button><button class="pill on" id="realbtn" type="button" aria-pressed="true" title="מחליף בין השלד המינימלי לשלד הריאלי">שלד ריאלי</button><button class="pill" id="hidebtn" type="button" aria-pressed="false" title="מסתיר את הרכיבים ומשאיר רק את השלד, הקרדן והרגליים">רק שלד</button><button class="pill" id="svcbtn" type="button" aria-pressed="false" title="הסוללה, המחשב ובקר הבטיחות יוצאים בכיוון ההוצאה שלהם">הוצאה לתחזוקה</button><button class="pill" id="seebtn" type="button" title="כמה הגימבל מסתיר מכל חיישן, וזווית תאורות התיעוד">ראייה ותאורה</button><div class="seg small" id="walkTg"><button data-w="1">הליכה עם זוויות חוליות</button><button data-w="0" class="on">רגיל</button></div></div><div id="walkPanel" class="wkp"></div><details style="padding:0 14px 10px;font-size:13px;color:var(--muted)"><summary style="cursor:pointer">מידות ומשקל השלד</summary><div id="frameInfo"></div></details></section>
       <section class="card ctrl" id="ctrl"></section>
     </div>
   </main>
@@ -1298,6 +1298,7 @@ function layout(c){
   const rest=c.items.filter(i=>!i.auto&&!i.manual).sort((a,b)=>pr(a.cid)-pr(b.cid));
   const pendingAuto=new Set(rest);
   const fixMan=it=>{
+    if(it.keep)return; /* 23.11: parts imported from the configurations simulation (configuration 12) keep their exact place until moved by hand */
     if(!isLegal(c,it)){const q=snapPos(c,it,it.pos,[true,true,true]);if(q)it.pos=q;else it.unfit=true}
   };
   // gimbal (manual or not) must be known before mounted items are checked
@@ -1812,6 +1813,7 @@ function blockedNote(c,it,want){if(!want||!it||it.auto)return;const sg=shellOf(c
 function freeMove(c,it,want,mask){const q=it.pos.slice();[0,1,2].forEach(k=>{if(mask[k])q[k]=Math.round(want[k]*10)/10});
   const d=[0,1,2].map(k=>q[k]-it.pos[k]);it.pos=q;it.manual=true;kidsOf(c,it).forEach(k=>{k.manual=true;k.pos=k.pos.map((v,i)=>Math.round((v+d[i])*10)/10)})}
 function moveItem(c,it,want,free){
+  delete it.keep;
   if(V.free&&free&&free.length===3&&typeof free[0]==='boolean'){freeMove(c,it,want,free);return}
   const kids=kidsOf(c,it);EXCL=new Set(kids);
   let q=snapPos(c,it,want,free);
@@ -2202,22 +2204,102 @@ function frameGroup(c,clear){
    My assumptions, not decided: trot gait (diagonal legs together), stride 70 mm, foot lift 30 mm, step time 1.4 s, hip angles limits +-45 deg pitch/yaw, +-20 roll (for play only).
    The real joint has ONE motor per segment gap (data.json motors.joint): the other directions are only to test how the body could move, they have no motor in the configuration.
    Axes: pitch = around the width axis (+ = front segment up), yaw = around the vertical axis (+ = front goes left), roll = around the length axis (+ = leans right). ---------- */
-const WK={on:false,play:true,auto:false,spd:1,ang:[],t:0,last:0,seg:[],legs:[],J:[],c:null,grid:null,gaps:-1};
-const WK_S=70,WK_LIFT=30,WK_DUTY=.6,WK_T=1.4,WK_LIM={p:45,y:45,r:20},DEG=Math.PI/180;
+const WK={on:false,play:true,auto:false,ang:[],t:0,last:0,seg:[],legs:[],J:[],c:null,grid:null,gaps:-1,plan:null,ph:0,pos:0,kmh:null,cave:0,statTxt:''};
+const DEG=Math.PI/180,WK_LIM={p:45,y:45,r:20};
 function walkLab(k,v){v=Math.round(v);if(!v)return'ישר';const a=Math.abs(v)+'°';return k==='p'?(v>0?'למעלה ':'למטה ')+a:k==='y'?(v>0?'שמאלה ':'ימינה ')+a:(v>0?'לימין ':'לשמאל ')+a}
+/* ---------- 23.11 (Sharon): the slow crawl gait, "3 feet always on the ground, the body slides before every lift".
+   The tool lifts ONE leg at a time (order: rear left, front right, rear right, front left). Before each lift the body slides over the standing feet
+   (the hip motors turn, the feet stay on the floor) until the centre of gravity is GAIT.MARG mm inside the triangle of the 3 standing feet. Then the leg lifts, swings forward and lands.
+   Everything is computed from this configuration: hip places, leg lengths and the centre of gravity (cogOf, parts with a known weight only).
+   My assumptions (not verified): GAIT.SWING_MIN / SLIDE_MIN = the fastest a leg can swing / the body can slide, 15 mm margin (from the earlier thread), legs may stretch to 97% of thigh+shin.
+   The speed shown is a real value (km/h): the cycle time = step length / speed. Above the slow-gait maximum the legs cannot go faster, so the simulation keeps its maximum and says so. ---------- */
+const GAIT={MARG:15,SWING_MIN:.25,SLIDE_MIN:.2,LIFT:30,REACHK:.97};
+function gHull(P){P=P.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const L=[],U=[];for(const q of P){while(L.length>1&&cr(L[L.length-2],L[L.length-1],q)<=0)L.pop();L.push(q)}for(const q of P.slice().reverse()){while(U.length>1&&cr(U[U.length-2],U[U.length-1],q)<=0)U.pop();U.push(q)}return L.slice(0,-1).concat(U.slice(0,-1))}
+function gMargin(H,c){if(H.length<3)return-1e9;let m=1e9;for(let i=0;i<H.length;i++){const A=H[i],B=H[(i+1)%H.length],e=[B[0]-A[0],B[1]-A[1]],L=Math.hypot(e[0],e[1])||1;m=Math.min(m,-((c[0]-A[0])*e[1]-(c[1]-A[1])*e[0])/L)}return m}
+/* lift order: rear left, front right, rear right, front left (the earlier thread's order); with more legs the same zigzag, then the middle legs */
+function gOrder(legs){const idx=legs.map((l,i)=>i).sort((a,b)=>legs[a].hx-legs[b].hx||legs[a].side-legs[b].side),Ls=idx.filter(i=>legs[i].side<0),Rs=idx.filter(i=>legs[i].side>0),out=[];
+  while(Ls.length||Rs.length){if(Ls.length)out.push(Ls.shift());if(Rs.length)out.push(Rs.pop());if(Rs.length)out.push(Rs.shift());if(Ls.length)out.push(Ls.pop())}return out}
+/* one steady cycle. S = step length (how far the tool moves per full cycle), OFF = feet placed this far outside the hips. Body frame, x along the walking direction. */
+function gaitPlan(legs,cog,S,OFF){
+  const n=legs.length,order=gOrder(legs),mid=legs.reduce((a,l)=>a+l.hx,0)/n,O=legs.map(l=>(l.hx>=mid?1:-1)*OFF);
+  let B=0;const G=legs.map((l,i)=>l.hx+O[i]-(order.indexOf(i)-(n-1)/2)*S/n);let cyc=[],prev=null;
+  for(let cy=0;cy<8;cy++){cyc=[];
+    for(let k=0;k<n;k++){const i=order[k],mw=b=>{const P=[];G.forEach((g,j)=>{if(j!==i)P.push([g,legs[j].hz])});return gMargin(gHull(P),[b+cog.x,cog.z])};
+      const pref=B+S/n;let B1=pref;
+      if(mw(B1)<GAIT.MARG){let f=null;for(let d=1;d<=250;d++){if(mw(pref+d)>=GAIT.MARG){f=pref+d;break}if(mw(pref-d)>=GAIT.MARG){f=pref-d;break}}if(f===null)return null;B1=f}
+      const cx=G.reduce((a,g)=>a+g,0)/n-cog.x; /* where the body would be with the centre of gravity over the middle of all feet */
+      const rec={leg:i,B0:B,B1,mg:mw(B1),sig:B1-cx,o0:G.map((g,j)=>g-(B+legs[j].hx))};
+      B=B1;G[i]=B+legs[i].hx+O[i]+S/2;rec.oS=rec.o0.map((o,j)=>o-(B1-rec.B0));rec.o1=G.map((g,j)=>g-(B+legs[j].hx));cyc.push(rec)}
+    prev=cyc}
+  const first=cyc[0],lastRec=cyc[n-1],per=Math.max(...lastRec.o1.map((o,j)=>Math.abs(o-first.o0[j])));
+  let maxo=0;cyc.forEach(r=>{[r.o0,r.oS,r.o1].forEach(a=>a.forEach(o=>maxo=Math.max(maxo,Math.abs(o))))});
+  return{cyc,order,O,n,adv:lastRec.B1-first.B0,per,maxo,S,OFF,sig:cyc.reduce((a,r)=>a+Math.abs(r.sig),0)/n,mg:Math.min(...cyc.map(r=>r.mg))}}
+const _gc={};
+function gaitFor(c,L){const n=L.length;_gc.why='';if(n<3){_gc.why='יש פחות משלוש רגליים, אז אי אפשר להחזיק שלוש על הקרקע.';_gc.k=null;return null}
+  const T=c.legs.thigh,Sn=c.legs.shin,legs=L.map(l=>({hx:l.pz.hip[0],hz:l.pz.hip[2],hy:l.pz.hip[1],side:l.pz.side,dir:l.pz.dir})),g=cogOf(c),
+    cog={x:g?g.x:legs.reduce((a,l)=>a+l.hx,0)/n,z:g?g.z:0},key=JSON.stringify([legs,cog,T,Sn]);if(_gc.k===key)return _gc.v;
+  const reach=GAIT.REACHK*(T+Sn),hxm=Math.min(...legs.map(l=>reach>l.hy?Math.sqrt(reach*reach-l.hy*l.hy):0));let best=null;
+  if(hxm>=15)for(const OFF of[0,15,30,45,60]){if(OFF>hxm-10)continue;for(let S=160;S>=10;S-=5){const p=gaitPlan(legs,cog,S,OFF);if(!p||p.maxo>hxm||p.per>2)continue;if(!best||p.S>best.S||(p.S===best.S&&p.sig<best.sig))best=p;break}}
+  if(best){best.legs=legs;best.cog=cog;best.hxm=hxm;best.cogKnown=!!g;best.tmin=n*(GAIT.SLIDE_MIN+GAIT.SWING_MIN);best.fs=GAIT.SLIDE_MIN/(GAIT.SLIDE_MIN+GAIT.SWING_MIN);best.vmax=best.adv/best.tmin; /* mm per second */
+    /* thigh angle change during the slides (hip motor turn) */
+    let dg=0;best.cyc.forEach(r=>r.o0.forEach((o,j)=>{const l=legs[j],a=ik([0,l.hy],[o,0],T,Sn,l.dir),b=ik([0,l.hy],[r.oS[j],0],T,Sn,l.dir);if(Math.abs(r.oS[j]-o)<.01)return;dg=Math.max(dg,Math.abs(Math.atan2(a[0],l.hy-a[1])-Math.atan2(b[0],l.hy-b[1]))/DEG)}));best.hipDeg=dg}
+  if(!best)_gc.why=hxm<15?'הרגליים קצרות מדי ביחס לגובה הגוף מעל הקרקע, הן כמעט לא יכולות להזיז את הכף קדימה.':'מרכז הכובד רחוק מדי מאמצע הרגליים: כדי להחזיק אותו בתוך משולש שלוש הרגליים צריך להחליק את הגוף יותר ממה שהרגליים מגיעות. אפשר להזיז רכיבים כבדים (למשל הסוללה) לכיוון האמצע, או להאריך את הרגליים.';
+  _gc.k=key;_gc.v=best;_gc.vw=_gc.why;return best}
+const KMH=v=>v*3.6/1000,MMS=k=>k*1000/3.6; /* mm per second <-> km/h */
+const wkP2K=p=>.02*Math.pow(200,p/100),wkK2P=k=>Math.round(100*Math.log(Math.max(k,.02)/.02)/Math.log(200));
+const WK_NAME=(plan,i)=>{const l=plan.legs[i],xs=plan.legs.map(q=>q.hx),mn=Math.min(...xs),mx=Math.max(...xs),pos=l.hx===mn?'אחורית':l.hx===mx?'קדמית':'אמצעית';return pos+' '+(l.side>0?'ימין':'שמאל')};
+/* requested speed (WK.kmh) and the speed really shown (limited by the slow gait) */
+function wkSpeed(){const P=WK.plan;if(!P)return{req:WK.kmh||0,eff:0,max:0,cap:false};const max=KMH(P.vmax);if(WK.kmh==null)WK.kmh=Math.floor(max*100)/100||.05;
+  const eff=Math.min(WK.kmh,max);return{req:WK.kmh,eff,max,cap:WK.kmh>max+1e-6}}
+function wkInfoHtml(){const P=WK.plan;if(!P)return'<div class="wn bad"><b>בקונפיגורציה הזאת אין הליכה איטית יציבה.</b> '+(_gc.vw||_gc.why||'')+' הכלי מוצג עומד במקום.</div>';
+  const sp=wkSpeed();return'<details class="wn"><summary>המספרים של ההליכה</summary><ul style="margin:4px 0;padding-inline-start:18px;line-height:1.7">'
+   +'<li>אורך צעד מלא (כל הרגליים): <b>'+Math.round(P.adv)+' מ"מ</b></li>'
+   +'<li>לפני כל הרמת רגל הגוף מחליק על הרגליים שעומדות: מרכז הכובד זז כ-<b>'+Math.round(P.sig)+' מ"מ</b> מהאמצע (בכל החלקה הירכיים מסתובבות עד <b>'+Math.round(P.hipDeg)+'°</b>)</li>'
+   +'<li>מרכז הכובד נשאר בתוך משולש שלוש הרגליים, ברווח של לפחות <b>'+Math.round(P.mg)+' מ"מ</b> מהקצה</li>'
+   +'<li>המהירות המקסימלית של ההליכה האיטית: <b>'+fmt(sp.max,2)+' קמ"ש</b> ('+fmt(P.vmax/1000,3)+' מ\' בשנייה)</li></ul>'
+   +'<div>הנחות שלי, לא בטוח: רגל מתנדנדת לא פחות מ-'+GAIT.SWING_MIN+' שנייה, החלקה לא פחות מ-'+GAIT.SLIDE_MIN+' שנייה, הרגל נמתחת עד 97% מהאורך שלה'+(P.cogKnown?'':', משקל חלק מהרכיבים לא ידוע')+'. מרכז הכובד חושב מהרכיבים שיש להם משקל.</div></details>'}
+function wkWarnHtml(){const sp=wkSpeed();if(!WK.plan)return'';
+  return sp.cap?'<b><bdi>'+fmt(sp.req,2)+' קמ"ש</bdi> לא אפשרי בהליכה איטית.</b> היא מגיעה לכל היותר ל-<bdi>'+fmt(sp.max,2)+' קמ"ש</bdi>, אז זה מה שמוצג. כדי להגיע ל-<bdi>4 קמ"ש</bdi> הכלי צריך לרוץ (לפעמים כל הרגליים באוויר), וזו הליכה אחרת.':'המהירות בתוך מה שהליכה איטית מסוגלת לעשות.'}
 function walkPanel(c){const el=$('#walkPanel');el.classList.toggle('on',WK.on);if(!WK.on){el.innerHTML='';return}
-  const n=c.shell.n;WK.gaps=n-1;while(WK.ang.length<n-1)WK.ang.push({p:0,y:0,r:0});WK.ang.length=Math.max(0,n-1);
-  let h='<div class="wr"><button id="wkPlay" class="btn">'+(WK.play?'עצירה':'הליכה')+'</button><button id="wkReset" class="btn">יישור</button><label style="width:auto"><input type="checkbox" id="wkAuto"'+(WK.auto?' checked':'')+'> תנועה אוטומטית</label></div>'
-    +'<div class="wr"><label>מהירות</label><input type="range" id="wkSpd" min="0.3" max="2" step="0.1" value="'+WK.spd+'"><b id="wkSpdL">×'+WK.spd+'</b></div>';
+  const n=c.shell.n;WK.gaps=n-1;while(WK.ang.length<n-1)WK.ang.push({p:0,y:0,r:0});WK.ang.length=Math.max(0,n-1);const sp=wkSpeed();
+  let h='<div class="wr"><button id="wkPlay" class="btn">'+(WK.play?'עצירה':'הליכה')+'</button><button id="wkReset" class="btn">יישור החוליות</button></div>'
+    +'<div class="wspd"><div class="wbig" id="wkKm"></div><div class="wsm" id="wkMs"></div></div>'
+    +'<div class="wr"><label style="width:auto">מהירות</label><input type="range" id="wkSpd" min="0" max="100" step="1" value="'+wkK2P(sp.req||.1)+'"></div>'
+    +'<div class="wr"><button id="wkMaxB" class="btn">הכי מהר בהליכה איטית</button><button id="wkFour" class="btn"><bdi>4 קמ"ש</bdi></button></div>'
+    +'<div class="wn" id="wkWarn"></div><div class="wn" id="wkStat"></div><div id="wkInfo"></div>'
+    +'<h4>חוליות</h4><div class="wr"><label style="width:auto"><input type="checkbox" id="wkAuto"'+(WK.auto?' checked':'')+'> החוליות זזות תוך כדי הליכה</label></div>';
   if(n<2)h+='<div class="wn">יש רק חוליה אחת, אז אין זוויות בין חוליות. אפשר להגדיל ל-2 חוליות ומעלה.</div>';
   for(let g=0;g<n-1;g++){h+='<h4>מפרק '+(g+1)+' (חוליה '+(g+1)+' עם '+(g+2)+')</h4>';
     [['p','הטיה'],['y','פנייה']].forEach(([k,l])=>{const m=WK_LIM[k];
       h+='<div class="wr"><label>'+l+'</label><input type="range" data-g="'+g+'" data-k="'+k+'" min="'+-m+'" max="'+m+'" step="1" value="'+Math.round(WK.ang[g][k])+'"'+(WK.auto?' disabled':'')+'><b id="wl'+g+k+'">'+walkLab(k,WK.ang[g][k])+'</b></div>'})}
-  h+='<details class="wn"><summary>הסבר</summary>המפרק הוא קרדן: צלב אחד באמצע, 2 מנועים. המנוע העליון מסובב את הצלב ימינה ושמאלה (פנייה), והמנוע בצד מטה את החוליה הקדמית למעלה ולמטה (הטיה). אין גלגול, הקרדן לא מסתובב סביב האורך. מידות הצעד והמהירות להמחשה, לא חישוב.</details>';
-  el.innerHTML=h}
-$('#walkPanel').addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.k){WK.ang[+t.dataset.g][t.dataset.k]=+t.value;$('#wl'+t.dataset.g+t.dataset.k).textContent=walkLab(t.dataset.k,+t.value)}else if(t.id==='wkSpd'){WK.spd=+t.value;$('#wkSpdL').textContent='×'+WK.spd}else if(t.id==='wkAuto'){WK.auto=t.checked;walkPanel(cfg())}});
-$('#walkPanel').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.id==='wkPlay'){WK.play=!WK.play;t.textContent=WK.play?'עצירה':'הליכה'}else if(t.id==='wkReset'){WK.auto=false;WK.ang.forEach(a=>{a.p=a.y=a.r=0});walkPanel(cfg())}});
-document.querySelectorAll('#walkTg button').forEach(b=>b.onclick=()=>{WK.on=b.dataset.w==='1';document.querySelectorAll('#walkTg button').forEach(x=>x.classList.toggle('on',x===b));walkPanel(cfg());WK.last=0;schedule()});
+  h+='<details class="wn"><summary>הסבר על המפרק</summary>המפרק הוא קרדן: צלב אחד באמצע, 2 מנועים. המנוע העליון מסובב את הצלב ימינה ושמאלה (פנייה), והמנוע בצד מטה את החוליה הקדמית למעלה ולמטה (הטיה). אין גלגול, הקרדן לא מסתובב סביב האורך.</details>';
+  el.innerHTML=h;wkSpeedUi();$('#wkInfo').innerHTML=wkInfoHtml()}
+function wkSpeedUi(){const sp=wkSpeed(),k=$('#wkKm');if(!k)return;k.innerHTML='<bdi>'+fmt(sp.eff,2)+' קמ"ש</bdi>';$('#wkMs').textContent=fmt(sp.eff*1000/3600,3)+' מטר לשנייה'+(sp.cap?' (המקסימום של הליכה איטית)':'');
+  const w=$('#wkWarn');w.innerHTML=wkWarnHtml();w.classList.toggle('bad',sp.cap);const sl=$('#wkSpd');if(sl&&document.activeElement!==sl)sl.value=wkK2P(sp.req)}
+$('#walkPanel').addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.k){WK.ang[+t.dataset.g][t.dataset.k]=+t.value;$('#wl'+t.dataset.g+t.dataset.k).textContent=walkLab(t.dataset.k,+t.value)}else if(t.id==='wkSpd'){WK.kmh=Math.round(wkP2K(+t.value)*100)/100;wkSpeedUi()}else if(t.id==='wkAuto'){WK.auto=t.checked;walkPanel(cfg())}});
+$('#walkPanel').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.id==='wkPlay'){WK.play=!WK.play;t.textContent=WK.play?'עצירה':'הליכה'}else if(t.id==='wkReset'){WK.auto=false;WK.ang.forEach(a=>{a.p=a.y=a.r=0});walkPanel(cfg())}
+  else if(t.id==='wkMaxB'){const sp=wkSpeed();WK.kmh=Math.floor(sp.max*100)/100;wkSpeedUi()}else if(t.id==='wkFour'){WK.kmh=4;wkSpeedUi()}});
+document.querySelectorAll('#walkTg button').forEach(b=>b.onclick=()=>{wkSet(b.dataset.w==='1')});
+function wkSet(on){WK.on=on;document.querySelectorAll('#walkTg button').forEach(x=>x.classList.toggle('on',(x.dataset.w==='1')===on));const wb=$('#walkbtn');if(wb){wb.textContent=on?'⏸ עצירת הליכה':'▶ הליכה';wb.classList.toggle('on',on)}walkPanel(cfg());WK.last=0;if(!on)caveOff();schedule()}
+/* ---- cave background, only while the walking simulation runs. A seamless picture (2:1) that scrolls past with the real walking speed. ---- */
+const CAVE={tex:null,par:.8};
+function caveMake(){const W=2048,H=1024,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');let sd=7;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  const wrap=(f)=>{f(0);f(-W);f(W)};
+  let gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#17120f');gr.addColorStop(.45,'#4a3a2c');gr.addColorStop(.8,'#34281f');gr.addColorStop(1,'#1d1611');g.fillStyle=gr;g.fillRect(0,0,W,H);
+  for(let i=0;i<260;i++){const x=rnd()*W,y=rnd()*H,rx=40+rnd()*140,ry=18+rnd()*60,a=.04+rnd()*.08,l=rnd()<.5;g.fillStyle=l?'rgba(190,150,105,'+a+')':'rgba(10,6,4,'+a*1.4+')';wrap(o=>{g.beginPath();g.ellipse(x+o,y,rx,ry,0,0,7);g.fill()})}
+  for(let i=0;i<34;i++){const y=H*.18+rnd()*H*.62,a=.05+rnd()*.07;g.strokeStyle='rgba(20,12,8,'+a+')';g.lineWidth=1+rnd()*3;g.beginPath();for(let x=0;x<=W;x+=64){const yy=y+Math.sin(x/W*Math.PI*2*(1+(i%3))+i)*(6+rnd()*10);x?g.lineTo(x,yy):g.moveTo(x,yy)}g.stroke()}
+  g.fillStyle='rgba(255,205,140,.10)';wrap(o=>{g.beginPath();g.ellipse(W*.5+o,H*.42,320,180,0,0,7);g.fill()});
+  const drip=(x,len,wd,dir,col)=>{g.fillStyle=col;wrap(o=>{g.beginPath();const y0=dir>0?0:H;g.moveTo(x-wd+o,y0);g.lineTo(x+wd+o,y0);g.lineTo(x+(rnd()-.5)*wd*.6+o,y0+dir*len);g.closePath();g.fill()})};
+  for(let i=0;i<46;i++)drip(rnd()*W,60+rnd()*200,14+rnd()*34,1,'#120d0a');
+  for(let i=0;i<38;i++)drip(rnd()*W,50+rnd()*170,16+rnd()*40,-1,'#161009');
+  for(let i=0;i<9;i++){const x=rnd()*W,w=26+rnd()*26;g.fillStyle='#2a1f17';wrap(o=>g.fillRect(x-w/2+o,0,w,H*.5+rnd()*0));g.fillStyle='rgba(255,220,170,.06)';wrap(o=>g.fillRect(x-w/2+o,0,6,H))}
+  g.fillStyle='rgba(8,5,3,.55)';g.fillRect(0,H*.9,W,H*.1);
+  const tx=new THREE.CanvasTexture(cv);tx.wrapS=THREE.RepeatWrapping;tx.wrapT=THREE.ClampToEdgeWrapping;tx.encoding=THREE.sRGBEncoding;tx.generateMipmaps=false;tx.minFilter=THREE.LinearFilter;return tx}
+function caveOn(){if(!CAVE.tex)CAVE.tex=caveMake();scene.background=CAVE.tex}
+function caveOff(){scene.background=null}
+/* offset from the walked distance: the picture is 2:1, the screen shows (aspect/2) of it; at the tool's distance the screen is viewW mm wide */
+function caveScroll(){const tx=CAVE.tex;if(!tx)return;const asp=cam.aspect||1.6,dist=cam.position.distanceTo(oc.target),viewW=2*dist*Math.tan(cam.fov*DEG/2)*asp;
+  tx.repeat.set(Math.min(1,asp/2),1);const texW=viewW/tx.repeat.x;tx.offset.x=(((WK.cave*CAVE.par/texW)%1)+1)%1;tx.updateMatrix()}
 function walkBuild(c){
   const clear=clearAt(c,0),r=fillTool(root,c,0,{bad:badSet(c),walk:true,noShell:V.frame,hide:!!V.hide}),segs=r.segs,n=segs.length;
   if(WK.gaps!==n-1)walkPanel(c);
@@ -2235,12 +2317,18 @@ function walkBuild(c){
   for(let i=0;i<c.legs.count;i++){const h=hipItem(c,i),pz=legPose(c,i,0);if(!h||!pz)continue;const si=segIdx(c,h.seg),ki=c.items.find(x=>x.auto==='knee'&&x.leg===i);
     const mk=(geo,m)=>{const o=new THREE.Mesh(geo,m);G[si].add(o);return o};
     const kn=mk(new THREE.CylinderGeometry(lm.dims[0]/2,lm.dims[0]/2,lm.dims[1],24),new THREE.MeshStandardMaterial({color:ki?colOf(ki):0x8b919c,roughness:.6}));kn.rotation.x=Math.PI/2;
-    WK.legs.push({si,pz,th,dir:pz.dir,T:c.legs.thigh,Sn:c.legs.shin,ph:(((pz.hip[0]>0?1:0)+(h.side>0?1:0))%2)*.5,a:mk(new THREE.BoxGeometry(th,1,th),bm),b:mk(new THREE.BoxGeometry(th,1,th),bm),f:mk(rrGeo(th+2,CAP+4,th+2,5),SMAT.rubber),k:kn})}
+    WK.legs.push({si,pz,th,dir:pz.dir,T:c.legs.thigh,Sn:c.legs.shin,a:mk(new THREE.BoxGeometry(th,1,th),bm),b:mk(new THREE.BoxGeometry(th,1,th),bm),f:mk(rrGeo(th+2,CAP+4,th+2,5),SMAT.rubber),k:kn})}
+  WK.plan=gaitFor(c,WK.legs);wkSpeedUi();const wi=$('#wkInfo');if(wi)wi.innerHTML=wkInfoHtml();
   return{segs,clear}}
 const _wv=new THREE.Vector3(),_wm=new THREE.Matrix4();
 function walkBar(m,a,b){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B)||1;m.position.copy(A).add(B).multiplyScalar(.5);m.scale.set(1,L,1);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize())}
+/* where every foot is at gait phase ph (0..1 of a cycle): o = foot distance from its hip along the walking direction, lift = height. B = body place. */
+function gaitAt(P,ph,tc){const n=P.n,x=ph*n,k=Math.min(n-1,Math.floor(x)),u=x-k,r=P.cyc[k],fs=P.fs,o=r.o0.slice(),lift=new Array(n).fill(0),ez=q=>q*q*(3-2*q);let B,mode;
+  if(u<fs){const e=ez(u/fs);B=r.B0+(r.B1-r.B0)*e;for(let j=0;j<n;j++)o[j]=r.o0[j]-(B-r.B0);mode='slide'}
+  else{const s=(u-fs)/(1-fs),e=ez(s);B=r.B1;for(let j=0;j<n;j++)o[j]=r.oS[j];o[r.leg]=r.oS[r.leg]+(r.o1[r.leg]-r.oS[r.leg])*e;lift[r.leg]=GAIT.LIFT*Math.sin(Math.PI*s);mode='swing'}
+  return{o,lift,B,k,mode,rec:r}}
 function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.last)/1000):0;WK.last=now;const c=WK.c;if(!c||!WK.seg.length)return;
-  WK.t+=dt*WK.spd;
+  WK.t+=dt;
   if(WK.auto)WK.ang.forEach((a,g)=>{a.p=WK_LIM.p*.55*Math.sin(WK.t*.9+g*1.3);a.y=WK_LIM.y*.55*Math.sin(WK.t*.6+g*.8+1);a.r=0});
   const M=[new THREE.Matrix4()];
   WK.J.forEach((J,g)=>{const a=WK.ang[g]||{p:0,y:0,r:0},Ry=new THREE.Matrix4().makeRotationY(a.y*DEG),Rz=new THREE.Matrix4().makeRotationZ(a.p*DEG),T=new THREE.Matrix4().makeTranslation(J.x,J.y,J.z),Ti=new THREE.Matrix4().makeTranslation(-J.x,-J.y,-J.z);
@@ -2250,13 +2338,22 @@ function wkTick(){const now=performance.now(),dt=WK.last?Math.min(.05,(now-WK.la
   WK.seg.forEach((s,i)=>{s.matrix.copy(M[i]);s.matrixWorldNeedsUpdate=true});
   /* walking direction on the floor = average of the segments' forward directions */
   const d=new THREE.Vector3();M.forEach(m=>{_wv.set(1,0,0).transformDirection(m);d.x+=_wv.x;d.z+=_wv.z});if(d.lengthSq()<1e-4)d.set(1,0,0);d.y=0;d.normalize();
-  const vg=WK_S/(WK_DUTY*WK_T);
-  if(WK.play&&WK.grid){WK.grid.position.addScaledVector(d,-vg*dt*WK.spd);const w=50;WK.grid.position.x=((WK.grid.position.x%w)+w)%w;WK.grid.position.z=((WK.grid.position.z%w)+w)%w}
-  WK.legs.forEach(L=>{const Mi=M[L.si],hw=new THREE.Vector3(...L.pz.hip).applyMatrix4(Mi);
-    let off=0,lift=0;if(WK.play){const u=(WK.t/WK_T+L.ph)%1;if(u<WK_DUTY){off=WK_S/2-WK_S*(u/WK_DUTY)}else{const s=(u-WK_DUTY)/(1-WK_DUTY);off=-WK_S/2+WK_S*s;lift=WK_LIFT*Math.sin(Math.PI*s)}}
+  const P=WK.plan;
+  if(!P){WK.legs.forEach(L=>{const Mi=M[L.si],hw=new THREE.Vector3(...L.pz.hip).applyMatrix4(Mi),tl=new THREE.Vector3(hw.x,0,hw.z).applyMatrix4(_wm.copy(Mi).invert()),z=L.pz.hip[2],hp=L.pz.hip,k=ik([hp[0],hp[1]],[tl.x,tl.y],L.T,L.Sn,L.dir);
+      walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)});caveOn();caveScroll();return}
+  const sp=wkSpeed(),tcyc=P.adv/MMS(Math.max(sp.eff,.001));
+  let g0=gaitAt(P,WK.ph),prevPos=WK.pos;
+  if(WK.play){const ph0=WK.ph;WK.ph+=dt/tcyc;let cyclesDone=0;while(WK.ph>=1){WK.ph-=1;cyclesDone++}g0=gaitAt(P,WK.ph);
+    WK.pos=(WK.cyc=(WK.cyc||0)+cyclesDone)*P.adv+(g0.B-P.cyc[0].B0);WK.cave+=MMS(sp.eff)*dt}
+  const dp=WK.pos-prevPos;
+  if(dp&&WK.grid){WK.grid.position.addScaledVector(d,-dp);const w=50;WK.grid.position.x=((WK.grid.position.x%w)+w)%w;WK.grid.position.z=((WK.grid.position.z%w)+w)%w}
+  WK.legs.forEach((L,li)=>{const Mi=M[L.si],hw=new THREE.Vector3(...L.pz.hip).applyMatrix4(Mi),off=g0.o[li],lift=g0.lift[li];
     const tw=new THREE.Vector3(hw.x+d.x*off,lift,hw.z+d.z*off),tl=tw.applyMatrix4(_wm.copy(Mi).invert()),z=L.pz.hip[2],hp=L.pz.hip;
     const k=ik([hp[0],hp[1]],[tl.x,tl.y],L.T,L.Sn,L.dir);
-    walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)})}
+    walkBar(L.a,hp,[k[0],k[1],z]);walkBar(L.b,[k[0],k[1],z],[tl.x,tl.y,z]);L.k.position.set(k[0],k[1],z);L.f.position.set(tl.x,tl.y+L.th/2+2,z)});
+  caveOn();caveScroll();
+  const st=$('#wkStat');if(st){const lg=P.order[g0.k],txt=g0.mode==='slide'?'שלב '+(g0.k+1)+' מתוך '+P.n+': הגוף מחליק על הרגליים שעומדות, כל הרגליים על הקרקע. הרגל הבאה להרמה: '+WK_NAME(P,lg)+'.':'שלב '+(g0.k+1)+' מתוך '+P.n+': מרימים ומעבירים קדימה רגל '+WK_NAME(P,lg)+'. שלוש רגליים על הקרקע.';
+    const full=txt+' דרך שעברנו: '+fmt(WK.pos/1000,2)+' מטר.';if(full!==WK.statTxt){WK.statTxt=full;st.textContent=full}}}
 /* 19.11 (Sharon: the 3D got stuck on every change): the frame search is the slow part. It is cached per configuration, and while the mouse or finger
    is down (dragging a part, a handle or a slider) the last frame stays on screen and only follows the moved parts (frameFollow); the full frame
    is worked out again when the pointer is released. */
@@ -3068,10 +3165,10 @@ function openSight(){const c=cfg();if(!(V.mode==='3d'||V.mode==='win')){/* the r
     let first=true;r.oninput=()=>{if(first){snap();first=false}c.docAim=+r.value;upd();build3D()};r.onchange=()=>{save();first=true};bs.onchange=upd;upd()}}
 $('#freebtn').onclick=e=>{V.free=!V.free;e.currentTarget.setAttribute('aria-pressed',V.free?'true':'false');e.currentTarget.classList.toggle('on',V.free);toast(V.free?'מצב חופשי: אין הצמדה וחסימה':'חזרה להצמדה')};
 $('#walkbtn').onclick=()=>{const c=cfg();
-  if(WALK.on){walkStop();return}
+  if(WK.on){wkSet(false);return}
   if(!c.legs.count){toast('אין רגליים בקונפיגורציה');return}
   if(c.legs.stance==='fold'){toast('הכלי מקופל. עברי ל"עומד" כדי לראות הליכה');return}
-  WALK.on=true;WALK.t=performance.now();$('#walkbtn').textContent='⏸ עצירה';$('#walkbtn').classList.add('on');walkTick()};
+  WK.play=true;wkSet(true)}; /* 23.11: the walk button now starts the same walking simulation (slide gait, speed in km/h, cave background) */
 document.querySelectorAll('#stance button').forEach(b=>b.onclick=()=>{const c=cfg();if(c.legs.stance===b.dataset.s)return;snap();c.legs.stance=b.dataset.s;save();refresh(true)});
 document.querySelectorAll('#viewseg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 function renderStrip(){
@@ -3278,6 +3375,17 @@ function simPreset(p){const c={id:uid(),name:p.name,shell:{n:2,per:true,segs:p.s
   syncMotors(c);c.items.filter(i=>i.role==='hip').forEach(h=>{const q=p.hips.find(x=>x[0]===h.seg);if(!q)return;const e=ext(h),sg=shellOf(c)[h.seg];h.pos=[q[1],q[2],h.side*(sg.wid/2-e[2]/2)];h.manual=true});
   layout(c);return c}
 if(!S.sim1911){S.sim1911=true;SIM_PRESETS.forEach(p=>{p.items=boxFix(p.items);try{S.configs.push(simPreset(p))}catch(e){console.error('preset',p.key,e)}});save()}
+const CFG12={name:"קונפיגורציה 12 (מהסימולציה)",segs:[{len:282,wid:194,hei:144},{len:113,wid:194,hei:144}],gap:92,hips:[[0,-135.5,26],[1,165.5,26]],items:[{"cid":"computer","pos":[-120.07,113,51],"rot":[0,0,0]},{"cid":"ebox","pos":[-124.07,124,-30],"rot":[0,0,0]},{"cid":"radar","pos":[-237.62,57,52],"rot":[0,0,0]},{"cid":"radar","pos":[237.62,40,-56],"rot":[0,0,0]},{"cid":"lidar","pos":[236.97,53,59],"rot":[0,0,1]},{"cid":"navcam","pos":[-226.52,116.0,22],"rot":[0,1,0]},{"cid":"navcam","pos":[226.53,116.0,22],"rot":[0,1,0]},{"cid":"cliff","pos":[-210.5,8,-77],"rot":[0,1,0]},{"cid":"cliff","pos":[-210.5,8,76],"rot":[0,1,0]},{"cid":"cliff","pos":[214.45,7,-72],"rot":[0,1,0]},{"cid":"cliff","pos":[214.45,8,71],"rot":[0,1,0]},{"cid":"imu","pos":[228.5,91,0],"rot":[0,0,0]},{"cid":"doccam","pos":[278.5,205,-86],"rot":[0,1,0]},{"cid":"doccam","pos":[278.5,205,-44],"rot":[0,1,0]},{"cid":"thermal","pos":[-228.5,117.0,-63],"rot":[0,1,0]},{"cid":"thermal","pos":[228.5,117.0,-63],"rot":[0,1,0]},{"cid":"gimbal","pos":[254.5,205,-65],"rot":[0,1,0]},{"cid":"battery","pos":[-11.5,71,0],"rot":[0,1,1]},{"cid":"drivelight","pos":[-235.0,59,-2],"rot":[0,0,1]},{"cid":"drivelight","pos":[235.0,59,-2],"rot":[0,0,1]},{"cid":"doclight","pos":[178.45,97.3,-110],"rot":[0,0,1]},{"cid":"doclight","pos":[178.45,97.3,106],"rot":[0,0,1]},{"cid":"amber","pos":[-228.0,145.5,-78],"rot":[0,0,0]},{"cid":"o2","pos":[154.5,121,-39.52],"rot":[0,0,0]},{"cid":"co2","pos":[154.5,121,-55.52],"rot":[0,0,0]},{"cid":"estop","pos":[-198.0,146.3,-80],"rot":[0,0,0]},{"cid":"buzzer","pos":[-231.85,117.0,-95],"rot":[1,0,0]},{"cid":"irled","pos":[241.5,126,-85],"rot":[0,0,0]},{"cid":"pdu","pos":[-119.93,89,-22],"rot":[0,0,0],"dims":[105,36,55]},{"cid":"netconv","pos":[-174.65,47.25,0],"rot":[0,0,0]},{"cid":"fo1","pos":[-188.65,29.75,0],"rot":[0,0,1]}]};
+/* 23.11 (Sharon): configuration 12 from the configurations simulation (cfg12-2026-11-23.json), added once as a normal configuration.
+   Sim x (joint centre = 0) -> dashboard x = sim x + 84.5 (the shell is centred: rear segment 282, joint gap 92, front segment 113 mm; frame 487 x 194 x 144 as in the sim).
+   Part positions and turns are the sim's own; the enclosures of the sim are not imported (the dashboard has no enclosure object, only the electronics box).
+   Legs: thigh = shin = 70 mm (my choice, legs of about 14 cm; the sim drew a schematic leg), knees out. Sheet-metal frame = the dashboard's realistic frame (default on). */
+function cfg12Config(){const p=CFG12,c={id:uid(),name:p.name,shell:{n:2,per:true,segs:p.segs.map(q=>({...q})),total:0,wid:194,hei:144,gap:p.gap,gAt:'front',gArm:0,steps:true,lOut:30},
+    legs:{count:4,stance:'stand',per:[1,1],thigh:70,shin:70,thick:20,knee:'out'},items:[],orient4:true,radar1:true,docAim:48,sim:'12'};syncTotal(c);
+  p.items.forEach(i=>{const it=newItem(i.cid,{pos:i.pos.slice(),rot:i.rot.slice(),manual:true});if(i.dims)it.dims=i.dims.slice();it.keep=true;c.items.push(it)});
+  syncMotors(c);c.items.filter(i=>i.role==='hip').forEach(h=>{const q=p.hips.find(x=>x[0]===h.seg);if(!q)return;const e=ext(h),sg=shellOf(c)[h.seg];h.pos=[q[1],q[2],h.side*(sg.wid/2-e[2]/2)];h.manual=true});
+  layout(c);return c}
+if(!S.cfg12){S.cfg12=true;try{S.configs.push(cfg12Config())}catch(e){console.error('cfg12',e)}save()}
 if(FRESH)S.configs.forEach(c=>growIfNeeded(c,false)); // first visit: lay out again now that the engineering rules are loaded
 loadUI();renderVopts();setMode(V.mode,true);
 /* ---------- stage 4: component card drawer, small 3D shapes, show in model, true size 1:1, glossary ---------- */
